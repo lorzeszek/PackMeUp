@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="PackMeUp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:PackMeUp"
+    Shell.FlyoutBehavior="Disabled"
+    xmlns:views="clr-namespace:PackMeUp.Views"
+    Title="PackMeUp">
+
+    <!--pierwsza strona w aplikacji-->
+    <!--<ShellContent Title="Trips" ContentTemplate="{DataTemplate views:TripListPage}" Route="triplist" />-->
+
+    <ShellContent
+        Title="Welcome"
+        ContentTemplate="{DataTemplate views:WelcomePage}"
+        Route="welcome" />
+
+    <!-- To są tylko ukryte trasy, nie będą widoczne w menu -->
+    <!--<ShellContent
+        ContentTemplate="{DataTemplate views:TripListPage}"
+        Route="triplist"
+        IsVisible="False" />
+
+    <ShellContent
+        ContentTemplate="{DataTemplate views:PackingListPage}"
+        Route="packinglist"
+        IsVisible="False" />-->
+
+</Shell>
