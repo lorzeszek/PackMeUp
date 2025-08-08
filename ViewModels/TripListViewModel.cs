@@ -1,15 +1,14 @@
-﻿using PackMeUp.Models;
+﻿using PackMeUp.Extensions;
+using PackMeUp.Models;
 using PackMeUp.Services;
 using PackMeUp.Views;
-using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
 {
-    public class TripListViewModel : BaseViewModel
+    public partial class TripListViewModel : BaseViewModel
     {
-        private ObservableCollection<Trip> _trips = new();
-        public ObservableCollection<Trip> Trips { get => _trips; set { SetProperty(ref _trips, value); } }
+        public ObservableRangeCollection<Trip> Trips { get; } = new();
 
         public ICommand AddTripCommand { get; }
         public ICommand RefreshCommand { get; }
@@ -36,8 +35,12 @@ namespace PackMeUp.ViewModels
             if (trip == null)
                 return;
 
-            await Shell.Current.GoToAsync($"{nameof(PackingListPage)}?tripId={trip.Id}");
-            //await Shell.Current.GoToAsync($"packinglist?tripId={trip.Id}");
+            //await Shell.Current.GoToAsync($"{nameof(PackingListPage)}?tripId={trip.Id}");
+
+            await Shell.Current.GoToAsync(nameof(PackingListPage), new Dictionary<string, object>
+            {
+                ["tripId"] = trip.Id
+            });
         }
 
         //private void AddTrip()
@@ -74,24 +77,21 @@ namespace PackMeUp.ViewModels
             try
             {
                 IsBusy = true;
+                IsRefreshing = true;
 
                 var response = await _supabase.Client.From<Trip>().Select("*, Items:PackingItem(*)").Get();
 
-
-                if (response.Models.Count != 0)
-                {
-                    Trips.Clear();
-
-                    Trips = new ObservableCollection<Trip>();
-
-                    response.Models.ForEach(x => Trips.Add(new Trip
+                var loadedTrips = response.Models
+                    .Select(x => new Trip
                     {
                         Id = x.Id,
                         Name = x.Name,
                         Items = x.Items,
                         CreatedDate = x.CreatedDate,
-                    }));
-                }
+                    })
+                    .ToList();
+
+                Trips.ReplaceRange(loadedTrips);
             }
             finally
             {

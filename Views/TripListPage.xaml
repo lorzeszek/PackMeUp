@@ -6,31 +6,8 @@
              xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
              Title="{Binding Title}">
 
-    <!--<ContentPage.BindingContext>
-        <viewmodels:TripListViewModel />
-    </ContentPage.BindingContext>-->
-
     <StackLayout Padding="10" Spacing="10">
-
-        <!-- Activity Indicator --><!--
-        <ActivityIndicator IsRunning="{Binding IsBusy}" 
-                           IsVisible="{Binding IsBusy}" 
-                           Color="DarkBlue"
-                           HeightRequest="30" />-->
-
-        <!-- Lista wycieczek z PullToRefresh -->
         <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
-            <!--<CollectionView ItemsSource="{Binding Trips}" SelectionMode="Single"
-                            SelectionChanged="OnTripSelected">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame Padding="10" Margin="5" BackgroundColor="#eee">
-                            <Label Text="{Binding Name}" FontSize="18" />
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>-->
-
             <CollectionView ItemsSource="{Binding Trips}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>

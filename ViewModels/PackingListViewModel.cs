@@ -1,70 +1,21 @@
-﻿using PackMeUp.Models;
+﻿using PackMeUp.Extensions;
+using PackMeUp.Models;
 using PackMeUp.Services;
-using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
 {
-    public class PackingListViewModel : BaseViewModel
+    public partial class PackingListViewModel : BaseViewModel
     {
-        //public Trip Trip { get; }
-        //public ObservableCollection<PackingItem> Items { get; set; }
-
-        //public ICommand AddItemCommand { get; }
-
-        //public PackingListViewModel(Trip trip)
-        //{
-        //    Title = $"Lista pakowania: {trip.Name}";
-        //    Trip = trip;
-        //    Items = new ObservableCollection<PackingItem>(trip.Items);
-        //    AddItemCommand = new Command(AddItem);
-        //}
-
-        //private void AddItem()
-        //{
-        //    var item = new PackingItem { Name = "Nowy przedmiot", Category = Category.Other };
-        //    Items.Add(item);
-        //    Trip.Items.Add(item);
-        //}
-        //private Trip trip;
-        //public Trip Trip
-        //{
-        //    get => trip;
-        //    set => SetProperty(ref trip, value);
-        //}
-
+        private bool _isSubscribed = false;
         private int _tripId { get; set; }
 
-
-        private ObservableCollection<PackingItem> _items = new();
-        public ObservableCollection<PackingItem> Items { get => _items; set { SetProperty(ref _items, value); } }
-
-        public ICommand AddItemCommand { get; }
-
-        //private readonly ITripService _tripService;
-
-        //public PackingListViewModel(ITripService tripService)
-        //{
-        //    _tripService = tripService;
-        //    AddItemCommand = new Command(AddItem);
-        //}
-
-        //public PackingListViewModel(ITripService tripService)
-        //{
-        //    _tripService = tripService;
-        //    AddItemCommand = new Command(AddItem);
-        //}
+        public ObservableRangeCollection<PackingItem> Items { get; } = new();
+        public ICommand AddItemCommand => new Command(async () => await Task.Run(() => AddItemAsync("new item")));
 
         public PackingListViewModel(ISupabaseService supabase) : base(supabase)
         {
-            AddItemCommand = new Command(async () => await Task.Run(() => AddItemAsync("new item")));
         }
-
-        //public PackingListViewModel(Guid id)
-        //{
-        //    //_tripService = tripService;
-        //    AddItemCommand = new Command(AddItem);
-        //}
 
         public async Task LoadTripItemsAsync(string tripId)
         {
@@ -76,16 +27,10 @@ namespace PackMeUp.ViewModels
             {
                 IsBusy = true;
 
-                //var response = await _supabase.Client.From<PackingItem>().Select("*").Get();
                 var response = await _supabase.Client.From<PackingItem>().Where(x => x.TripId == _tripId).Get();
 
-                if (response.Models.Count != 0)
-                {
-                    Items.Clear();
-
-                    Items = new ObservableCollection<PackingItem>();
-
-                    response.Models.ForEach(x => Items.Add(new PackingItem
+                var loadedItems = response.Models
+                    .Select(x => new PackingItem
                     {
                         Id = x.Id,
                         TripId = x.TripId,
@@ -94,96 +39,117 @@ namespace PackMeUp.ViewModels
                         Category = x.Category,
                         CreatedDate = x.CreatedDate,
                         ModifiedDate = x.ModifiedDate,
-                    }));
-                }
+                    })
+                    .ToList();
+
+                Items.ReplaceRange(loadedItems);
             }
             finally
             {
                 IsBusy = false;
                 IsRefreshing = false;
             }
-
-            //IsBusy = true;
-            //try
-            //{
-            //    //Trip = await _tripService.GetTripByIdAsync(tripId);
-
-            //    Trip = new Trip { Id = int.Parse(tripId), Name = "Przykładowa wycieczka" }; // tymczasowe dane
-            //    Items.Clear();
-            //    //foreach (var item in Trip.Items)
-            //    //    Items.Add(item);
-
-            //    Items.Add(new PackingItem { Name = "Przykładowy przedmiot 1", Category = 1 });
-            //    Items.Add(new PackingItem { Name = "Przykładowy przedmiot 2", Category = 2 });
-
-            //    Title = $"Lista pakowania: {Trip.Name}";
-            //}
-            //finally
-            //{
-            //    IsBusy = false;
-            //}
         }
-
-        //private void AddItem()
-        //{
-        //    var item = new PackingItem { Name = "Nowy przedmiot", Category = 3 };
-        //    Items.Add(item);
-        //    //Trip.Items.Add(item);
-        //    // tutaj możesz też od razu zapisać zmiany do bazy
-        //}
 
         private async Task AddItemAsync(string newItemName)
         {
             if (!string.IsNullOrEmpty(newItemName))
             {
-                var newItem = new PackingItem { Name = "Nowy przedmiot", Category = 3, TripId = _tripId };
+                var newItem = new PackingItem { Name = newItemName, Category = 3, TripId = _tripId };
 
-                PackingItem? existingItem = await CheckItemExist(newItemName);
+                bool itemExists = await CheckItemExist(newItemName);
 
-                if (existingItem != null)
+                if (itemExists)
                 {
-                    if (existingItem.IsPacked)
-                    {
-                        existingItem.IsPacked = false;
-                    }
-                    //else
+                    //if (itemExists.IsPacked)
                     //{
-                    //    existingItem.ItemCount++;
+                    //    itemExists.IsPacked = false;
                     //}
+                    ////else
+                    ////{
+                    ////    existingItem.ItemCount++;
+                    ////}
 
-                    var updateResponse = await _supabase.Client
-                    .From<PackingItem>()
-                    .Update(existingItem);
+                    //var updateResponse = await _supabase.Client
+                    //.From<PackingItem>()
+                    //.Update(itemExists);
                 }
                 else
                 {
-                    var response = await _supabase.Client
+                    await _supabase.Client
                     .From<PackingItem>()
                     .Insert(newItem);
                 }
-
-                //await LoadListItemsAsync(selectedShoppingListId);
-
-                //MainThread.BeginInvokeOnMainThread(async () =>
-                //{
-                //    await LoadListItemsAsync(selectedShoppingListId);
-                //});
             }
         }
 
-        private async Task<PackingItem?> CheckItemExist(string newItemName)
+        private async Task<bool> CheckItemExist(string newItemName)
         {
             try
             {
                 var response = await _supabase.Client.From<PackingItem>().Where(x => x.TripId == _tripId).Get();
 
-                return response?.Models?.FirstOrDefault(x => x.Name == newItemName);
+                if (response.Models == null || !response.Models.Any())
+                    return false;
+
+                return response.Models.Any(x => x.Name == newItemName);
             }
             catch (Exception ex)
             {
             }
 
-            return null;
+            return false;
+        }
+
+        public async Task InitializeRealtimeAsync()
+        {
+            if (_supabase.Client == null)
+                throw new Exception("Supabase Client is not initialized");
+
+            if (!_isSubscribed)
+            {
+                await _supabase.Client
+                    .From<PackingItem>()
+                    .On(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Inserts, async (sender, args) =>
+                    {
+                        var newItem = args.Model<PackingItem>();
+
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            Items.Add(newItem);
+                        });
+
+                        await Task.CompletedTask;
+                    });
+
+                _isSubscribed = true;
+            }
+
+            IsBusy = true;
+
+            try
+            {
+                var response = await _supabase.Client
+                    .From<PackingItem>()
+                    .Where(x => x.TripId == _tripId)
+                    .Get();
+
+                Items.ReplaceRange(response.Models);
+            }
+            finally
+            {
+                IsBusy = false;
+                IsRefreshing = false;
+            }
+        }
+
+        protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
+        {
+            if (query.TryGetValue("tripId", out var tripIdObj))
+            {
+                _tripId = Convert.ToInt32(tripIdObj);
+                await InitializeRealtimeAsync();
+            }
         }
     }
 }

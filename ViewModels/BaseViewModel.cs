@@ -1,52 +1,79 @@
-﻿using PackMeUp.Services;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PackMeUp.Services;
 
 namespace PackMeUp.ViewModels
 {
-    public class BaseViewModel : INotifyPropertyChanged
+    public abstract partial class BaseViewModel : ObservableObject, IQueryAttributable //: INotifyPropertyChanged
     {
         protected readonly ISupabaseService _supabase;
+
+        [ObservableProperty]
+        private bool isBusy;
+
+        [ObservableProperty]
+        private string title;
+
+        [ObservableProperty]
+        private bool isRefreshing;
+
 
         public BaseViewModel(ISupabaseService supabase)
         {
             _supabase = supabase;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
-        protected bool SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = null)
+        /// <summary>
+        /// Shell wywoła tę metodę przy wejściu na stronę z parametrami.
+        /// </summary>
+        public async void ApplyQueryAttributes(IDictionary<string, object> query)
         {
-            if (EqualityComparer<T>.Default.Equals(backingStore, value))
-                return false;
-
-            backingStore = value;
-            OnPropertyChanged(propertyName);
-            return true;
+            await OnNavigatedToAsync(query);
         }
 
-        private bool isBusy = false;
-        public bool IsBusy
+        /// <summary>
+        /// Odpowiednik Prismowego OnNavigatedTo, nadpisuj w swoich ViewModelach.
+        /// </summary>
+        protected virtual Task OnNavigatedToAsync(IDictionary<string, object> query)
         {
-            get => isBusy;
-            set => SetProperty(ref isBusy, value);
+            // domyślnie nic nie robi
+            return Task.CompletedTask;
         }
 
-        private bool isRefreshing;
-        public bool IsRefreshing
-        {
-            get => isRefreshing;
-            set => SetProperty(ref isRefreshing, value);
-        }
+        //public event PropertyChangedEventHandler PropertyChanged;
 
-        private string title = string.Empty;
-        public string Title
-        {
-            get => title;
-            set => SetProperty(ref title, value);
-        }
+        //protected void OnPropertyChanged([CallerMemberName] string name = null)
+        //    => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        //protected bool SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = null)
+        //{
+        //    if (EqualityComparer<T>.Default.Equals(backingStore, value))
+        //        return false;
+
+        //    backingStore = value;
+        //    OnPropertyChanged(propertyName);
+        //    return true;
+        //}
+
+        //private bool isBusy = false;
+        //public bool IsBusy
+        //{
+        //    get => isBusy;
+        //    set => SetProperty(ref isBusy, value);
+        //}
+
+        //private bool isRefreshing;
+        //public bool IsRefreshing
+        //{
+        //    get => isRefreshing;
+        //    set => SetProperty(ref isRefreshing, value);
+        //}
+
+        //private string title = string.Empty;
+        //public string Title
+        //{
+        //    get => title;
+        //    set => SetProperty(ref title, value);
+        //}
+
     }
 }

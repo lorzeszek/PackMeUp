@@ -1,14 +1,16 @@
-﻿namespace PackMeUp
+﻿using PackMeUp.Services;
+
+namespace PackMeUp
 {
     public partial class App : Application
     {
-        public App()
+        public App(ISupabaseService supabaseService)
         {
             InitializeComponent();
 
             MainPage = new AppShell();
 
-            //Shell.Current.GoToAsync("welcome");
+            Task.Run(async () => await supabaseService.InitializeAsync());
         }
     }
 }

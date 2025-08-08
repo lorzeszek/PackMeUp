@@ -13,7 +13,7 @@
 
             _client = new Supabase.Client(url, apiKey, new Supabase.SupabaseOptions
             {
-                AutoConnectRealtime = true
+                AutoConnectRealtime = true,
             });
         }
 

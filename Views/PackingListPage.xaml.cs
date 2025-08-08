@@ -2,7 +2,7 @@ using PackMeUp.ViewModels;
 
 namespace PackMeUp.Views;
 
-public partial class PackingListPage : ContentPage, IQueryAttributable
+public partial class PackingListPage : ContentPage//, IQueryAttributable
 {
     private readonly PackingListViewModel _viewModel;
 
@@ -13,13 +13,27 @@ public partial class PackingListPage : ContentPage, IQueryAttributable
         BindingContext = _viewModel;
     }
 
-    public void ApplyQueryAttributes(IDictionary<string, object> query)
-    {
-        if (query.TryGetValue("tripId", out var tripIdObj) && tripIdObj is string tripId)
-        {
-            _ = _viewModel.LoadTripItemsAsync(tripId);
-        }
-    }
+    //public async void ApplyQueryAttributes(IDictionary<string, object> query)
+    //{
+    //    if (query.TryGetValue("tripId", out var tripIdObj) && tripIdObj is string tripId)
+    //    {
+    //        await _viewModel.InitializeRealtimeAsync(tripId);
+    //    }
+    //}
+
+    //public void ApplyQueryAttributes(IDictionary<string, object> query)
+    //{
+    //    if (query.TryGetValue("tripId", out var tripIdObj) && tripIdObj is string tripId)
+    //    {
+    //        _ = _viewModel.InitializeRealtimeAsync(tripId);
+    //    }
+    //}
+
+    //protected override async void OnAppearing()
+    //{
+    //    base.OnAppearing();
+    //    await _viewModel.InitializeRealtimeAsync();
+    //}
 
     private async void OnBackButtonClicked(object sender, EventArgs e)
     {
