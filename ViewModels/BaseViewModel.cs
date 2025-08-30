@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PackMeUp.Services;
+using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
 {
@@ -16,11 +17,14 @@ namespace PackMeUp.ViewModels
         [ObservableProperty]
         private bool isRefreshing;
 
-
         public BaseViewModel(ISupabaseService supabase)
         {
             _supabase = supabase;
+
+            RefreshCommand = new Command(async () => await ExecuteRefreshCommand());
         }
+
+        public virtual ICommand RefreshCommand { get; }
 
         /// <summary>
         /// Shell wywoła tę metodę przy wejściu na stronę z parametrami.
@@ -37,6 +41,19 @@ namespace PackMeUp.ViewModels
         {
             // domyślnie nic nie robi
             return Task.CompletedTask;
+        }
+
+        protected virtual async Task ExecuteRefreshCommand()
+        {
+            try
+            {
+                IsRefreshing = true;
+                await Task.Delay(500); // symulacja odświeżania
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
 
         //public event PropertyChangedEventHandler PropertyChanged;

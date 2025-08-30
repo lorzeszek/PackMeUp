@@ -49,14 +49,15 @@ public partial class PackingListPage : ContentPage//, IQueryAttributable
         await _viewModel.DisposeRealtimeAsync();
     }
 
-    private void OnNewItemCompleted(object sender, EventArgs e)
-    {
-        if (BindingContext is PackingListViewModel vm)
-        {
-            vm.AddItemCommand.Execute(NewItemEntry.Text);
-            NewItemEntry.Text = string.Empty;
-        }
-    }
+    //private void OnNewItemCompleted(object sender, EventArgs e)
+    //{
+    //    if (BindingContext is PackingListViewModel vm)
+    //    {
+    //        vm.AddItemCommand.
+    //        vm.AddItemCommand();
+    //        vm.NewItemEntry = string.Empty;
+    //    }
+    //}
 
     //private void OnNewItemCompleted(object sender, EventArgs e)
     //{

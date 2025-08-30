@@ -11,7 +11,6 @@ namespace PackMeUp.ViewModels
         public ObservableRangeCollection<Trip> Trips { get; } = new();
 
         public ICommand AddTripCommand { get; }
-        public ICommand RefreshCommand { get; }
         public ICommand TripTappedCommand { get; }
 
 
@@ -24,10 +23,15 @@ namespace PackMeUp.ViewModels
 
 
             //AddTripCommand = new Command(AddTrip);
-            RefreshCommand = new Command(async () => await LoadTripsAsync());
+            //RefreshCommand = new Command(async () => await LoadTripsAsync());
             TripTappedCommand = new Command<Trip>(OnTripTapped);
 
             _ = LoadTripsAsync();
+        }
+
+        protected override async Task ExecuteRefreshCommand()
+        {
+            await LoadTripsAsync();
         }
 
         private async void OnTripTapped(Trip trip)

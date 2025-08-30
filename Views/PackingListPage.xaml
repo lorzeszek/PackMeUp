@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PackMeUp.Views.PackingListPage"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              Title="{Binding Title}">
 
 
@@ -10,17 +11,20 @@
              IsRefreshing="{Binding IsRefreshing}">
         <Grid Padding="10" RowDefinitions="Auto,*" ColumnDefinitions="*,Auto">
 
-            <!-- Entry + przycisk -->
-            <Entry x:Name="NewItemEntry"
-               Grid.Row="0" Grid.Column="0"
-               Placeholder="Dodaj przedmiot..."
-               ReturnType="Done"
-               Completed="OnNewItemCompleted"/>
+            <Entry Grid.Row="0" Grid.Column="0"
+                   Placeholder="Dodaj przedmiot..."
+                   ReturnType="Done"
+                   Text="{Binding NewItemName, Mode=TwoWay}">
+                <Entry.Behaviors>
+                    <toolkit:EventToCommandBehavior 
+                        EventName="Completed" 
+                        Command="{Binding AddItemCommand}" />
+                </Entry.Behaviors>
+            </Entry>
 
             <Button Grid.Row="0" Grid.Column="1"
-                Text="+" 
-                Command="{Binding AddItemCommand}" 
-                CommandParameter="{Binding Text, Source={x:Reference NewItemEntry}}"/>
+                    Text="+" 
+                    Command="{Binding AddItemCommand}" />
 
             <!-- Lista -->
             <CollectionView Grid.Row="1" Grid.ColumnSpan="2"

@@ -13,8 +13,25 @@ namespace PackMeUp.ViewModels
 
         private IRealtimeChannel _subscription;
 
+        private string _newItemName;
+        public string NewItemName
+        {
+            get => _newItemName;
+            set
+            {
+                if (_newItemName != value)
+                {
+                    _newItemName = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ObservableRangeCollection<PackingItem> Items { get; } = new();
-        public ICommand AddItemCommand => new Command<string>(async (newItemName) => await Task.Run(() => AddItemAsync(newItemName)));
+        //public ICommand AddItemCommand => new Command<string>(async (newItemName) => await Task.Run(() => AddItemAsync(newItemName)));
+        public ICommand AddItemCommand => new Command(async () => await Task.Run(() => AddItemAsync()));
+
+
 
         //public ICommand AddItemCommand => new Command<string>(async (newItemName) =>
         //{
@@ -26,6 +43,12 @@ namespace PackMeUp.ViewModels
 
         public PackingListViewModel(ISupabaseService supabase) : base(supabase)
         {
+        }
+
+
+        protected override async Task ExecuteRefreshCommand()
+        {
+            await InitializeRealtimeAsync();
         }
 
         public async Task LoadTripItemsAsync(string tripId)
@@ -62,18 +85,18 @@ namespace PackMeUp.ViewModels
             }
         }
 
-        private async Task AddItemAsync(string newItemName)
+        private async Task AddItemAsync()
         {
-            if (!string.IsNullOrEmpty(newItemName))
+            if (!string.IsNullOrEmpty(NewItemName))
             {
                 IsBusy = true;
                 IsRefreshing = true;
 
-                var newItem = new PackingItem { Name = newItemName, Category = 3, TripId = _tripId };
+                var newItem = new PackingItem { Name = _newItemName, Category = 3, TripId = _tripId };
 
                 try
                 {
-                    bool itemExists = await CheckItemExist(newItemName);
+                    bool itemExists = await CheckItemExist(_newItemName);
 
                     if (itemExists)
                     {
@@ -107,6 +130,7 @@ namespace PackMeUp.ViewModels
                     IsRefreshing = false;
                 }
 
+                NewItemName = string.Empty;
             }
         }
 
