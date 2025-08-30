@@ -3,26 +3,40 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PackMeUp.Views.PackingListPage"
              Title="{Binding Title}">
-    
-    <StackLayout Padding="10">
-        <CollectionView ItemsSource="{Binding Items}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid Padding="5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="30"/>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
 
-                        <CheckBox IsChecked="{Binding IsPacked}" />
-                        <Label Grid.Column="1" Text="{Binding Name}" />
-                        <Label Grid.Column="2" Text="{Binding Category}" FontSize="12" TextColor="Gray"/>
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
 
-        <Button Text="Dodaj rzecz" Command="{Binding AddItemCommand}" />
-    </StackLayout>
+
+    <RefreshView Command="{Binding RefreshCommand}" 
+             IsRefreshing="{Binding IsRefreshing}">
+        <Grid Padding="10" RowDefinitions="Auto,*" ColumnDefinitions="*,Auto">
+
+            <!-- Entry + przycisk -->
+            <Entry x:Name="NewItemEntry"
+               Grid.Row="0" Grid.Column="0"
+               Placeholder="Dodaj przedmiot..."
+               ReturnType="Done"
+               Completed="OnNewItemCompleted"/>
+
+            <Button Grid.Row="0" Grid.Column="1"
+                Text="+" 
+                Command="{Binding AddItemCommand}" 
+                CommandParameter="{Binding Text, Source={x:Reference NewItemEntry}}"/>
+
+            <!-- Lista -->
+            <CollectionView Grid.Row="1" Grid.ColumnSpan="2"
+                        ItemsSource="{Binding Items}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="5" ColumnDefinitions="30,*,Auto">
+                            <CheckBox IsChecked="{Binding IsPacked}" />
+                            <Label Grid.Column="1" Text="{Binding Name}" />
+                            <Label Grid.Column="2" Text="{Binding Category}" 
+                               FontSize="12" TextColor="Gray"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </RefreshView>
+
 </ContentPage>

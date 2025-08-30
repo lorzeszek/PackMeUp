@@ -1,4 +1,4 @@
-using PackMeUp.ViewModels;
+﻿using PackMeUp.ViewModels;
 
 namespace PackMeUp.Views;
 
@@ -42,4 +42,42 @@ public partial class PackingListPage : ContentPage//, IQueryAttributable
             await Shell.Current.GoToAsync("..");
         }
     }
+
+    protected override async void OnDisappearing()
+    {
+        base.OnDisappearing();
+        await _viewModel.DisposeRealtimeAsync();
+    }
+
+    private void OnNewItemCompleted(object sender, EventArgs e)
+    {
+        if (BindingContext is PackingListViewModel vm)
+        {
+            vm.AddItemCommand.Execute(NewItemEntry.Text);
+            NewItemEntry.Text = string.Empty;
+        }
+    }
+
+    //private void OnNewItemCompleted(object sender, EventArgs e)
+    //{
+    //    if (sender is Entry entry)
+    //    {
+    //        var text = entry.Text?.Trim();
+    //        if (!string.IsNullOrEmpty(text))
+    //        {
+    //            // zakładam że BindingContext = Twój ViewModel
+    //            if (BindingContext is PackingListViewModel vm)
+    //            {
+    //                vm.Items.Add(new PackingItem
+    //                {
+    //                    Name = text,
+    //                    IsPacked = false
+    //                });
+    //            }
+
+    //            // wyczyść pole
+    //            entry.Text = string.Empty;
+    //        }
+    //    }
+    //}
 }

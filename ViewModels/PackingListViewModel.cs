@@ -1,6 +1,7 @@
 ﻿using PackMeUp.Extensions;
 using PackMeUp.Models;
 using PackMeUp.Services;
+using Supabase.Realtime.Interfaces;
 using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
@@ -10,8 +11,18 @@ namespace PackMeUp.ViewModels
         private bool _isSubscribed = false;
         private int _tripId { get; set; }
 
+        private IRealtimeChannel _subscription;
+
         public ObservableRangeCollection<PackingItem> Items { get; } = new();
-        public ICommand AddItemCommand => new Command(async () => await Task.Run(() => AddItemAsync("new item")));
+        public ICommand AddItemCommand => new Command<string>(async (newItemName) => await Task.Run(() => AddItemAsync(newItemName)));
+
+        //public ICommand AddItemCommand => new Command<string>(async (newItemName) =>
+        //{
+        //    if (string.IsNullOrWhiteSpace(newItemName))
+        //        return;
+
+        //    await AddItemAsync(newItemName);
+        //});
 
         public PackingListViewModel(ISupabaseService supabase) : base(supabase)
         {
@@ -55,80 +66,91 @@ namespace PackMeUp.ViewModels
         {
             if (!string.IsNullOrEmpty(newItemName))
             {
+                IsBusy = true;
+                IsRefreshing = true;
+
                 var newItem = new PackingItem { Name = newItemName, Category = 3, TripId = _tripId };
 
-                bool itemExists = await CheckItemExist(newItemName);
-
-                if (itemExists)
+                try
                 {
-                    //if (itemExists.IsPacked)
-                    //{
-                    //    itemExists.IsPacked = false;
-                    //}
-                    ////else
-                    ////{
-                    ////    existingItem.ItemCount++;
-                    ////}
+                    bool itemExists = await CheckItemExist(newItemName);
 
-                    //var updateResponse = await _supabase.Client
-                    //.From<PackingItem>()
-                    //.Update(itemExists);
+                    if (itemExists)
+                    {
+                        //if (itemExists.IsPacked)
+                        //{
+                        //    itemExists.IsPacked = false;
+                        //}
+                        ////else
+                        ////{
+                        ////    existingItem.ItemCount++;
+                        ////}
+
+                        //var updateResponse = await _supabase.Client
+                        //.From<PackingItem>()
+                        //.Update(itemExists);
+                    }
+                    else
+                    {
+                        await _supabase.Client
+                        .From<PackingItem>()
+                        .Insert(newItem);
+                    }
                 }
-                else
+                catch
                 {
-                    await _supabase.Client
-                    .From<PackingItem>()
-                    .Insert(newItem);
+
                 }
+                finally
+                {
+                    IsBusy = false;
+                    IsRefreshing = false;
+                }
+
             }
         }
 
         private async Task<bool> CheckItemExist(string newItemName)
         {
-            try
-            {
-                var response = await _supabase.Client.From<PackingItem>().Where(x => x.TripId == _tripId).Get();
+            var response = await _supabase.Client.From<PackingItem>().Where(x => x.TripId == _tripId).Get();
 
-                if (response.Models == null || !response.Models.Any())
-                    return false;
+            if (response.Models == null || !response.Models.Any())
+                return false;
 
-                return response.Models.Any(x => x.Name == newItemName);
-            }
-            catch (Exception ex)
-            {
-            }
-
-            return false;
+            return response.Models.Any(x => x.Name == newItemName);
         }
 
         public async Task InitializeRealtimeAsync()
         {
             if (_supabase.Client == null)
                 throw new Exception("Supabase Client is not initialized");
-
-            if (!_isSubscribed)
-            {
-                await _supabase.Client
-                    .From<PackingItem>()
-                    .On(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Inserts, async (sender, args) =>
-                    {
-                        var newItem = args.Model<PackingItem>();
-
-                        MainThread.BeginInvokeOnMainThread(() =>
-                        {
-                            Items.Add(newItem);
-                        });
-
-                        await Task.CompletedTask;
-                    });
-
-                _isSubscribed = true;
-            }
-
-            IsBusy = true;
-
             try
             {
+                IsBusy = true;
+                IsRefreshing = true;
+
+                if (!_isSubscribed || _subscription == null)
+                {
+                    _subscription = await _supabase.Client
+                        .From<PackingItem>()
+                        .On(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Inserts, async (sender, args) =>
+                        {
+                            var newItem = args.Model<PackingItem>();
+
+                            if (newItem != null)
+                            {
+                                MainThread.BeginInvokeOnMainThread(() =>
+                                {
+                                    Items.Add(newItem);
+                                });
+
+                                await Task.CompletedTask;
+                            }
+                        });
+
+                    _isSubscribed = true;
+                }
+
                 var response = await _supabase.Client
                     .From<PackingItem>()
                     .Where(x => x.TripId == _tripId)
@@ -141,6 +163,16 @@ namespace PackMeUp.ViewModels
                 IsBusy = false;
                 IsRefreshing = false;
             }
+        }
+
+        public Task DisposeRealtimeAsync()
+        {
+            if (_subscription != null)
+            {
+                _subscription.Unsubscribe();
+            }
+
+            return Task.CompletedTask;
         }
 
         protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
