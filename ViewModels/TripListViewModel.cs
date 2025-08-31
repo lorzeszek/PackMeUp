@@ -10,16 +10,19 @@ namespace PackMeUp.ViewModels
     {
         public ObservableRangeCollection<Trip> Trips { get; } = new();
 
-        public ICommand AddTripCommand { get; }
+        //public ICommand AddTripCommand { get; }
         public ICommand TripTappedCommand { get; }
 
+        public ICommand AddTripCommand => new Command(async () => await Task.Run(() => AddTrip("wycieczka 1 test")));
+        public ICommand DeleteTripCommand => new Command<Trip>(async (trip) => await Task.Run(() => DeleteTripAsync(trip)));
 
+        
 
         public TripListViewModel(ISupabaseService supabase) : base(supabase)
         {
             Title = "Moje wycieczki";
 
-            AddTripCommand = new Command(async () => await Task.Run(() => AddTrip("wycieczka 1 test")));
+            //AddTripCommand = new Command(async () => await Task.Run(() => AddTrip("wycieczka 1 test")));
 
 
             //AddTripCommand = new Command(AddTrip);
@@ -51,6 +54,28 @@ namespace PackMeUp.ViewModels
         //{
         //    Trips.Add(new Trip { Name = $"Nowa wycieczka {Trips.Count + 1}" });
         //}
+
+        private async Task DeleteTripAsync(Trip trip)
+        {
+            try
+            {
+                await _supabase.Client.From<Trip>().Delete(trip);
+            }
+            catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
+            {
+                // Logowanie pełnego wyjątku
+                Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
+            }
+            //catch (Exception ex) 
+            //{ 
+            //    Console.WriteLine(ex.Message);
+            //}
+
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                await LoadTripsAsync();
+            });
+        }
 
         private async Task AddTrip(string newListName)
         {

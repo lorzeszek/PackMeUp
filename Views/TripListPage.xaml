@@ -13,21 +13,40 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Frame Margin="10"
-                   Padding="10"
-                   HasShadow="True"
-                   CornerRadius="10"
-                   BackgroundColor="White">
+                               Padding="10"
+                               HasShadow="True"
+                               CornerRadius="10"
+                               BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundColor}, Dark={StaticResource CardBackgroundColorDark}}">
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}"
-                                          CommandParameter="{Binding .}" />
+                              CommandParameter="{Binding .}" />
                             </Frame.GestureRecognizers>
 
-                            <StackLayout>
-                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
-                                <Label Text="{Binding Description}" FontSize="Small"/>
-                            </StackLayout>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackLayout Grid.Column="0">
+                                    <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Description}" FontSize="Small"/>
+                                </StackLayout>
+
+                                <!-- Ikona kasowania -->
+                                <ImageButton Grid.Column="1"
+                                    Command="{Binding BindingContext.DeleteTripCommand, Source={x:Reference TripListView}}"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="Transparent"
+                                    WidthRequest="30"
+                                    HeightRequest="30">
+                                    <ImageButton.Source>
+                                        <FontImageSource Glyph="&#xE872;"
+                                                         FontFamily="MaterialIcons"
+                                                         Color="OrangeRed"
+                                                         Size="24"/>
+                                    </ImageButton.Source>
+                                </ImageButton>
+                            </Grid>
                         </Frame>
                     </DataTemplate>
+
+
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
