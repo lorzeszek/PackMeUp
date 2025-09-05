@@ -19,6 +19,9 @@ namespace PackMeUp.Models
         [Column("ModifiedDate")]
         public DateTime? ModifiedDate { get; set; }
 
+        [Column("IsInTrash")]
+        public bool IsInTrash { get; set; }
+
         [Reference(typeof(PackingItem), ReferenceAttribute.JoinType.Left)]
         public List<PackingItem> Items { get; set; } = new();
 

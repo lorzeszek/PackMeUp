@@ -30,6 +30,19 @@
 
                                 <!-- Ikona kasowania -->
                                 <ImageButton Grid.Column="1"
+                                             Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}"
+                                             CommandParameter="{Binding .}"
+                                             BackgroundColor="Transparent"
+                                             WidthRequest="30"
+                                             HeightRequest="30">
+                                    <ImageButton.Source>
+                                        <FontImageSource Glyph="&#xE872;"
+                                                         FontFamily="MaterialIcons"
+                                                         Color="OrangeRed"
+                                                         Size="24"/>
+                                    </ImageButton.Source>
+                                </ImageButton>
+                                <!--<ImageButton Grid.Column="1"
                                     Command="{Binding BindingContext.DeleteTripCommand, Source={x:Reference TripListView}}"
                                     CommandParameter="{Binding .}"
                                     BackgroundColor="Transparent"
@@ -41,7 +54,7 @@
                                                          Color="OrangeRed"
                                                          Size="24"/>
                                     </ImageButton.Source>
-                                </ImageButton>
+                                </ImageButton>-->
                             </Grid>
                         </Frame>
                     </DataTemplate>

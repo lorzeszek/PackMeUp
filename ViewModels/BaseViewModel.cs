@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PackMeUp.Services;
+using Supabase.Realtime.Interfaces;
 using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
@@ -25,6 +26,8 @@ namespace PackMeUp.ViewModels
         }
 
         public virtual ICommand RefreshCommand { get; }
+
+        public IRealtimeChannel _subscription;
 
         /// <summary>
         /// Shell wywoła tę metodę przy wejściu na stronę z parametrami.

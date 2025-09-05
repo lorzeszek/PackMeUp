@@ -1,7 +1,6 @@
 ﻿using PackMeUp.Extensions;
 using PackMeUp.Models;
 using PackMeUp.Services;
-using Supabase.Realtime.Interfaces;
 using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
@@ -11,7 +10,6 @@ namespace PackMeUp.ViewModels
         private bool _isSubscribed = false;
         private int _tripId { get; set; }
 
-        private IRealtimeChannel _subscription;
 
         private string _newItemName;
         public string NewItemName
