@@ -22,7 +22,7 @@ namespace PackMeUp.ViewModels
         {
             _supabase = supabase;
 
-            RefreshCommand = new Command(async () => await ExecuteRefreshCommand());
+            //RefreshCommand = new Command(async () => await ExecuteRefreshCommand());
         }
 
         public virtual ICommand RefreshCommand { get; }

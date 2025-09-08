@@ -1,4 +1,5 @@
 ﻿using PackMeUp.Extensions;
+using PackMeUp.Helpers;
 using PackMeUp.Models;
 using PackMeUp.Services;
 using PackMeUp.Views;
@@ -28,7 +29,7 @@ namespace PackMeUp.ViewModels
         protected override async Task ExecuteRefreshCommand()
         {
             //await LoadTripsAsync();
-            await InitializeRealtimeAsync();
+            //await InitializeRealtimeAsync();
         }
 
         private async void OnTripTapped(Trip trip)
@@ -63,7 +64,7 @@ namespace PackMeUp.ViewModels
                 .From<Trip>()
                 .Update(selectedTrip);
 
-                await InitializeRealtimeAsync();
+                //await InitializeRealtimeAsync();
             }
             catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
             {
@@ -203,6 +204,10 @@ namespace PackMeUp.ViewModels
         //    }
         //}
 
+
+
+
+
         public async Task InitializeRealtimeAsync()
         {
             if (_supabase.Client == null)
@@ -213,80 +218,49 @@ namespace PackMeUp.ViewModels
                 IsBusy = true;
                 IsRefreshing = true;
 
-                if (!_isSubscribed || _subscription == null)
+                if (!_isSubscribed)// || _subscription == null)
                 {
-                    var table = _supabase.Client.From<Trip>();
-
-                    // dodaj handlery
-                    await table.On(
-                        Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Inserts,
-                        async (sender, args) =>
+                    await RealtimeSubscriptionHelper.SubscribeTableChanges<Trip>(
+                        _supabase.Client,
+                        // INSERT handler
+                        newItem =>
                         {
-                            var newItem = args.Model<Trip>();
-                            if (newItem != null && !newItem.IsInTrash)
+                            if (!newItem.IsInTrash)
                             {
-                                MainThread.BeginInvokeOnMainThread(() =>
-                                {
-                                    Trips.Add(newItem);
-                                });
+                                MainThread.BeginInvokeOnMainThread(() => Trips.Add(newItem));
                             }
-                            await Task.CompletedTask;
-                        });
-
-                    // UPDATES
-                    await table.On(
-                        Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Updates,
-                        async (sender, args) =>
+                        },
+                        // UPDATE handler
+                        updatedItem =>
                         {
-                            var updatedItem = args.Model<Trip>();
-                            if (updatedItem == null)
-                                return;
-
+                            var existing = Trips.FirstOrDefault(t => t.Id == updatedItem.Id);
                             MainThread.BeginInvokeOnMainThread(() =>
                             {
-                                var existing = Trips.FirstOrDefault(t => t.Id == updatedItem.Id);
-
                                 if (updatedItem.IsInTrash)
                                 {
-                                    // usuwamy z listy jeśli trafił do kosza
-                                    if (existing != null)
-                                        Trips.Remove(existing);
+                                    if (existing != null) Trips.Remove(existing);
                                 }
                                 else
                                 {
-                                    // aktualizujemy lub dodajemy z powrotem jeśli wyszedł z kosza
                                     if (existing != null)
                                     {
-                                        var index = Trips.IndexOf(existing);
-                                        Trips[index] = updatedItem;
+                                        var i = Trips.IndexOf(existing);
+                                        Trips[i] = updatedItem;
                                     }
-                                    else
-                                    {
-                                        Trips.Add(updatedItem);
-                                    }
+                                    else { Trips.Add(updatedItem); }
                                 }
                             });
-
-                            await Task.CompletedTask;
-                        });
-
-                    // DELETES
-                    await table.On(
-                        Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Deletes,
-                        async (sender, args) =>
+                        },
+                        // DELETE handler
+                        deletedItem =>
                         {
-                            var deletedItem = args.Model<Trip>();
-                            if (deletedItem != null)
+                            var existing = Trips.FirstOrDefault(t => t.Id == deletedItem.Id);
+                            if (existing != null)
                             {
-                                MainThread.BeginInvokeOnMainThread(() =>
-                                {
-                                    var existing = Trips.FirstOrDefault(t => t.Id == deletedItem.Id);
-                                    if (existing != null)
-                                        Trips.Remove(existing);
-                                });
+                                MainThread.BeginInvokeOnMainThread(() => Trips.Remove(existing));
                             }
-                            await Task.CompletedTask;
-                        });
+                        }
+                    );
 
                     _isSubscribed = true;
                 }
@@ -306,6 +280,116 @@ namespace PackMeUp.ViewModels
                 IsRefreshing = false;
             }
         }
+
+
+
+
+
+
+
+        //public async Task InitializeRealtimeAsync()
+        //{
+        //    if (_supabase.Client == null)
+        //        throw new Exception("Supabase Client is not initialized");
+
+        //    try
+        //    {
+        //        IsBusy = true;
+        //        IsRefreshing = true;
+
+        //        if (!_isSubscribed || _subscription == null)
+        //        {
+        //            var table = _supabase.Client.From<Trip>();
+
+        //            // dodaj handlery
+        //            await table.On(
+        //                Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Inserts,
+        //                async (sender, args) =>
+        //                {
+        //                    var newItem = args.Model<Trip>();
+        //                    if (newItem != null && !newItem.IsInTrash)
+        //                    {
+        //                        MainThread.BeginInvokeOnMainThread(() =>
+        //                        {
+        //                            Trips.Add(newItem);
+        //                        });
+        //                    }
+        //                    await Task.CompletedTask;
+        //                });
+
+        //            // UPDATES
+        //            await table.On(
+        //                Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Updates,
+        //                async (sender, args) =>
+        //                {
+        //                    var updatedItem = args.Model<Trip>();
+        //                    if (updatedItem == null)
+        //                        return;
+
+        //                    MainThread.BeginInvokeOnMainThread(() =>
+        //                    {
+        //                        var existing = Trips.FirstOrDefault(t => t.Id == updatedItem.Id);
+
+        //                        if (updatedItem.IsInTrash)
+        //                        {
+        //                            // usuwamy z listy jeśli trafił do kosza
+        //                            if (existing != null)
+        //                                Trips.Remove(existing);
+        //                        }
+        //                        else
+        //                        {
+        //                            // aktualizujemy lub dodajemy z powrotem jeśli wyszedł z kosza
+        //                            if (existing != null)
+        //                            {
+        //                                var index = Trips.IndexOf(existing);
+        //                                Trips[index] = updatedItem;
+        //                            }
+        //                            else
+        //                            {
+        //                                Trips.Add(updatedItem);
+        //                            }
+        //                        }
+        //                    });
+
+        //                    await Task.CompletedTask;
+        //                });
+
+        //            // DELETES
+        //            await table.On(
+        //                Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Deletes,
+        //                async (sender, args) =>
+        //                {
+        //                    var deletedItem = args.Model<Trip>();
+        //                    if (deletedItem != null)
+        //                    {
+        //                        MainThread.BeginInvokeOnMainThread(() =>
+        //                        {
+        //                            var existing = Trips.FirstOrDefault(t => t.Id == deletedItem.Id);
+        //                            if (existing != null)
+        //                                Trips.Remove(existing);
+        //                        });
+        //                    }
+        //                    await Task.CompletedTask;
+        //                });
+
+        //            _isSubscribed = true;
+        //        }
+
+        //        // 🔹 Początkowe pobranie z filtrem
+        //        var response = await _supabase.Client
+        //            .From<Trip>()
+        //            .Select("*, Items:PackingItem(*)")
+        //            .Where(x => x.IsInTrash == false)
+        //            .Get();
+
+        //        Trips.ReplaceRange(response.Models);
+        //    }
+        //    finally
+        //    {
+        //        IsBusy = false;
+        //        IsRefreshing = false;
+        //    }
+        //}
 
         public Task DisposeRealtimeAsync()
         {

@@ -19,8 +19,20 @@ namespace PackMeUp.Models
         [Column("ModifiedDate")]
         public DateTime? ModifiedDate { get; set; }
 
+        private bool _isInTrash;
         [Column("IsInTrash")]
-        public bool IsInTrash { get; set; }
+        public bool IsInTrash
+        {
+            get => _isInTrash;
+            set
+            {
+                if (_isInTrash != value)
+                {
+                    _isInTrash = value;
+                    OnPropertyChanged(nameof(IsInTrash));
+                }
+            }
+        }
 
         [Reference(typeof(PackingItem), ReferenceAttribute.JoinType.Left)]
         public List<PackingItem> Items { get; set; } = new();
