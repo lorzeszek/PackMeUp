@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PackMeUp.Services;
 using Supabase.Realtime.Interfaces;
-using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
 {
@@ -25,7 +24,7 @@ namespace PackMeUp.ViewModels
             //RefreshCommand = new Command(async () => await ExecuteRefreshCommand());
         }
 
-        public virtual ICommand RefreshCommand { get; }
+        //public virtual ICommand RefreshCommand { get; }
 
         public IRealtimeChannel _subscription;
 
@@ -46,18 +45,18 @@ namespace PackMeUp.ViewModels
             return Task.CompletedTask;
         }
 
-        protected virtual async Task ExecuteRefreshCommand()
-        {
-            try
-            {
-                IsRefreshing = true;
-                await Task.Delay(500); // symulacja odświeżania
-            }
-            finally
-            {
-                IsRefreshing = false;
-            }
-        }
+        //protected virtual async Task ExecuteRefreshCommand()
+        //{
+        //    try
+        //    {
+        //        IsRefreshing = true;
+        //        await Task.Delay(500); // symulacja odświeżania
+        //    }
+        //    finally
+        //    {
+        //        IsRefreshing = false;
+        //    }
+        //}
 
         //public event PropertyChangedEventHandler PropertyChanged;
 

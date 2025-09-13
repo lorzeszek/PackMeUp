@@ -13,6 +13,12 @@ public partial class TripListPage : ContentPage
         BindingContext = _viewModel;
     }
 
+    protected override async void OnDisappearing()
+    {
+        base.OnDisappearing();
+        await _viewModel.DisposeRealtimeAsync();
+    }
+
     //private async void OnTripSelected(object sender, SelectionChangedEventArgs e)
     //{
     //    if (e.CurrentSelection.FirstOrDefault() is Trip selectedTrip)

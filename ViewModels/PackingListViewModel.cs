@@ -1,4 +1,5 @@
 ﻿using PackMeUp.Extensions;
+using PackMeUp.Helpers;
 using PackMeUp.Models;
 using PackMeUp.Services;
 using System.Windows.Input;
@@ -26,27 +27,11 @@ namespace PackMeUp.ViewModels
         }
 
         public ObservableRangeCollection<PackingItem> Items { get; } = new();
-        //public ICommand AddItemCommand => new Command<string>(async (newItemName) => await Task.Run(() => AddItemAsync(newItemName)));
         public ICommand AddItemCommand => new Command(async () => await Task.Run(() => AddItemAsync()));
-
-
-
-        //public ICommand AddItemCommand => new Command<string>(async (newItemName) =>
-        //{
-        //    if (string.IsNullOrWhiteSpace(newItemName))
-        //        return;
-
-        //    await AddItemAsync(newItemName);
-        //});
+        public ICommand ToggleIsPackedCommand => new Command<PackingItem>(async (packingItem) => await Task.Run(() => ToggleIsPackedAsync(packingItem)));
 
         public PackingListViewModel(ISupabaseService supabase) : base(supabase)
         {
-        }
-
-
-        protected override async Task ExecuteRefreshCommand()
-        {
-            await InitializeRealtimeAsync();
         }
 
         public async Task LoadTripItemsAsync(string tripId)
@@ -132,6 +117,32 @@ namespace PackMeUp.ViewModels
             }
         }
 
+        private async Task ToggleIsPackedAsync(PackingItem packingItem)
+        {
+            if (packingItem != null)
+            {
+                try
+                {
+                    var getItemResult = await _supabase.Client.From<PackingItem>().Where(x => x.Id == packingItem.Id).Get();
+
+                    var selectedItem = getItemResult.Models.First();
+
+                    selectedItem.IsPacked = packingItem.IsPacked;
+
+                    var updateResponse = await _supabase.Client
+                    .From<PackingItem>()
+                    .Update(selectedItem);
+
+                    //await InitializeRealtimeAsync();
+                }
+                catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
+                {
+                    // Logowanie pełnego wyjątku
+                    Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
+                }
+            }
+        }
+
         private async Task<bool> CheckItemExist(string newItemName)
         {
             var response = await _supabase.Client.From<PackingItem>().Where(x => x.TripId == _tripId).Get();
@@ -146,33 +157,55 @@ namespace PackMeUp.ViewModels
         {
             if (_supabase.Client == null)
                 throw new Exception("Supabase Client is not initialized");
+
             try
             {
                 IsBusy = true;
                 IsRefreshing = true;
 
-                if (!_isSubscribed || _subscription == null)
+                if (!_isSubscribed)// || _subscription == null)
                 {
-                    _subscription = await _supabase.Client
-                        .From<PackingItem>()
-                        .On(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Inserts, async (sender, args) =>
+                    var d = await RealtimeSubscriptionHelper.SubscribeTableChanges<PackingItem>(
+                        _supabase.Client,
+                        // INSERT handler
+                        newItem =>
                         {
-                            var newItem = args.Model<PackingItem>();
-
                             if (newItem != null)
                             {
-                                MainThread.BeginInvokeOnMainThread(() =>
-                                {
-                                    Items.Add(newItem);
-                                });
-
-                                await Task.CompletedTask;
+                                MainThread.BeginInvokeOnMainThread(() => Items.Add(newItem));
                             }
-                        });
+                        },
+                        // UPDATE handler
+                        updatedItem =>
+                        {
+                            var existing = Items.FirstOrDefault(t => t.Id == updatedItem.Id);
+                            MainThread.BeginInvokeOnMainThread(() =>
+                            {
+                                if (existing != null)
+                                {
+                                    var i = Items.IndexOf(existing);
+                                    Items[i] = updatedItem;
+                                }
+                                else { Items.Add(updatedItem); }
+                            });
+                        },
+                        // DELETE handler
+                        deletedItem =>
+                        {
+                            var existing = Items.FirstOrDefault(t => t.Id == deletedItem.Id);
+                            if (existing != null)
+                            {
+                                MainThread.BeginInvokeOnMainThread(() => Items.Remove(existing));
+                            }
+                        }
+                    );
 
                     _isSubscribed = true;
+
+                    _subscription = d.FirstOrDefault();
                 }
 
+                // 🔹 Początkowe pobranie z filtrem
                 var response = await _supabase.Client
                     .From<PackingItem>()
                     .Where(x => x.TripId == _tripId)
@@ -186,6 +219,7 @@ namespace PackMeUp.ViewModels
                 IsRefreshing = false;
             }
         }
+
 
         public Task DisposeRealtimeAsync()
         {
@@ -204,6 +238,8 @@ namespace PackMeUp.ViewModels
                 _tripId = Convert.ToInt32(tripIdObj);
                 await InitializeRealtimeAsync();
             }
+
+            await InitializeRealtimeAsync();
         }
     }
 }

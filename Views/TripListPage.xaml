@@ -6,65 +6,48 @@
              xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
              Title="{Binding Title}">
 
-    <StackLayout Padding="10" Spacing="10">
-        <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
-            <CollectionView ItemsSource="{Binding Trips}"
-                SelectionMode="None">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame Margin="10"
-                               Padding="10"
-                               HasShadow="True"
-                               CornerRadius="10"
-                               BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundColor}, Dark={StaticResource CardBackgroundColorDark}}">
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}"
-                              CommandParameter="{Binding .}" />
-                            </Frame.GestureRecognizers>
+    <Grid Padding="10" RowDefinitions="Auto,*" ColumnDefinitions="*,Auto">
+        
+        <CollectionView  Grid.Row="0" ItemsSource="{Binding Trips}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Margin="10"
+                   Padding="10"
+                   HasShadow="True"
+                   CornerRadius="10"
+                   BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundColor}, Dark={StaticResource CardBackgroundColorDark}}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}"
+                  CommandParameter="{Binding .}" />
+                        </Frame.GestureRecognizers>
 
-                            <Grid ColumnDefinitions="*,Auto">
-                                <StackLayout Grid.Column="0">
-                                    <Label Text="{Binding Name}" FontAttributes="Bold"/>
-                                    <Label Text="{Binding Description}" FontSize="Small"/>
-                                </StackLayout>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Description}" FontSize="Small"/>
+                            </StackLayout>
 
-                                <!-- Ikona kasowania -->
-                                <ImageButton Grid.Column="1"
-                                             Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}"
-                                             CommandParameter="{Binding .}"
-                                             BackgroundColor="Transparent"
-                                             WidthRequest="30"
-                                             HeightRequest="30">
-                                    <ImageButton.Source>
-                                        <FontImageSource Glyph="&#xE872;"
-                                                         FontFamily="MaterialIcons"
-                                                         Color="OrangeRed"
-                                                         Size="24"/>
-                                    </ImageButton.Source>
-                                </ImageButton>
-                                <!--<ImageButton Grid.Column="1"
-                                    Command="{Binding BindingContext.DeleteTripCommand, Source={x:Reference TripListView}}"
-                                    CommandParameter="{Binding .}"
-                                    BackgroundColor="Transparent"
-                                    WidthRequest="30"
-                                    HeightRequest="30">
-                                    <ImageButton.Source>
-                                        <FontImageSource Glyph="&#xE872;"
-                                                         FontFamily="MaterialIcons"
-                                                         Color="OrangeRed"
-                                                         Size="24"/>
-                                    </ImageButton.Source>
-                                </ImageButton>-->
-                            </Grid>
-                        </Frame>
-                    </DataTemplate>
+                            <!-- Ikona kasowania -->
+                            <ImageButton Grid.Column="1"
+                                 Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}"
+                                 CommandParameter="{Binding .}"
+                                 BackgroundColor="Transparent"
+                                 WidthRequest="30"
+                                 HeightRequest="30">
+                                <ImageButton.Source>
+                                    <FontImageSource Glyph="&#xE872;"
+                                             FontFamily="MaterialIcons"
+                                             Color="OrangeRed"
+                                             Size="24"/>
+                                </ImageButton.Source>
+                            </ImageButton>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
+        <Button Grid.Row="1" Text="Dodaj wycieczkę" Command="{Binding AddTripCommand}" />
 
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </RefreshView>
-
-        <Button Text="Dodaj wycieczkę" Command="{Binding AddTripCommand}" />
-
-    </StackLayout>
+    </Grid>
 </ContentPage>
