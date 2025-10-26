@@ -4,31 +4,58 @@
              x:Class="PackMeUp.Views.TripListPage"
              x:Name="TripListView"
              xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
-             Title="{Binding Title}">
+             Title="{Binding Title}"
+             Shell.NavBarIsVisible="False"
+             >
 
-    <Grid Padding="10" RowDefinitions="Auto,*" ColumnDefinitions="*,Auto">
-        
+    <Grid Padding="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height ="*"/>
+            <RowDefinition Height ="Auto"/>
+        </Grid.RowDefinitions>
+
         <CollectionView  Grid.Row="0" ItemsSource="{Binding Trips}" SelectionMode="None">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Margin="10"
+                    <Frame HeightRequest="150" Margin="10"
                    Padding="10"
                    HasShadow="True"
-                   CornerRadius="10"
-                   BackgroundColor="{AppThemeBinding Light={StaticResource CardBackgroundColor}, Dark={StaticResource CardBackgroundColorDark}}">
+                   CornerRadius="5"
+                   BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource CardBackgroundColorDark}}">
                         <Frame.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}"
                   CommandParameter="{Binding .}" />
                         </Frame.GestureRecognizers>
 
-                        <Grid ColumnDefinitions="*,Auto">
-                            <StackLayout Grid.Column="0">
+                        <Grid >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height ="*"/>
+                                <RowDefinition Height ="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackLayout Grid.ColumnSpan="2" Grid.Row="0" Background="Yellow">
+                                <Image Source="italy.jpg" Aspect="AspectFit" />
+
+                            </StackLayout>
+                            
+                            <!--<StackLayout Grid.ColumnSpan="2" Grid.Row="0" Background="Yellow">
                                 <Label Text="{Binding Name}" FontAttributes="Bold"/>
                                 <Label Text="{Binding Description}" FontSize="Small"/>
-                            </StackLayout>
+                            </StackLayout>-->
+
+                            <VerticalStackLayout Grid.Column="0" Grid.Row="1">
+                                <Grid ColumnDefinitions="*,Auto" Padding="0" Margin="0">
+                                    <Label Text="{Binding Name}" Grid.Column="0" VerticalOptions="Center" />
+                                    <Label Text="{Binding Name}" Grid.Column="1" VerticalOptions="Center" />
+                                </Grid>
+                            </VerticalStackLayout>
 
                             <!-- Ikona kasowania -->
-                            <ImageButton Grid.Column="1"
+                            <ImageButton Grid.Column="1" Grid.Row="1"
                                  Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}"
                                  CommandParameter="{Binding .}"
                                  BackgroundColor="Transparent"
@@ -47,7 +74,7 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Button Grid.Row="1" Text="Dodaj wycieczkę" Command="{Binding AddTripCommand}" />
+        <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
 
     </Grid>
 </ContentPage>
