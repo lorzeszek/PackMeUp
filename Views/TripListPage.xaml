@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mpk="clr-namespace:MPowerKit.Lottie;assembly=MPowerKit.Lottie"
              x:Class="PackMeUp.Views.TripListPage"
              x:Name="TripListView"
              xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
@@ -41,6 +42,11 @@
                                 <Image Source="italy.jpg" Aspect="AspectFit" />
 
                             </StackLayout>
+                            
+                            --><!--<StackLayout Grid.ColumnSpan="2" Grid.Row="0" Background="Yellow">
+                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Description}" FontSize="Small"/>
+                            </StackLayout>--><!--
 
                             <VerticalStackLayout Grid.Column="0" Grid.Row="1">
                                 <Grid ColumnDefinitions="*,Auto" Padding="0" Margin="0">
@@ -72,105 +78,92 @@
         <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
 
     </Grid>-->
-
     <Grid Padding="10">
-
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height ="*"/>
+            <RowDefinition Height ="Auto"/>
         </Grid.RowDefinitions>
+        <CollectionView Grid.Row="0" ItemsSource="{Binding Trips}" SelectionMode="None">
+        <CollectionView.ItemsLayout>
+            <GridItemsLayout Orientation="Vertical" />
+            <!-- 2 kolumny kafelków -->
+        </CollectionView.ItemsLayout>
 
-        <!-- ✅ Lista wycieczek -->
-        <CollectionView Grid.Row="0"
-                        ItemsSource="{Binding Trips}"
-                        SelectionMode="None">
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+                <Border
+                Margin="10"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 12"
+                HeightRequest="180"
+                    >
 
-            <CollectionView.ItemsLayout>
-                <GridItemsLayout Orientation="Vertical" Span="2" />
-            </CollectionView.ItemsLayout>
+                    <Grid>
+                        <!-- Tło -->
+                            <!--<Image Source="{Binding BackgroundImageUrl}"-->
+                        <Image Source="italy.webp"
+                           Aspect="AspectFill"
+                           Opacity="1"
+                             />
+                        
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border Margin="6"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 12"
-                            HeightRequest="180"
-                            BackgroundColor="Transparent">
+                        <!-- Gradient overlay -->
+                        <BoxView VerticalOptions="End"
+                             HeightRequest="80"
+                             Opacity="0.6"
+                             Background="{AppThemeBinding Light=Black, Dark=Black}" />
 
-                        <Grid>
-                            <!-- 🖼️ Tło -->
-                            <Image Source="italy.jpg"
-                                   Aspect="AspectFill"
-                                   Opacity="1"/>
-
-                            <!-- 🌫️ Gradient u dołu -->
-                            <BoxView VerticalOptions="End"
-                                     HeightRequest="80"
-                                     Opacity="0.6"
-                                     BackgroundColor="Black" />
-
-                            <!-- ✏️ Teksty -->
-                            <VerticalStackLayout Padding="12"
-                                                 VerticalOptions="End"
-                                                 Spacing="2">
+                        <!-- Tekst -->
+                            <StackLayout Padding="10"
+                                 VerticalOptions="End"
+                                 Spacing="2">
                                 <!--<Label Text="{Binding Destination}"-->
                                 <Label Text="Rzym"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       TextColor="White"
-                                       LineBreakMode="TailTruncation" />
-
-                                <!--<Label Text="{Binding TripDateRange}"-->
-                                <Label Text="10 dni"
-                                       FontSize="13"
-                                       TextColor="White" />
-
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               LineBreakMode="TailTruncation" />
+                                <!--<Label Text="{Binding TripDateRange}"--> 
+                                <Label Text="1 - 14 September 2025" 
+                               FontSize="13"
+                               TextColor="White" />
                                 <!--<Label Text="{Binding PackingSummary}"-->
-                                <Label Text="50%"
-                                       FontSize="12"
-                                       TextColor="White" />
-                            </VerticalStackLayout>
+                                <Label Text="10 / 30 packed"
+                               FontSize="12"
+                               TextColor="White" />
+                            </StackLayout>
 
-                            <!-- 🗑️ Ikona usuwania -->
-                            <ImageButton Source="delete_icon.png"
-                                         BackgroundColor="#66000000"
-                                         CornerRadius="12"
-                                         HeightRequest="30"
-                                         WidthRequest="30"
-                                         Padding="4"
-                                         HorizontalOptions="End"
-                                         VerticalOptions="Start"
-                                         Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}"
-                                         CommandParameter="{Binding .}" />
+                            <mpk:LottieView
+                                Source="RecycleBin.lottie"
+                                HorizontalOptions="End"
+                                VerticalOptions="Start"
+                                WidthRequest="34"
+                                AutoPlay="True"
+                                HeightRequest="34">
+                                <mpk:LottieView.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                        Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}" 
+                                        CommandParameter="{Binding .}" />
+                                </mpk:LottieView.GestureRecognizers>
+                            </mpk:LottieView>
 
-                            <!-- 🩶 Overlay dla zakończonych -->
-                            <BoxView IsVisible="{Binding IsCompleted}"
-                                     BackgroundColor="#80000000" />
+                            <!-- Overlay dla zakończonych -->
+                            <BoxView IsVisible="False" BackgroundColor="#88000000" />
+                            <!--<BoxView IsVisible="{Binding IsCompleted}" BackgroundColor="#88000000" />-->
+                    </Grid>
 
-                        </Grid>
+                    <!-- Tap całości -->
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer 
+                            Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}" 
+                            CommandParameter="{Binding .}" />
+                    </Border.GestureRecognizers>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+        
+    </CollectionView>
+        <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
 
-                        <!-- 👆 Tapnięcie otwiera szczegóły -->
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}"
-                                                  CommandParameter="{Binding .}" />
-                        </Border.GestureRecognizers>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-        <!-- ➕ Przycisk dodawania wycieczki -->
-        <Button Grid.Row="1"
-                Margin="0,10,10,0"
-                HorizontalOptions="End"
-                Text="+"
-                FontSize="Title"
-                Padding="0"
-                HeightRequest="50"
-                WidthRequest="50"
-                CornerRadius="25"
-                BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
-                TextColor="White"
-                Command="{Binding AddTripCommand}" />
     </Grid>
 </ContentPage>

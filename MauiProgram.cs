@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using MPowerKit.Lottie;
 using PackMeUp.Services;
 using PackMeUp.ViewModels;
 using PackMeUp.Views;
@@ -18,7 +19,9 @@ namespace PackMeUp
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIcons");
-                });
+                })
+                .UseMPowerKitLottie();
+
 
 
             builder.Services.AddSingleton<ISupabaseService, SupabaseService>();
