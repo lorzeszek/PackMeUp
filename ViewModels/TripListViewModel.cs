@@ -99,11 +99,11 @@ namespace PackMeUp.ViewModels
             //});
         }
 
-        private async Task AddTrip(string newListName)
+        private async Task AddTrip(string destinationName)
         {
             try
             {
-                await _supabase.Client.From<Trip>().Insert(new Trip { Name = newListName, CreatedDate = DateTime.Now });
+                await _supabase.Client.From<Trip>().Insert(new Trip { Destination = destinationName, CreatedDate = DateTime.Now });
             }
             catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
             {

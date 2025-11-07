@@ -10,14 +10,20 @@ namespace PackMeUp.Models
         [PrimaryKey("Id", false)]
         public int Id { get; set; }
 
-        [Column("Name")]
-        public string Name { get; set; }
+        [Column("Destination")]
+        public string Destination { get; set; }
 
         [Column("CreatedDate")]
         public DateTime CreatedDate { get; set; }
 
         [Column("ModifiedDate")]
         public DateTime? ModifiedDate { get; set; }
+
+        [Column("StartDate")]
+        public DateTime? StartDate { get; set; }
+
+        [Column("EndDate")]
+        public DateTime? EndDate { get; set; }
 
         private bool _isInTrash;
         [Column("IsInTrash")]
@@ -30,6 +36,21 @@ namespace PackMeUp.Models
                 {
                     _isInTrash = value;
                     OnPropertyChanged(nameof(IsInTrash));
+                }
+            }
+        }
+
+        private bool _isActive;
+        [Column("IsActive")]
+        public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                if (_isActive != value)
+                {
+                    _isActive = value;
+                    OnPropertyChanged(nameof(IsActive));
                 }
             }
         }

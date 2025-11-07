@@ -4,11 +4,20 @@
              xmlns:mpk="clr-namespace:MPowerKit.Lottie;assembly=MPowerKit.Lottie"
              x:Class="PackMeUp.Views.TripListPage"
              x:Name="TripListView"
+             xmlns:converters="clr-namespace:PackMeUp.Converters"
              xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
              Title="{Binding Title}"
              Shell.NavBarIsVisible="False"
              >
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"
+                                               TrueOpacity="1"
+                                               FalseOpacity="0.5"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
     <!--<Grid Padding="10">
         <Grid.RowDefinitions>
             <RowDefinition Height ="*"/>
@@ -92,39 +101,36 @@
         <CollectionView.ItemTemplate>
             <DataTemplate>
                 <Border
-                Margin="10"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 12"
-                HeightRequest="180"
-                    >
+                    Margin="10"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 12"
+                    HeightRequest="180"
+                    Opacity="{Binding IsActive, Converter={StaticResource BoolToOpacityConverter}}">
 
                     <Grid>
-                        <!-- Tło -->
-                            <!--<Image Source="{Binding BackgroundImageUrl}"-->
+                        <!--<Image Source="{Binding BackgroundImageUrl}"-->
                         <Image Source="italy.webp"
-                           Aspect="AspectFill"
-                           Opacity="1"
-                             />
+                           Aspect="AspectFill"/>
                         
-
                         <!-- Gradient overlay -->
-                        <BoxView VerticalOptions="End"
-                             HeightRequest="80"
-                             Opacity="0.6"
-                             Background="{AppThemeBinding Light=Black, Dark=Black}" />
+                        <BoxView 
+                            VerticalOptions="End" 
+                            HeightRequest="80"
+                            Opacity="0.6"
+                            Background="{AppThemeBinding Light=Black, Dark=Black}" />
 
                         <!-- Tekst -->
-                            <StackLayout Padding="10"
-                                 VerticalOptions="End"
-                                 Spacing="2">
-                                <!--<Label Text="{Binding Destination}"-->
-                                <Label Text="Rzym"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="White"
-                               LineBreakMode="TailTruncation" />
+                            <StackLayout 
+                                Padding="10"
+                                VerticalOptions="End"
+                                Spacing="2">
+                                <Label Text="{Binding Destination}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       LineBreakMode="TailTruncation" />
                                 <!--<Label Text="{Binding TripDateRange}"--> 
-                                <Label Text="1 - 14 September 2025" 
+                                <Label Text= TextTransform "1 - 14 September 2025" 
                                FontSize="13"
                                TextColor="White" />
                                 <!--<Label Text="{Binding PackingSummary}"-->
