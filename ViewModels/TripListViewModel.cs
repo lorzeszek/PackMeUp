@@ -10,12 +10,13 @@ namespace PackMeUp.ViewModels
     public partial class TripListViewModel : BaseViewModel
     {
         private bool _isSubscribed = false;
-        public ObservableRangeCollection<Trip> Trips { get; } = new();
+        //public ObservableRangeCollection<Trip> Trips { get; } = new();
+        public ObservableRangeCollection<TripViewModel> Trips { get; } = new();
 
-        public ICommand TripTappedCommand => new Command<Trip>(OnTripTapped);
+        public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
         public ICommand AddTripCommand => new Command(async () => await Task.Run(() => AddTrip("wycieczka 1 test")));
-        public ICommand DeleteTripCommand => new Command<Trip>(async (trip) => await Task.Run(() => DeleteTripAsync(trip)));
-        public ICommand TrashTripCommand => new Command<Trip>(async (trip) => await Task.Run(() => TrashTripAsync(trip)));
+        public ICommand DeleteTripCommand => new Command<TripViewModel>(async (trip) => await Task.Run(() => DeleteTripAsync(trip)));
+        public ICommand TrashTripCommand => new Command<TripViewModel>(async (trip) => await Task.Run(() => TrashTripAsync(trip)));
 
 
 
@@ -32,7 +33,7 @@ namespace PackMeUp.ViewModels
         //    //await InitializeRealtimeAsync();
         //}
 
-        private async void OnTripTapped(Trip trip)
+        private async void OnTripTapped(TripViewModel trip)
         {
             if (trip == null)
                 return;
@@ -41,15 +42,15 @@ namespace PackMeUp.ViewModels
 
             await Shell.Current.GoToAsync(nameof(PackingListPage), new Dictionary<string, object>
             {
-                ["tripId"] = trip.Id
+                ["tripId"] = trip.TripModel.Id
             });
         }
 
-        private async Task TrashTripAsync(Trip trip)
+        private async Task TrashTripAsync(TripViewModel trip)
         {
             try
             {
-                var getTripResult = await _supabase.Client.From<Trip>().Where(x => x.Id == trip.Id).Get();
+                var getTripResult = await _supabase.Client.From<Trip>().Where(x => x.Id == trip.TripModel.Id).Get();
 
                 var selectedTrip = getTripResult.Models.First();
 
@@ -77,11 +78,11 @@ namespace PackMeUp.ViewModels
             //});
         }
 
-        private async Task DeleteTripAsync(Trip trip)
+        private async Task DeleteTripAsync(TripViewModel trip)
         {
             try
             {
-                await _supabase.Client.From<Trip>().Delete(trip);
+                await _supabase.Client.From<Trip>().Delete(trip.TripModel);
             }
             catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
             {
@@ -140,13 +141,15 @@ namespace PackMeUp.ViewModels
                         {
                             if (!newItem.IsInTrash)
                             {
-                                MainThread.BeginInvokeOnMainThread(() => Trips.Add(newItem));
+                                //MainThread.BeginInvokeOnMainThread(() => Trips.Add(newItem));
+                                MainThread.BeginInvokeOnMainThread(() => Trips.Add(new TripViewModel(newItem)));
                             }
                         },
                         // UPDATE handler
                         updatedItem =>
                         {
-                            var existing = Trips.FirstOrDefault(t => t.Id == updatedItem.Id);
+                            //var existing = Trips.FirstOrDefault(t => t.Id == updatedItem.Id);
+                            var existing = Trips.FirstOrDefault(t => t.TripModel.Id == updatedItem.Id);
                             MainThread.BeginInvokeOnMainThread(() =>
                             {
                                 if (updatedItem.IsInTrash)
@@ -158,16 +161,19 @@ namespace PackMeUp.ViewModels
                                     if (existing != null)
                                     {
                                         var i = Trips.IndexOf(existing);
-                                        Trips[i] = updatedItem;
+                                        //Trips[i] = updatedItem;
+                                        Trips[i] = new TripViewModel(updatedItem);
                                     }
-                                    else { Trips.Add(updatedItem); }
+                                    //else { Trips.Add(updatedItem); }
+                                    else { Trips.Add(new TripViewModel(updatedItem)); }
                                 }
                             });
                         },
                         // DELETE handler
                         deletedItem =>
                         {
-                            var existing = Trips.FirstOrDefault(t => t.Id == deletedItem.Id);
+                            //var existing = Trips.FirstOrDefault(t => t.Id == deletedItem.Id);
+                            var existing = Trips.FirstOrDefault(t => t.TripModel.Id == deletedItem.Id);
                             if (existing != null)
                             {
                                 MainThread.BeginInvokeOnMainThread(() => Trips.Remove(existing));
@@ -185,7 +191,10 @@ namespace PackMeUp.ViewModels
                     .Where(x => x.IsInTrash == false)
                     .Get();
 
-                Trips.ReplaceRange(response.Models);
+                var tripsViewModels = response.Models.Select(x => new TripViewModel(x));
+
+                //Trips.ReplaceRange(response.Models);
+                Trips.ReplaceRange(tripsViewModels);
             }
             finally
             {

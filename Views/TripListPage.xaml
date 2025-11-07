@@ -105,7 +105,7 @@
                     StrokeThickness="0"
                     StrokeShape="RoundRectangle 12"
                     HeightRequest="180"
-                    Opacity="{Binding IsActive, Converter={StaticResource BoolToOpacityConverter}}">
+                    Opacity="{Binding TripModel.IsActive, Converter={StaticResource BoolToOpacityConverter}}">
 
                     <Grid>
                         <!--<Image Source="{Binding BackgroundImageUrl}"-->
@@ -124,17 +124,15 @@
                                 Padding="10"
                                 VerticalOptions="End"
                                 Spacing="2">
-                                <Label Text="{Binding Destination}"
+                                <Label Text="{Binding TripModel.Destination}"
                                        FontSize="18"
                                        FontAttributes="Bold"
                                        TextColor="White"
                                        LineBreakMode="TailTruncation" />
-                                <!--<Label Text="{Binding TripDateRange}"--> 
-                                <Label Text= TextTransform "1 - 14 September 2025" 
+                                <Label Text="{Binding TripDatesRange}" 
                                FontSize="13"
                                TextColor="White" />
-                                <!--<Label Text="{Binding PackingSummary}"-->
-                                <Label Text="10 / 30 packed"
+                                <Label Text="{Binding PackingSummary}"
                                FontSize="12"
                                TextColor="White" />
                             </StackLayout>
