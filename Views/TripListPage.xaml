@@ -1,92 +1,21 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:mpk="clr-namespace:MPowerKit.Lottie;assembly=MPowerKit.Lottie"
+<ContentPage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns="http://schemas.microsoft.com/dotnet/maui/global"
+             x:DataType="TripListViewModel"
              x:Class="PackMeUp.Views.TripListPage"
              x:Name="TripListView"
-             xmlns:converters="clr-namespace:PackMeUp.Converters"
-             xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
              Title="{Binding Title}"
-             Shell.NavBarIsVisible="False"
-             >
+             Shell.NavBarIsVisible="False">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"
+            <BoolToOpacityConverter x:Key="BoolToOpacityConverter"
                                                TrueOpacity="1"
                                                FalseOpacity="0.5"/>
         </ResourceDictionary>
     </ContentPage.Resources>
     
-    <!--<Grid Padding="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height ="*"/>
-            <RowDefinition Height ="Auto"/>
-        </Grid.RowDefinitions>
-
-        <CollectionView  Grid.Row="0" ItemsSource="{Binding Trips}" SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame HeightRequest="150" Margin="10"
-                   Padding="10"
-                   HasShadow="True"
-                   CornerRadius="5"
-                   BackgroundColor="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource CardBackgroundColorDark}}">
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}"
-                  CommandParameter="{Binding .}" />
-                        </Frame.GestureRecognizers>
-
-                        <Grid >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height ="*"/>
-                                <RowDefinition Height ="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <StackLayout Grid.ColumnSpan="2" Grid.Row="0" Background="Yellow">
-                                <Image Source="italy.jpg" Aspect="AspectFit" />
-
-                            </StackLayout>
-                            
-                            --><!--<StackLayout Grid.ColumnSpan="2" Grid.Row="0" Background="Yellow">
-                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
-                                <Label Text="{Binding Description}" FontSize="Small"/>
-                            </StackLayout>--><!--
-
-                            <VerticalStackLayout Grid.Column="0" Grid.Row="1">
-                                <Grid ColumnDefinitions="*,Auto" Padding="0" Margin="0">
-                                    <Label Text="{Binding Name}" Grid.Column="0" VerticalOptions="Center" />
-                                    <Label Text="{Binding Name}" Grid.Column="1" VerticalOptions="Center" />
-                                </Grid>
-                            </VerticalStackLayout>
-
-                            --><!-- Ikona kasowania --><!--
-                            <ImageButton Grid.Column="1" Grid.Row="1"
-                                 Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}"
-                                 CommandParameter="{Binding .}"
-                                 BackgroundColor="Transparent"
-                                 WidthRequest="30"
-                                 HeightRequest="30">
-                                <ImageButton.Source>
-                                    <FontImageSource Glyph="&#xE872;"
-                                             FontFamily="MaterialIcons"
-                                             Color="OrangeRed"
-                                             Size="24"/>
-                                </ImageButton.Source>
-                            </ImageButton>
-                        </Grid>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-        <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
-
-    </Grid>-->
+    
     <Grid Padding="10">
         <Grid.RowDefinitions>
             <RowDefinition Height ="*"/>
@@ -99,7 +28,7 @@
         </CollectionView.ItemsLayout>
 
         <CollectionView.ItemTemplate>
-            <DataTemplate>
+                <DataTemplate x:DataType="TripViewModel">
                 <Border
                     Margin="10"
                     StrokeThickness="0"
@@ -137,19 +66,19 @@
                                TextColor="White" />
                             </StackLayout>
 
-                            <mpk:LottieView
+                            <LottieView
                                 Source="RecycleBin.lottie"
                                 HorizontalOptions="End"
                                 VerticalOptions="Start"
                                 WidthRequest="34"
                                 AutoPlay="True"
                                 HeightRequest="34">
-                                <mpk:LottieView.GestureRecognizers>
+                                <LottieView.GestureRecognizers>
                                     <TapGestureRecognizer 
                                         Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}" 
                                         CommandParameter="{Binding .}" />
-                                </mpk:LottieView.GestureRecognizers>
-                            </mpk:LottieView>
+                                </LottieView.GestureRecognizers>
+                            </LottieView>
 
                             <!-- Overlay dla zakończonych -->
                             <BoxView IsVisible="False" BackgroundColor="#88000000" />
