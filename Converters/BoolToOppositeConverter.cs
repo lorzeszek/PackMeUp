@@ -2,17 +2,14 @@
 
 namespace PackMeUp.Converters
 {
-    public class BoolToOpacityConverter : IValueConverter
+    public class BoolToOppositeConverter : IValueConverter
     {
-        public double TrueOpacity { get; set; } = 1.0;   // domyślnie w pełni widoczne
-        public double FalseOpacity { get; set; } = 0.2;  // przygaszone po wycieczce
-
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is bool isActive)
-                return isActive ? TrueOpacity : FalseOpacity;
+            if (value is bool isTrueOrFalse)
+                return !isTrueOrFalse;
 
-            return TrueOpacity;
+            return Binding.DoNothing;
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

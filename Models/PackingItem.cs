@@ -14,7 +14,7 @@ namespace PackMeUp.Models
         public int TripId { get; set; }
 
         [Column("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [Column("CreatedDate")]
         public DateTime CreatedDate { get; set; }

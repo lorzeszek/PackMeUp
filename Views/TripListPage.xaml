@@ -9,14 +9,12 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <BoolToOpacityConverter x:Key="BoolToOpacityConverter"
-                                               TrueOpacity="1"
-                                               FalseOpacity="0.5"/>
+            <BoolToOpacityConverter x:Key="BoolToOpacityConverter" TrueOpacity="1" FalseOpacity="0.5"/>
+            <BoolToOppositeConverter x:Key="BoolToOppositeConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
     
-    
-    <Grid Padding="10">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height ="*"/>
             <RowDefinition Height ="Auto"/>
@@ -81,8 +79,7 @@
                             </LottieView>
 
                             <!-- Overlay dla zakończonych -->
-                            <BoxView IsVisible="False" BackgroundColor="#88000000" />
-                            <!--<BoxView IsVisible="{Binding IsCompleted}" BackgroundColor="#88000000" />-->
+                            <BoxView IsVisible="{Binding TripModel.IsActive, Converter={StaticResource BoolToOppositeConverter}}" BackgroundColor="Black" Opacity="0.5"/>
                     </Grid>
 
                     <!-- Tap całości -->

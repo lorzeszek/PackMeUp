@@ -21,6 +21,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
+		<!--Disable warnings from Microsoft.Maui.Controls.SourceGen e.g. "..'ListView is deprecated.."-->
+		<NoWarn>0618</NoWarn>
+		<NoWarn>$(NoWarn);0612</NoWarn>
+
 		<!-- Display name -->
 		<ApplicationTitle>PackMeUp</ApplicationTitle>
 
