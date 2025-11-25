@@ -6,7 +6,7 @@ namespace PackMeUp.ViewModels
 {
     public abstract partial class BaseViewModel : ObservableObject, IQueryAttributable //: INotifyPropertyChanged
     {
-        protected readonly ISupabaseService _supabase;
+        public readonly ISupabaseService _supabase;
 
         private bool _isBusy;
         public bool IsBusy

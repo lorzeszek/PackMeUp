@@ -13,7 +13,7 @@
 
     <ShellContent
         Title="Welcome"
-        ContentTemplate="{DataTemplate views:WelcomePage}"
+        ContentTemplate="{DataTemplate views:StartPage}"
         Route="welcome" />
 
     <!-- To są tylko ukryte trasy, nie będą widoczne w menu -->

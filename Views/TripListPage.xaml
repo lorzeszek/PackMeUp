@@ -13,6 +13,85 @@
             <BoolToOppositeConverter x:Key="BoolToOppositeConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
+
+    <!--<Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height ="*"/>
+            <RowDefinition Height ="Auto"/>
+        </Grid.RowDefinitions>
+        <SfCarousel Grid.Row="0"
+ x:Name="carousel"
+ HeightRequest="400"
+ ItemHeight="300"
+ ItemWidth="200"
+ ItemsSource="{Binding Trips}"
+ ViewMode="Default"
+ WidthRequest="800" >
+            <SfCarousel.ItemTemplate>
+                <DataTemplate x:DataType="TripViewModel">
+                    <Border
+ Margin="10"
+ StrokeThickness="0"
+ StrokeShape="RoundRectangle 12"
+ HeightRequest="180"
+ Opacity="{Binding TripModel.IsActive, Converter={StaticResource BoolToOpacityConverter}}">
+
+                        <Grid>
+                            <Image Source="italy.webp"
+        Aspect="AspectFill"/>
+
+                            <BoxView 
+         VerticalOptions="End" 
+         HeightRequest="80"
+         Opacity="0.6"
+         Background="{AppThemeBinding Light=Black, Dark=Black}" />
+
+                            <StackLayout 
+             Padding="10"
+             VerticalOptions="End"
+             Spacing="2">
+                                <Label Text="{Binding TripModel.Destination}"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding TripDatesRange}" 
+            FontSize="13"
+            TextColor="White" />
+                                <Label Text="{Binding PackingSummary}"
+            FontSize="12"
+            TextColor="White" />
+                            </StackLayout>
+
+                            <LottieView
+             Source="RecycleBin.lottie"
+             HorizontalOptions="End"
+             VerticalOptions="Start"
+             WidthRequest="34"
+             AutoPlay="True"
+             HeightRequest="34">
+                                <LottieView.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                     Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}" 
+                     CommandParameter="{Binding .}" />
+                                </LottieView.GestureRecognizers>
+                            </LottieView>
+
+                            <BoxView IsVisible="{Binding TripModel.IsActive, Converter={StaticResource BoolToOppositeConverter}}" BackgroundColor="Black" Opacity="0.5"/>
+                        </Grid>
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer 
+         Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}" 
+         CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </SfCarousel.ItemTemplate>
+        </SfCarousel>
+        <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
+    </Grid>-->
+
     
     <Grid>
         <Grid.RowDefinitions>
@@ -22,7 +101,6 @@
         <CollectionView Grid.Row="0" ItemsSource="{Binding Trips}" SelectionMode="None">
         <CollectionView.ItemsLayout>
             <GridItemsLayout Orientation="Vertical" />
-            <!-- 2 kolumny kafelków -->
         </CollectionView.ItemsLayout>
 
         <CollectionView.ItemTemplate>
@@ -35,18 +113,15 @@
                     Opacity="{Binding TripModel.IsActive, Converter={StaticResource BoolToOpacityConverter}}">
 
                     <Grid>
-                        <!--<Image Source="{Binding BackgroundImageUrl}"-->
                         <Image Source="italy.webp"
                            Aspect="AspectFill"/>
                         
-                        <!-- Gradient overlay -->
                         <BoxView 
                             VerticalOptions="End" 
                             HeightRequest="80"
                             Opacity="0.6"
                             Background="{AppThemeBinding Light=Black, Dark=Black}" />
 
-                        <!-- Tekst -->
                             <StackLayout 
                                 Padding="10"
                                 VerticalOptions="End"
@@ -78,11 +153,9 @@
                                 </LottieView.GestureRecognizers>
                             </LottieView>
 
-                            <!-- Overlay dla zakończonych -->
                             <BoxView IsVisible="{Binding TripModel.IsActive, Converter={StaticResource BoolToOppositeConverter}}" BackgroundColor="Black" Opacity="0.5"/>
                     </Grid>
 
-                    <!-- Tap całości -->
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer 
                             Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}" 
@@ -97,3 +170,6 @@
 
     </Grid>
 </ContentPage>
+
+
+

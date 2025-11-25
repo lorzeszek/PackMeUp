@@ -3,6 +3,7 @@ using PackMeUp.Helpers;
 using PackMeUp.Models;
 using PackMeUp.Services;
 using PackMeUp.Views;
+using System.Text.Json;
 using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
@@ -11,7 +12,7 @@ namespace PackMeUp.ViewModels
     {
         private bool _isSubscribed = false;
         //public ObservableRangeCollection<Trip> Trips { get; } = new();
-        public ObservableRangeCollection<TripViewModel> Trips { get; } = new();
+        public ObservableRangeCollection<TripViewModel> Trips { get; } = new ObservableRangeCollection<TripViewModel>();
 
         public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
         public ICommand AddTripCommand => new Command(async () => await Task.Run(() => AddTrip("wycieczka 1 test")));
@@ -89,15 +90,6 @@ namespace PackMeUp.ViewModels
                 // Logowanie pełnego wyjątku
                 Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
             }
-            //catch (Exception ex) 
-            //{ 
-            //    Console.WriteLine(ex.Message);
-            //}
-
-            //await MainThread.InvokeOnMainThreadAsync(async () =>
-            //{
-            //    await LoadTripsAsync();
-            //});
         }
 
         private async Task AddTrip(string destinationName)
@@ -185,15 +177,45 @@ namespace PackMeUp.ViewModels
                 }
 
                 // 🔹 Początkowe pobranie z filtrem
+                //var response = await _supabase.Client
+                //    .From<Trip>()
+                //    .Select("*, Items:PackingItem(*)")
+                //    .Where(x => x.IsInTrash == false)
+                //    .Get();
+
                 var response = await _supabase.Client
                     .From<Trip>()
-                    .Select("*, Items:PackingItem(*)")
-                    .Where(x => x.IsInTrash == false)
+                    .Select("*")
+                    .Where(x => x.IsActive == true)
+                    //.Where(x => x.IsInTrash == false)
                     .Get();
 
-                var tripsViewModels = response.Models.Select(x => new TripViewModel(x));
+                var tripsViewModels = response.Models.Select(x => new TripViewModel(x))?.ToList() ?? [];
 
-                //Trips.ReplaceRange(response.Models);
+                var statsRespons = await _supabase.Client.Rpc("count_items_stats_for_all_trips", null);
+
+                string statsResponsJson = statsRespons?.Content ?? string.Empty;
+
+                if (!string.IsNullOrEmpty(statsResponsJson))
+                {
+                    var stats = JsonSerializer.Deserialize<List<TripItemsStats>>(statsResponsJson);
+
+                    if (stats != null)
+                    {
+                        foreach (var trip in tripsViewModels)
+                        {
+                            var stat = stats.FirstOrDefault(s => s.TripId == trip.TripModel.Id);
+                            if (stat != null)
+                            {
+                                var total = stat.IsPackedCount + stat.IsNotPackedCount;
+                                var percent = total > 0 ? (double)stat.IsPackedCount / total * 100 : 0;
+                                trip.PackingSummary = $"{stat.IsPackedCount} / {total} ({percent:F0}%)";
+                            }
+                        }
+                    }
+
+                }
+
                 Trips.ReplaceRange(tripsViewModels);
             }
             finally

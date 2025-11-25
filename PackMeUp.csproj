@@ -41,6 +41,21 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<AndroidSigningKeyStore>packmeup.keystore</AndroidSigningKeyStore>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android36.0|AnyCPU'">
+	  <AndroidKeyStore>True</AndroidKeyStore>
+	  <AndroidSigningStorePass>|,M1;hK@o!r!dc'Plf0f</AndroidSigningStorePass>
+	  <AndroidSigningKeyAlias>packmeup</AndroidSigningKeyAlias>
+	  <AndroidSigningKeyPass>|,M1;hK@o!r!dc'Plf0f</AndroidSigningKeyPass>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android36.0|AnyCPU'">
+	  <AndroidKeyStore>True</AndroidKeyStore>
+	  <AndroidSigningStorePass>|,M1;hK@o!r!dc'Plf0f</AndroidSigningStorePass>
+	  <AndroidSigningKeyAlias>packmeup</AndroidSigningKeyAlias>
+	  <AndroidSigningKeyPass>|,M1;hK@o!r!dc'Plf0f</AndroidSigningKeyPass>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -75,6 +90,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 		<PackageReference Include="MPowerKit.Lottie" Version="1.2.0" />
 		<PackageReference Include="Supabase" Version="1.1.1" />
+		<PackageReference Include="Syncfusion.Maui.Carousel" Version="31.2.10" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -84,7 +100,7 @@
 	  <MauiXaml Update="Views\TripListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\WelcomePage.xaml">
+	  <MauiXaml Update="Views\StartPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
@@ -99,9 +115,27 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\StartPage.xaml.cs">
+	    <DependentUpon>StartPage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiAsset Update="Resources\Raw\RecycleBin.lottie">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </MauiAsset>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android36.0'">
+	  <PackageReference Include="Xamarin.AndroidX.Credentials">
+	    <Version>1.5.0.3</Version>
+	  </PackageReference>
+	  <PackageReference Include="Xamarin.AndroidX.Credentials.PlayServicesAuth">
+	    <Version>1.5.0.3</Version>
+	  </PackageReference>
+	  <PackageReference Include="Xamarin.GooglePlayServices.Auth">
+	    <Version>121.4.0.1</Version>
+	  </PackageReference>
 	</ItemGroup>
 
 </Project>

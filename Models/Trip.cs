@@ -55,8 +55,8 @@ namespace PackMeUp.Models
             }
         }
 
-        [Reference(typeof(PackingItem), ReferenceAttribute.JoinType.Left)]
-        public List<PackingItem> Items { get; set; } = new();
+        //[Reference(typeof(PackingItem), ReferenceAttribute.JoinType.Left)]
+        //public List<PackingItem> Items { get; set; } = new();
 
 
         public event PropertyChangedEventHandler? PropertyChanged;

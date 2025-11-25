@@ -22,9 +22,6 @@ namespace PackMeUp.Models
         [Column("ModifiedDate")]
         public DateTime? ModifiedDate { get; set; }
 
-        //[Column("IsPacked")]
-        //public bool IsPacked { get; set; }
-
         private bool _isPacked;
         [Column("IsPacked")]
         public bool IsPacked
