@@ -25,8 +25,6 @@ namespace PackMeUp
                 })
                 .UseMPowerKitLottie();
 
-            //Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JFaF1cX2hIf0x0R3xbf1x1ZFNMY1pbRXRPIiBoS35Rc0RiWHpfeHdTR2JcVEF1VEFc"); //DEMO KEY
-            //Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JFaF5cXGRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWH5feHVQR2RYVEF0XkVWYEg=");
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjGyl/Vkd+XU9FcVRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS3tSd0RrWHpccndWR2BaUE91Xg==");
 
             builder.Services.AddSingleton<ISupabaseService, SupabaseService>();
@@ -40,18 +38,8 @@ namespace PackMeUp
             builder.Services.AddTransient<PackingListViewModel>();
 
 #if ANDROID
-            // Rejestracja GoogleAuthService tylko dla Androida
             builder.Services.AddSingleton<IGoogleAuthService, PackMeUp.Platforms.Android.GoogleAuthService>();
 #endif
-
-            //#if ANDROID
-            //            builder.Services.AddSingleton(() =>
-            //            {
-            //                return Platform.CurrentActivity;
-            //            });
-            //#endif
-
-
 
 #if DEBUG
             builder.Logging.AddDebug();
