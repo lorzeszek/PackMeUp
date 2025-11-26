@@ -12,7 +12,7 @@ namespace PackMeUp.ViewModels
         private int _tripId { get; set; }
 
 
-        private string _newItemName;
+        private string _newItemName = string.Empty;
         public string NewItemName
         {
             get => _newItemName;

@@ -6,16 +6,28 @@ namespace PackMeUp.ViewModels
 {
     public abstract partial class BaseViewModel : ObservableObject, IQueryAttributable //: INotifyPropertyChanged
     {
-        protected readonly ISupabaseService _supabase;
+        public readonly ISupabaseService _supabase;
 
-        [ObservableProperty]
-        private bool isBusy;
+        private bool _isBusy;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
+        }
 
-        [ObservableProperty]
-        private string title;
+        private string _title = string.Empty;
+        public string Title
+        {
+            get => _title;
+            set => SetProperty(ref _title, value);
+        }
 
-        [ObservableProperty]
-        private bool isRefreshing;
+        private bool _isRefreshing;
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set => SetProperty(ref _isRefreshing, value);
+        }
 
         public BaseViewModel(ISupabaseService supabase)
         {
@@ -26,7 +38,7 @@ namespace PackMeUp.ViewModels
 
         //public virtual ICommand RefreshCommand { get; }
 
-        public IRealtimeChannel _subscription;
+        public IRealtimeChannel? _subscription;
 
         /// <summary>
         /// Shell wywoła tę metodę przy wejściu na stronę z parametrami.

@@ -14,16 +14,13 @@ namespace PackMeUp.Models
         public int TripId { get; set; }
 
         [Column("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [Column("CreatedDate")]
         public DateTime CreatedDate { get; set; }
 
         [Column("ModifiedDate")]
         public DateTime? ModifiedDate { get; set; }
-
-        //[Column("IsPacked")]
-        //public bool IsPacked { get; set; }
 
         private bool _isPacked;
         [Column("IsPacked")]
