@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using PackMeUp.Interfaces;
-using PackMeUp.Services;
+using PackMeUp.Services.Interfaces;
 using PackMeUp.Views;
 
 namespace PackMeUp.ViewModels
@@ -10,7 +10,7 @@ namespace PackMeUp.ViewModels
         private readonly IGoogleAuthService _googleAuthService;
         public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
 
-        public StartViewModel(ISupabaseService supabase, IGoogleAuthService googleAuthService) : base(supabase)
+        public StartViewModel(ISupabaseService supabase, ISessionService sessionService, IGoogleAuthService googleAuthService) : base(supabase, sessionService)
         {
             _googleAuthService = googleAuthService;
         }
@@ -28,24 +28,15 @@ namespace PackMeUp.ViewModels
 
                     if (session != null)
                     {
-                        // Zalogowany użytkownik jest dostępny:
-                        var user = session.User;
+                        //_sessionService.SetUser(session.User);
 
                         // Możesz teraz np. ustawić w ViewModel flagę:
                         //IsLoggedIn = true;
-                        //LoggedInUserName = user?.Email ?? user?.Id;
+                        //var LoggedInUserName = user?.Email ?? user?.Id;
 
-                        // Albo nawigować do innego widoku
                         await Shell.Current.GoToAsync(nameof(TripListPage));
-                        //await Shell.Current.GoToAsync("//HomePage");
                     }
-
-                    //Debug.WriteLine($"Google Id Token: {token}");
                 }
-                //else
-                //{
-                //    Debug.WriteLine("Logowanie przerwane lub nieudane");
-                //}
             }
             catch (Exception ex)
             {
