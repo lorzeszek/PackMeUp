@@ -1,7 +1,8 @@
-﻿using PackMeUp.Extensions;
+﻿using CommunityToolkit.Mvvm.Input;
+using PackMeUp.Extensions;
 using PackMeUp.Helpers;
 using PackMeUp.Models;
-using PackMeUp.Services;
+using PackMeUp.Services.Interfaces;
 using PackMeUp.Views;
 using System.Text.Json;
 using System.Windows.Input;
@@ -19,9 +20,10 @@ namespace PackMeUp.ViewModels
         public ICommand DeleteTripCommand => new Command<TripViewModel>(async (trip) => await Task.Run(() => DeleteTripAsync(trip)));
         public ICommand TrashTripCommand => new Command<TripViewModel>(async (trip) => await Task.Run(() => TrashTripAsync(trip)));
 
+        public IRelayCommand LogoutCommand => new AsyncRelayCommand(Logout);
 
 
-        public TripListViewModel(ISupabaseService supabase) : base(supabase)
+        public TripListViewModel(ISupabaseService supabase, ISessionService sessionService) : base(supabase, sessionService)
         {
             Title = "Moje wycieczki";
 
@@ -96,7 +98,7 @@ namespace PackMeUp.ViewModels
         {
             try
             {
-                await _supabase.Client.From<Trip>().Insert(new Trip { Destination = destinationName, CreatedDate = DateTime.Now });
+                await _supabase.Client.From<Trip>().Insert(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = _sessionService.UserId });
             }
             catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
             {
@@ -223,6 +225,15 @@ namespace PackMeUp.ViewModels
                 IsBusy = false;
                 IsRefreshing = false;
             }
+        }
+
+        private async Task Logout()
+        {
+            await _supabase.Client.Auth.SignOut();
+
+            //_sessionService.ClearUser();
+
+            await Shell.Current.GoToAsync("///StartPage");
         }
 
         public Task DisposeRealtimeAsync()

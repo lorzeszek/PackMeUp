@@ -1,4 +1,6 @@
-﻿namespace PackMeUp.Services
+﻿using PackMeUp.Services.Interfaces;
+
+namespace PackMeUp.Services
 {
     public class SupabaseService : ISupabaseService
     {

@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PackMeUp.Services;
+using PackMeUp.Services.Interfaces;
 using Supabase.Realtime.Interfaces;
 
 namespace PackMeUp.ViewModels
@@ -7,6 +7,7 @@ namespace PackMeUp.ViewModels
     public abstract partial class BaseViewModel : ObservableObject, IQueryAttributable //: INotifyPropertyChanged
     {
         public readonly ISupabaseService _supabase;
+        public readonly ISessionService _sessionService;
 
         private bool _isBusy;
         public bool IsBusy
@@ -29,9 +30,10 @@ namespace PackMeUp.ViewModels
             set => SetProperty(ref _isRefreshing, value);
         }
 
-        public BaseViewModel(ISupabaseService supabase)
+        public BaseViewModel(ISupabaseService supabase, ISessionService sessionService)
         {
             _supabase = supabase;
+            _sessionService = sessionService;
 
             //RefreshCommand = new Command(async () => await ExecuteRefreshCommand());
         }
