@@ -75,7 +75,7 @@ namespace PackMeUp.ViewModels
                 IsBusy = true;
                 IsRefreshing = true;
 
-                var newItem = new PackingItem { Name = _newItemName, Category = 4, TripId = _tripId };
+                var newItem = new PackingItem { Name = _newItemName, Category = 3, TripId = _tripId };
 
                 try
                 {
