@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using PackMeUp.Interfaces;
 using PackMeUp.Services.Interfaces;
-using PackMeUp.Views;
 
 namespace PackMeUp.ViewModels
 {
@@ -34,7 +33,7 @@ namespace PackMeUp.ViewModels
                         //IsLoggedIn = true;
                         //var LoggedInUserName = user?.Email ?? user?.Id;
 
-                        await Shell.Current.GoToAsync(nameof(TripListPage));
+                        //await Shell.Current.GoToAsync(nameof(TripListPage));
                     }
                 }
             }

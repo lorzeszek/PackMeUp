@@ -98,7 +98,7 @@ namespace PackMeUp.ViewModels
         {
             try
             {
-                await _supabase.Client.From<Trip>().Insert(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = _sessionService.UserId });
+                await _supabase.Client.From<Trip>().Insert(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = Session.UserId });
             }
             catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
             {

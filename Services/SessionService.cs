@@ -1,17 +1,45 @@
 ﻿using PackMeUp.Services.Interfaces;
 using Supabase.Gotrue;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace PackMeUp.Services
 {
-    public class SessionService : ISessionService
+    public class SessionService : ISessionService, INotifyPropertyChanged
     {
-        public string? UserId { get; private set; }
-        public User? User { get; private set; }
-
         public readonly ISupabaseService _supabase;
 
+        public bool IsLoggedIn => User != null;
 
-        //public SessionService(Supabase.Client client)
+        private string? _userId;
+        public string? UserId
+        {
+            get => _userId;
+            private set
+            {
+                if (_userId != value)
+                {
+                    _userId = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private User? _user;
+        public User? User
+        {
+            get => _user;
+            set
+            {
+                if (_user != value)
+                {
+                    _user = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsLoggedIn));
+                }
+            }
+        }
+
         public SessionService(ISupabaseService supabase)
         {
             _supabase = supabase;
@@ -26,18 +54,21 @@ namespace PackMeUp.Services
                 SetUser(user);
             }
 
-            _supabase.Client.Auth.AddStateChangedListener((sender, e) =>
+            _supabase.Client.Auth.AddStateChangedListener(async (sender, e) =>
             {
                 var currentUser = _supabase.Client.Auth.CurrentUser;
 
-                if (currentUser != null)
+                await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    SetUser(currentUser);
-                }
-                else
-                {
-                    ClearUser();
-                }
+                    if (currentUser != null)
+                    {
+                        SetUser(currentUser);
+                    }
+                    else
+                    {
+                        ClearUser();
+                    }
+                });
             });
         }
 
@@ -51,6 +82,13 @@ namespace PackMeUp.Services
         {
             User = null;
             UserId = null;
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

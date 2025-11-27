@@ -1,4 +1,4 @@
-﻿using PackMeUp.ViewModels;
+using PackMeUp.ViewModels;
 
 namespace PackMeUp.Views;
 
