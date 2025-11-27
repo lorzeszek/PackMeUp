@@ -6,6 +6,7 @@ namespace PackMeUp.Services.Interfaces
     {
         string? UserId { get; }
         User? User { get; }
+        bool IsLoggedIn { get; }
         Task InitializeAsync();
         void SetUser(User? user);
         void ClearUser();

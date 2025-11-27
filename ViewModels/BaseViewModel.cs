@@ -7,7 +7,10 @@ namespace PackMeUp.ViewModels
     public abstract partial class BaseViewModel : ObservableObject, IQueryAttributable //: INotifyPropertyChanged
     {
         public readonly ISupabaseService _supabase;
-        public readonly ISessionService _sessionService;
+        public readonly ISessionService Session;
+        //public ISessionService SessionService => Session;
+
+        //public ISessionService Session { get; }
 
         private bool _isBusy;
         public bool IsBusy
@@ -33,7 +36,7 @@ namespace PackMeUp.ViewModels
         public BaseViewModel(ISupabaseService supabase, ISessionService sessionService)
         {
             _supabase = supabase;
-            _sessionService = sessionService;
+            Session = sessionService;
 
             //RefreshCommand = new Command(async () => await ExecuteRefreshCommand());
         }

@@ -4,13 +4,19 @@
              x:Class="PackMeUp.Views.StartPage"
              Title="Witamy">
 
+	<ContentPage.Resources>
+		<ResourceDictionary>
+			<BoolToOppositeConverter x:Key="BoolToVisibilityConverter"/>
+		</ResourceDictionary>
+	</ContentPage.Resources>
+	
     <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
         <Label Text="Witaj w PackMeUp!" FontSize="24" />
         <Button Text="Zacznijmy pakowanie" 
                 Clicked="StartButton_Clicked"
                 HorizontalOptions="Center" />
 
-        <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" />
+        <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
     </StackLayout>
 
 </ContentPage>
