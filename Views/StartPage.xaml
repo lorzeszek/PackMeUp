@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+<ContentPage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns="http://schemas.microsoft.com/dotnet/maui/global"
+			 x:DataType="StartViewModel"
+			 x:Name="StartView"
              x:Class="PackMeUp.Views.StartPage"
              Title="Witamy">
 
-	<ContentPage.Resources>
-		<ResourceDictionary>
-			<BoolToOppositeConverter x:Key="BoolToVisibilityConverter"/>
-		</ResourceDictionary>
-	</ContentPage.Resources>
-	
-    <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-        <Label Text="Witaj w PackMeUp!" FontSize="24" />
-        <Button Text="Zacznijmy pakowanie" 
-                Clicked="StartButton_Clicked"
-                HorizontalOptions="Center" />
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <BoolToOppositeConverter x:Key="BoolToVisibilityConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-        <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
-    </StackLayout>
+    <Grid>
+        <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+            <Label Text="Witaj w PackMeUp!" FontSize="24" />
+            <Button Text="Zacznijmy pakowanie"
+					Clicked="StartButton_Clicked"
+					HorizontalOptions="Center" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+            <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}}" />
+        </StackLayout>
+    </Grid>
 
 </ContentPage>

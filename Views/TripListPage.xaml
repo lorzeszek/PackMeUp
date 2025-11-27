@@ -11,6 +11,7 @@
         <ResourceDictionary>
             <BoolToOpacityConverter x:Key="BoolToOpacityConverter" TrueOpacity="1" FalseOpacity="0.5"/>
             <BoolToOppositeConverter x:Key="BoolToOppositeConverter"/>
+            <BoolToOppositeConverter x:Key="BoolToVisibilityConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -168,7 +169,7 @@
         
     </CollectionView>
         <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
-        <Button Grid.Row="2" Margin="0,0,10,0" HorizontalOptions="End"  Text="Logout" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding LogoutCommand}" />
+        <Button Grid.Row="2" Margin="0,0,10,0" HorizontalOptions="End"  Text="Logout" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding LogoutCommand}" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
 
     </Grid>
 </ContentPage>

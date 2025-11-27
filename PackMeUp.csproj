@@ -97,10 +97,10 @@
 	  <MauiXaml Update="Views\PackingListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\TripListPage.xaml">
+	  <MauiXaml Update="Views\StartPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\StartPage.xaml">
+	  <MauiXaml Update="Views\TripListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
@@ -112,12 +112,6 @@
 	  <MauiAsset Include="Resources\Images\Countries\italy.webp">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </MauiAsset>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Views\StartPage.xaml.cs">
-	    <DependentUpon>StartPage.xaml</DependentUpon>
-	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
