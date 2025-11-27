@@ -1,14 +1,24 @@
 ﻿using PackMeUp.Extensions;
-using PackMeUp.Helpers;
 using PackMeUp.Models;
 using PackMeUp.Services.Interfaces;
 using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
 {
-    public partial class PackingListViewModel : BaseViewModel
+    public class PackingListViewModel : RealtimeViewModel<PackingItem, PackingItem>
     {
-        private bool _isSubscribed = false;
+        public ObservableRangeCollection<PackingItem> Items { get; } = new();
+
+        protected override ObservableRangeCollection<PackingItem> ItemsCollection => Items;
+
+        protected override PackingItem MapToViewModel(PackingItem model) => model;
+
+        protected override object GetId(PackingItem model) => model.Id;
+        protected override object GetModelId(PackingItem vm) => vm.Id;
+
+        protected override bool ShouldAdd(PackingItem model) => true;
+
+        //private bool _isSubscribed = false;
         private int _tripId { get; set; }
 
 
@@ -26,7 +36,7 @@ namespace PackMeUp.ViewModels
             }
         }
 
-        public ObservableRangeCollection<PackingItem> Items { get; } = new();
+        //public ObservableRangeCollection<PackingItem> Items { get; } = new();
         public ICommand AddItemCommand => new Command(async () => await Task.Run(() => AddItemAsync()));
         public ICommand ToggleIsPackedCommand => new Command<PackingItem>(async (packingItem) => await Task.Run(() => ToggleIsPackedAsync(packingItem)));
 
@@ -155,70 +165,82 @@ namespace PackMeUp.ViewModels
 
         public async Task InitializeRealtimeAsync()
         {
-            if (_supabase.Client == null)
-                throw new Exception("Supabase Client is not initialized");
-
-            try
+            await InitializeRealtimeAsync(async () =>
             {
-                IsBusy = true;
-                IsRefreshing = true;
-
-                if (!_isSubscribed)// || _subscription == null)
-                {
-                    var d = await RealtimeSubscriptionHelper.SubscribeTableChanges<PackingItem>(
-                        _supabase.Client,
-                        // INSERT handler
-                        newItem =>
-                        {
-                            if (newItem != null)
-                            {
-                                MainThread.BeginInvokeOnMainThread(() => Items.Add(newItem));
-                            }
-                        },
-                        // UPDATE handler
-                        updatedItem =>
-                        {
-                            var existing = Items.FirstOrDefault(t => t.Id == updatedItem.Id);
-                            MainThread.BeginInvokeOnMainThread(() =>
-                            {
-                                if (existing != null)
-                                {
-                                    var i = Items.IndexOf(existing);
-                                    Items[i] = updatedItem;
-                                }
-                                else { Items.Add(updatedItem); }
-                            });
-                        },
-                        // DELETE handler
-                        deletedItem =>
-                        {
-                            var existing = Items.FirstOrDefault(t => t.Id == deletedItem.Id);
-                            if (existing != null)
-                            {
-                                MainThread.BeginInvokeOnMainThread(() => Items.Remove(existing));
-                            }
-                        }
-                    );
-
-                    _isSubscribed = true;
-
-                    _subscription = d.FirstOrDefault();
-                }
-
-                // 🔹 Początkowe pobranie z filtrem
                 var response = await _supabase.Client
                     .From<PackingItem>()
                     .Where(x => x.TripId == _tripId)
                     .Get();
 
-                Items.ReplaceRange(response.Models);
-            }
-            finally
-            {
-                IsBusy = false;
-                IsRefreshing = false;
-            }
+                return response.Models;
+            });
         }
+        //public async Task InitializeRealtimeAsync()
+        //{
+        //    if (_supabase.Client == null)
+        //        throw new Exception("Supabase Client is not initialized");
+
+        //    try
+        //    {
+        //        IsBusy = true;
+        //        IsRefreshing = true;
+
+        //        if (!_isSubscribed)// || _subscription == null)
+        //        {
+        //            var d = await RealtimeSubscriptionHelper.SubscribeTableChanges<PackingItem>(
+        //                _supabase.Client,
+        //                // INSERT handler
+        //                newItem =>
+        //                {
+        //                    if (newItem != null)
+        //                    {
+        //                        MainThread.BeginInvokeOnMainThread(() => Items.Add(newItem));
+        //                    }
+        //                },
+        //                // UPDATE handler
+        //                updatedItem =>
+        //                {
+        //                    var existing = Items.FirstOrDefault(t => t.Id == updatedItem.Id);
+        //                    MainThread.BeginInvokeOnMainThread(() =>
+        //                    {
+        //                        if (existing != null)
+        //                        {
+        //                            var i = Items.IndexOf(existing);
+        //                            Items[i] = updatedItem;
+        //                        }
+        //                        else { Items.Add(updatedItem); }
+        //                    });
+        //                },
+        //                // DELETE handler
+        //                deletedItem =>
+        //                {
+        //                    var existing = Items.FirstOrDefault(t => t.Id == deletedItem.Id);
+        //                    if (existing != null)
+        //                    {
+        //                        MainThread.BeginInvokeOnMainThread(() => Items.Remove(existing));
+        //                    }
+        //                }
+        //            );
+
+        //            _isSubscribed = true;
+
+        //            _subscription = d.FirstOrDefault();
+        //        }
+
+        //        // 🔹 Początkowe pobranie z filtrem
+        //        var response = await _supabase.Client
+        //            .From<PackingItem>()
+        //            .Where(x => x.TripId == _tripId)
+        //            .Get();
+
+        //        Items.ReplaceRange(response.Models);
+        //    }
+        //    finally
+        //    {
+        //        IsBusy = false;
+        //        IsRefreshing = false;
+        //    }
+        //}
 
 
         public Task DisposeRealtimeAsync()
