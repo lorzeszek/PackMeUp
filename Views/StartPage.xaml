@@ -8,7 +8,7 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <BoolToOppositeConverter x:Key="BoolToVisibilityConverter"/>
+            <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -19,7 +19,7 @@
 					Clicked="StartButton_Clicked"
 					HorizontalOptions="Center" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-            <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}}" />
+            <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
         </StackLayout>
     </Grid>
 
