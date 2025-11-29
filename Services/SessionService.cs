@@ -47,28 +47,35 @@ namespace PackMeUp.Services
 
         public async Task InitializeAsync()
         {
-            var user = _supabase.Client.Auth.CurrentUser;
-
-            if (user != null)
-            {
-                SetUser(user);
-            }
+            await TryRestoreSessionAsync();
 
             _supabase.Client.Auth.AddStateChangedListener(async (sender, e) =>
             {
-                var currentUser = _supabase.Client.Auth.CurrentUser;
+                var currentSession = _supabase.Client.Auth.CurrentSession;
 
-                await MainThread.InvokeOnMainThreadAsync(() =>
+                if (currentSession != null)
                 {
-                    if (currentUser != null)
+                    if (!string.IsNullOrEmpty(currentSession.AccessToken))
+                        await SecureStorage.SetAsync("access_token", currentSession.AccessToken);
+
+                    if (!string.IsNullOrEmpty(currentSession.RefreshToken))
+                        await SecureStorage.SetAsync("refresh_token", currentSession.RefreshToken);
+
+                    await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        SetUser(currentUser);
-                    }
-                    else
+                        SetUser(currentSession.User);
+                    });
+                }
+                else
+                {
+                    SecureStorage.Remove("access_token");
+                    SecureStorage.Remove("refresh_token");
+
+                    await MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         ClearUser();
-                    }
-                });
+                    });
+                }
             });
         }
 
@@ -82,6 +89,33 @@ namespace PackMeUp.Services
         {
             User = null;
             UserId = null;
+        }
+
+        private async Task TryRestoreSessionAsync()
+        {
+            try
+            {
+                var refreshToken = await SecureStorage.GetAsync("refresh_token");
+                var accessToken = await SecureStorage.GetAsync("access_token");
+
+                if (string.IsNullOrWhiteSpace(accessToken) || string.IsNullOrWhiteSpace(refreshToken))
+                    return;
+
+                _ = _supabase.Client.Auth.SetSession(accessToken, refreshToken, true);
+
+                var user = await _supabase.Client.Auth.GetUser(accessToken);
+
+                if (user == null)
+                    throw new Exception("User returned null");
+
+                SetUser(User);
+            }
+            catch (Exception ex)
+            {
+                // Refresh się nie udał → usuwamy stary token
+                SecureStorage.Remove("access_token");
+                SecureStorage.Remove("refresh_token");
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
