@@ -7,6 +7,7 @@ using PackMeUp.Services.Interfaces;
 using PackMeUp.ViewModels;
 using PackMeUp.Views;
 using Syncfusion.Maui.Core.Hosting;
+using UXDivers.Popups.Maui;
 
 namespace PackMeUp
 {
@@ -19,6 +20,7 @@ namespace PackMeUp
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .ConfigureSyncfusionCore()
+                .UseUXDiversPopups()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
