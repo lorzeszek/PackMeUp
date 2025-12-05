@@ -1,5 +1,6 @@
 ﻿using PackMeUp.Models;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace PackMeUp.ViewModels
 {
@@ -20,7 +21,7 @@ namespace PackMeUp.ViewModels
                 if (_packingSummary != value)
                 {
                     _packingSummary = value;
-                    OnPropertyChanged(nameof(PackingSummary));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -31,13 +32,6 @@ namespace PackMeUp.ViewModels
         public TripViewModel(Trip trip)
         {
             TripModel = trip;
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private string GetTripDatesRange()
@@ -55,6 +49,13 @@ namespace PackMeUp.ViewModels
             }
             else
                 return $"{startDate:dd MMM yyyy} - {endDate:dd MMM yyyy}";
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using PackMeUp.Extensions;
 using PackMeUp.Helpers;
 using PackMeUp.Models;
-using PackMeUp.Services;
+using PackMeUp.Services.Interfaces;
 using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
@@ -30,7 +30,7 @@ namespace PackMeUp.ViewModels
         public ICommand AddItemCommand => new Command(async () => await Task.Run(() => AddItemAsync()));
         public ICommand ToggleIsPackedCommand => new Command<PackingItem>(async (packingItem) => await Task.Run(() => ToggleIsPackedAsync(packingItem)));
 
-        public PackingListViewModel(ISupabaseService supabase) : base(supabase)
+        public PackingListViewModel(ISupabaseService supabase, ISessionService sessionService) : base(supabase, sessionService)
         {
         }
 
@@ -75,7 +75,7 @@ namespace PackMeUp.ViewModels
                 IsBusy = true;
                 IsRefreshing = true;
 
-                var newItem = new PackingItem { Name = _newItemName, Category = 3, TripId = _tripId };
+                var newItem = new PackingItem { Name = _newItemName, Category = 3, TripId = _tripId, User_id = Session.UserId };
 
                 try
                 {

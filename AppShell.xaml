@@ -12,9 +12,9 @@
     <!--<ShellContent Title="Trips" ContentTemplate="{DataTemplate views:TripListPage}" Route="triplist" />-->
 
     <ShellContent
-        Title="Welcome"
+        Title="StartPage"
         ContentTemplate="{DataTemplate views:StartPage}"
-        Route="welcome" />
+        Route="StartPage" />
 
     <!-- To są tylko ukryte trasy, nie będą widoczne w menu -->
     <!--<ShellContent

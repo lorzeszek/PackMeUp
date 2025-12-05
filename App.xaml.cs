@@ -1,4 +1,4 @@
-﻿using PackMeUp.Services;
+﻿using PackMeUp.Services.Interfaces;
 
 namespace PackMeUp
 {
@@ -6,10 +6,11 @@ namespace PackMeUp
     {
         private readonly ISupabaseService _supabaseService;
 
-        public App(ISupabaseService supabaseService)
+        public App(ISupabaseService supabaseService, ISessionService sessionService)
         {
             InitializeComponent();
             _supabaseService = supabaseService;
+            _ = sessionService.InitializeAsync();
 
             //MainPage = new AppShell();
 

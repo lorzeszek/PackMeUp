@@ -3,9 +3,11 @@ using Microsoft.Extensions.Logging;
 using MPowerKit.Lottie;
 using PackMeUp.Interfaces;
 using PackMeUp.Services;
+using PackMeUp.Services.Interfaces;
 using PackMeUp.ViewModels;
 using PackMeUp.Views;
 using Syncfusion.Maui.Core.Hosting;
+using UXDivers.Popups.Maui;
 
 namespace PackMeUp
 {
@@ -18,6 +20,7 @@ namespace PackMeUp
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .ConfigureSyncfusionCore()
+                .UseUXDiversPopups()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -28,6 +31,7 @@ namespace PackMeUp
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjGyl/Vkd+XU9FcVRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS3tSd0RrWHpccndWR2BaUE91Xg==");
 
             builder.Services.AddSingleton<ISupabaseService, SupabaseService>();
+            builder.Services.AddSingleton<ISessionService, SessionService>();
 
             builder.Services.AddTransient<StartPage>();
             builder.Services.AddTransient<TripListPage>();

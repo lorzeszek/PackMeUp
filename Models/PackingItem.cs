@@ -22,6 +22,9 @@ namespace PackMeUp.Models
         [Column("ModifiedDate")]
         public DateTime? ModifiedDate { get; set; }
 
+        [Column("user_id")]
+        public string User_id { get; set; } = string.Empty;
+
         private bool _isPacked;
         [Column("IsPacked")]
         public bool IsPacked

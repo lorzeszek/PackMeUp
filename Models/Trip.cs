@@ -25,6 +25,9 @@ namespace PackMeUp.Models
         [Column("EndDate")]
         public DateTime? EndDate { get; set; }
 
+        [Column("user_id")]
+        public string User_id { get; set; } = string.Empty;
+
         private bool _isInTrash;
         [Column("IsInTrash")]
         public bool IsInTrash

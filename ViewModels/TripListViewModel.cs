@@ -1,10 +1,13 @@
-﻿using PackMeUp.Extensions;
+﻿using CommunityToolkit.Mvvm.Input;
+using PackMeUp.Extensions;
 using PackMeUp.Helpers;
 using PackMeUp.Models;
-using PackMeUp.Services;
+using PackMeUp.Services.Interfaces;
 using PackMeUp.Views;
 using System.Text.Json;
 using System.Windows.Input;
+using UXDivers.Popups.Maui.Controls;
+using UXDivers.Popups.Services;
 
 namespace PackMeUp.ViewModels
 {
@@ -19,14 +22,15 @@ namespace PackMeUp.ViewModels
         public ICommand DeleteTripCommand => new Command<TripViewModel>(async (trip) => await Task.Run(() => DeleteTripAsync(trip)));
         public ICommand TrashTripCommand => new Command<TripViewModel>(async (trip) => await Task.Run(() => TrashTripAsync(trip)));
 
+        public IRelayCommand LogoutCommand => new AsyncRelayCommand(async () => Logout());
 
 
-        public TripListViewModel(ISupabaseService supabase) : base(supabase)
+        public TripListViewModel(ISupabaseService supabase, ISessionService sessionService) : base(supabase, sessionService)
         {
             Title = "Moje wycieczki";
 
             //TripTappedCommand = new Command<Trip>(OnTripTapped);
-        }
+        }        
 
         //protected override async Task ExecuteRefreshCommand()
         //{
@@ -96,7 +100,7 @@ namespace PackMeUp.ViewModels
         {
             try
             {
-                await _supabase.Client.From<Trip>().Insert(new Trip { Destination = destinationName, CreatedDate = DateTime.Now });
+                await _supabase.Client.From<Trip>().Insert(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = Session.UserId });
             }
             catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
             {
@@ -223,6 +227,25 @@ namespace PackMeUp.ViewModels
                 IsBusy = false;
                 IsRefreshing = false;
             }
+        }
+
+        public async void Logout()
+        {
+            var popup = new SimpleActionPopup()
+            {
+                Title = "Log out",
+                Text = "Do you want to continue?",
+                ActionButtonText = "Yes",
+                SecondaryActionButtonText = "Cancel",
+                ActionButtonCommand = new Command(async () =>
+                {
+                    await IPopupService.Current.PopAsync();
+                    await _supabase.Client.Auth.SignOut();
+                    await Shell.Current.GoToAsync("///StartPage");
+                })
+            };
+
+            await IPopupService.Current.PushAsync(popup);
         }
 
         public Task DisposeRealtimeAsync()
