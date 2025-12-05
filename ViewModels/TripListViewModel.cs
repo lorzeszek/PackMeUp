@@ -5,6 +5,8 @@ using PackMeUp.Services.Interfaces;
 using PackMeUp.Views;
 using System.Text.Json;
 using System.Windows.Input;
+using UXDivers.Popups.Maui.Controls;
+using UXDivers.Popups.Services;
 
 namespace PackMeUp.ViewModels
 {
@@ -38,7 +40,7 @@ namespace PackMeUp.ViewModels
         public ICommand DeleteTripCommand => new Command<TripViewModel>(async (trip) => await Task.Run(() => DeleteTripAsync(trip)));
         public ICommand TrashTripCommand => new Command<TripViewModel>(async (trip) => await Task.Run(() => TrashTripAsync(trip)));
 
-        public IRelayCommand LogoutCommand => new AsyncRelayCommand(Logout);
+        public IRelayCommand LogoutCommand => new AsyncRelayCommand(async () => Logout());
 
 
         public TripListViewModel(ISupabaseService supabase, ISessionService sessionService) : base(supabase, sessionService)
@@ -46,7 +48,7 @@ namespace PackMeUp.ViewModels
             Title = "Moje wycieczki";
 
             //TripTappedCommand = new Command<Trip>(OnTripTapped);
-        }
+        }        
 
         //protected override async Task ExecuteRefreshCommand()
         //{
@@ -276,13 +278,23 @@ namespace PackMeUp.ViewModels
         //    }
         //}
 
-        private async Task Logout()
+        public async void Logout()
         {
-            await _supabase.Client.Auth.SignOut();
+            var popup = new SimpleActionPopup()
+            {
+                Title = "Log out",
+                Text = "Do you want to continue?",
+                ActionButtonText = "Yes",
+                SecondaryActionButtonText = "Cancel",
+                ActionButtonCommand = new Command(async () =>
+                {
+                    await IPopupService.Current.PopAsync();
+                    await _supabase.Client.Auth.SignOut();
+                    await Shell.Current.GoToAsync("///StartPage");
+                })
+            };
 
-            //_sessionService.ClearUser();
-
-            await Shell.Current.GoToAsync("///StartPage");
+            await IPopupService.Current.PushAsync(popup);
         }
 
         public Task DisposeRealtimeAsync()
