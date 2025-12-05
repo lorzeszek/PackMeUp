@@ -1,11 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using PackMeUp.Extensions;
 using PackMeUp.Models;
+using PackMeUp.Popups;
 using PackMeUp.Services.Interfaces;
 using PackMeUp.Views;
 using System.Text.Json;
 using System.Windows.Input;
-using UXDivers.Popups.Maui.Controls;
 using UXDivers.Popups.Services;
 
 namespace PackMeUp.ViewModels
@@ -48,7 +48,7 @@ namespace PackMeUp.ViewModels
             Title = "Moje wycieczki";
 
             //TripTappedCommand = new Command<Trip>(OnTripTapped);
-        }        
+        }
 
         //protected override async Task ExecuteRefreshCommand()
         //{
@@ -280,21 +280,36 @@ namespace PackMeUp.ViewModels
 
         public async void Logout()
         {
-            var popup = new SimpleActionPopup()
+            var popup = new ConfirmationPopup();
+            var parameters = new Dictionary<string, object?>
             {
-                Title = "Log out",
-                Text = "Do you want to continue?",
-                ActionButtonText = "Yes",
-                SecondaryActionButtonText = "Cancel",
-                ActionButtonCommand = new Command(async () =>
-                {
-                    await IPopupService.Current.PopAsync();
-                    await _supabase.Client.Auth.SignOut();
-                    await Shell.Current.GoToAsync("///StartPage");
-                })
+                { "message", "Do you want to delete this item?" }
             };
 
-            await IPopupService.Current.PushAsync(popup);
+            bool confirmed = await IPopupService.Current.PushAsync(popup, parameters);
+
+            if (confirmed)
+            {
+                await _supabase.Client.Auth.SignOut();
+                await Shell.Current.GoToAsync("///StartPage");
+            }
+
+
+
+            //var popup = new SimpleActionPopup()
+            //{
+            //    Title = "Log out",
+            //    Text = "Do you want to continue?",
+            //    ActionButtonText = "Yes",
+            //    SecondaryActionButtonText = "Cancel",
+            //    ActionButtonCommand = new Command(async () =>
+            //    {
+            //        await IPopupService.Current.PopAsync();
+            //        await _supabase.Client.Auth.SignOut();
+            //        await Shell.Current.GoToAsync("///StartPage");
+            //    })
+            //};
+
         }
 
         public Task DisposeRealtimeAsync()
