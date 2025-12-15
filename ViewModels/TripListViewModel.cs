@@ -1,21 +1,39 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using PackMeUp.Extensions;
-using PackMeUp.Helpers;
 using PackMeUp.Models;
+using PackMeUp.Popups;
 using PackMeUp.Services.Interfaces;
 using PackMeUp.Views;
 using System.Text.Json;
 using System.Windows.Input;
-using UXDivers.Popups.Maui.Controls;
 using UXDivers.Popups.Services;
 
 namespace PackMeUp.ViewModels
 {
-    public partial class TripListViewModel : BaseViewModel
+    public partial class TripListViewModel : RealtimeViewModel<Trip, TripViewModel>
     {
-        private bool _isSubscribed = false;
+        public ObservableRangeCollection<TripViewModel> Trips { get; } = new();
+
+        protected override ObservableRangeCollection<TripViewModel> ItemsCollection => Trips;
+
+        protected override TripViewModel MapToViewModel(Trip model) => new TripViewModel(model);
+
+        protected override object GetId(Trip model) => model.Id;
+
+        protected override object GetModelId(TripViewModel vm) => vm.TripModel.Id;
+
+        protected override bool ShouldAdd(Trip model) => !model.IsInTrash;
+
+        protected override bool ShouldRemove(Trip model) => model.IsInTrash;
+
+
+
+
+
+
+        //private bool _isSubscribed = false;
         //public ObservableRangeCollection<Trip> Trips { get; } = new();
-        public ObservableRangeCollection<TripViewModel> Trips { get; } = new ObservableRangeCollection<TripViewModel>();
+        //public ObservableRangeCollection<TripViewModel> Trips { get; } = new ObservableRangeCollection<TripViewModel>();
 
         public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
         public ICommand AddTripCommand => new Command(async () => await Task.Run(() => AddTrip("wycieczka 1 test")));
@@ -30,7 +48,7 @@ namespace PackMeUp.ViewModels
             Title = "Moje wycieczki";
 
             //TripTappedCommand = new Command<Trip>(OnTripTapped);
-        }        
+        }
 
         //protected override async Task ExecuteRefreshCommand()
         //{
@@ -120,132 +138,178 @@ namespace PackMeUp.ViewModels
 
         public async Task InitializeRealtimeAsync()
         {
-            if (_supabase.Client == null)
-                throw new Exception("Supabase Client is not initialized");
-
-            try
+            await InitializeRealtimeAsync(async () =>
             {
-                IsBusy = true;
-                IsRefreshing = true;
-
-                if (!_isSubscribed)// || _subscription == null)
-                {
-                    await RealtimeSubscriptionHelper.SubscribeTableChanges<Trip>(
-                        _supabase.Client,
-                        // INSERT handler
-                        newItem =>
-                        {
-                            if (!newItem.IsInTrash)
-                            {
-                                //MainThread.BeginInvokeOnMainThread(() => Trips.Add(newItem));
-                                MainThread.BeginInvokeOnMainThread(() => Trips.Add(new TripViewModel(newItem)));
-                            }
-                        },
-                        // UPDATE handler
-                        updatedItem =>
-                        {
-                            //var existing = Trips.FirstOrDefault(t => t.Id == updatedItem.Id);
-                            var existing = Trips.FirstOrDefault(t => t.TripModel.Id == updatedItem.Id);
-                            MainThread.BeginInvokeOnMainThread(() =>
-                            {
-                                if (updatedItem.IsInTrash)
-                                {
-                                    if (existing != null) Trips.Remove(existing);
-                                }
-                                else
-                                {
-                                    if (existing != null)
-                                    {
-                                        var i = Trips.IndexOf(existing);
-                                        //Trips[i] = updatedItem;
-                                        Trips[i] = new TripViewModel(updatedItem);
-                                    }
-                                    //else { Trips.Add(updatedItem); }
-                                    else { Trips.Add(new TripViewModel(updatedItem)); }
-                                }
-                            });
-                        },
-                        // DELETE handler
-                        deletedItem =>
-                        {
-                            //var existing = Trips.FirstOrDefault(t => t.Id == deletedItem.Id);
-                            var existing = Trips.FirstOrDefault(t => t.TripModel.Id == deletedItem.Id);
-                            if (existing != null)
-                            {
-                                MainThread.BeginInvokeOnMainThread(() => Trips.Remove(existing));
-                            }
-                        }
-                    );
-
-                    _isSubscribed = true;
-                }
-
-                // 🔹 Początkowe pobranie z filtrem
-                //var response = await _supabase.Client
-                //    .From<Trip>()
-                //    .Select("*, Items:PackingItem(*)")
-                //    .Where(x => x.IsInTrash == false)
-                //    .Get();
-
                 var response = await _supabase.Client
                     .From<Trip>()
                     .Select("*")
-                    .Where(x => x.IsActive == true)
-                    //.Where(x => x.IsInTrash == false)
+                    .Where(x => x.IsActive == true && x.IsInTrash == false)
                     .Get();
 
-                var tripsViewModels = response.Models.Select(x => new TripViewModel(x))?.ToList() ?? [];
+                return response.Models ?? new List<Trip>();
+            });
 
-                var statsRespons = await _supabase.Client.Rpc("count_items_stats_for_all_trips", null);
-
-                string statsResponsJson = statsRespons?.Content ?? string.Empty;
-
-                if (!string.IsNullOrEmpty(statsResponsJson))
+            var statsResponse = await _supabase.Client.Rpc("count_items_stats_for_all_trips", null);
+            if (statsResponse?.Content != null)
+            {
+                var stats = JsonSerializer.Deserialize<List<TripItemsStats>>(statsResponse.Content);
+                if (stats != null)
                 {
-                    var stats = JsonSerializer.Deserialize<List<TripItemsStats>>(statsResponsJson);
-
-                    if (stats != null)
+                    foreach (var trip in Trips)
                     {
-                        foreach (var trip in tripsViewModels)
+                        var stat = stats.FirstOrDefault(s => s.TripId == trip.TripModel.Id);
+                        if (stat != null)
                         {
-                            var stat = stats.FirstOrDefault(s => s.TripId == trip.TripModel.Id);
-                            if (stat != null)
-                            {
-                                var total = stat.IsPackedCount + stat.IsNotPackedCount;
-                                var percent = total > 0 ? (double)stat.IsPackedCount / total * 100 : 0;
-                                trip.PackingSummary = $"{stat.IsPackedCount} / {total} ({percent:F0}%)";
-                            }
+                            trip.PackingSummary = $"{stat.IsPackedCount} / {stat.IsNotPackedCount + stat.IsPackedCount}";
                         }
                     }
-
                 }
+            }
 
-                Trips.ReplaceRange(tripsViewModels);
-            }
-            finally
-            {
-                IsBusy = false;
-                IsRefreshing = false;
-            }
         }
+        //public async Task InitializeRealtimeAsync()
+        //{
+        //    if (_supabase.Client == null)
+        //        throw new Exception("Supabase Client is not initialized");
+
+        //    try
+        //    {
+        //        IsBusy = true;
+        //        IsRefreshing = true;
+
+        //        if (!_isSubscribed)// || _subscription == null)
+        //        {
+        //            await RealtimeSubscriptionHelper.SubscribeTableChanges<Trip>(
+        //                _supabase.Client,
+        //                // INSERT handler
+        //                newItem =>
+        //                {
+        //                    if (!newItem.IsInTrash)
+        //                    {
+        //                        //MainThread.BeginInvokeOnMainThread(() => Trips.Add(newItem));
+        //                        MainThread.BeginInvokeOnMainThread(() => Trips.Add(new TripViewModel(newItem)));
+        //                    }
+        //                },
+        //                // UPDATE handler
+        //                updatedItem =>
+        //                {
+        //                    //var existing = Trips.FirstOrDefault(t => t.Id == updatedItem.Id);
+        //                    var existing = Trips.FirstOrDefault(t => t.TripModel.Id == updatedItem.Id);
+        //                    MainThread.BeginInvokeOnMainThread(() =>
+        //                    {
+        //                        if (updatedItem.IsInTrash)
+        //                        {
+        //                            if (existing != null) Trips.Remove(existing);
+        //                        }
+        //                        else
+        //                        {
+        //                            if (existing != null)
+        //                            {
+        //                                var i = Trips.IndexOf(existing);
+        //                                //Trips[i] = updatedItem;
+        //                                Trips[i] = new TripViewModel(updatedItem);
+        //                            }
+        //                            //else { Trips.Add(updatedItem); }
+        //                            else { Trips.Add(new TripViewModel(updatedItem)); }
+        //                        }
+        //                    });
+        //                },
+        //                // DELETE handler
+        //                deletedItem =>
+        //                {
+        //                    //var existing = Trips.FirstOrDefault(t => t.Id == deletedItem.Id);
+        //                    var existing = Trips.FirstOrDefault(t => t.TripModel.Id == deletedItem.Id);
+        //                    if (existing != null)
+        //                    {
+        //                        MainThread.BeginInvokeOnMainThread(() => Trips.Remove(existing));
+        //                    }
+        //                }
+        //            );
+
+        //            _isSubscribed = true;
+        //        }
+
+        //        // 🔹 Początkowe pobranie z filtrem
+        //        //var response = await _supabase.Client
+        //        //    .From<Trip>()
+        //        //    .Select("*, Items:PackingItem(*)")
+        //        //    .Where(x => x.IsInTrash == false)
+        //        //    .Get();
+
+        //        var response = await _supabase.Client
+        //            .From<Trip>()
+        //            .Select("*")
+        //            .Where(x => x.IsActive == true)
+        //            //.Where(x => x.IsInTrash == false)
+        //            .Get();
+
+        //        var tripsViewModels = response.Models.Select(x => new TripViewModel(x))?.ToList() ?? [];
+
+        //        var statsRespons = await _supabase.Client.Rpc("count_items_stats_for_all_trips", null);
+
+        //        string statsResponsJson = statsRespons?.Content ?? string.Empty;
+
+        //        if (!string.IsNullOrEmpty(statsResponsJson))
+        //        {
+        //            var stats = JsonSerializer.Deserialize<List<TripItemsStats>>(statsResponsJson);
+
+        //            if (stats != null)
+        //            {
+        //                foreach (var trip in tripsViewModels)
+        //                {
+        //                    var stat = stats.FirstOrDefault(s => s.TripId == trip.TripModel.Id);
+        //                    if (stat != null)
+        //                    {
+        //                        var total = stat.IsPackedCount + stat.IsNotPackedCount;
+        //                        var percent = total > 0 ? (double)stat.IsPackedCount / total * 100 : 0;
+        //                        trip.PackingSummary = $"{stat.IsPackedCount} / {total} ({percent:F0}%)";
+        //                    }
+        //                }
+        //            }
+
+        //        }
+
+        //        Trips.ReplaceRange(tripsViewModels);
+        //    }
+        //    finally
+        //    {
+        //        IsBusy = false;
+        //        IsRefreshing = false;
+        //    }
+        //}
 
         public async void Logout()
         {
-            var popup = new SimpleActionPopup()
+            var popup = new ConfirmationPopup();
+            var parameters = new Dictionary<string, object?>
             {
-                Title = "Log out",
-                Text = "Do you want to continue?",
-                ActionButtonText = "Yes",
-                SecondaryActionButtonText = "Cancel",
-                ActionButtonCommand = new Command(async () =>
-                {
-                    await IPopupService.Current.PopAsync();
-                    await _supabase.Client.Auth.SignOut();
-                    await Shell.Current.GoToAsync("///StartPage");
-                })
+                { "message", "Do you want to delete this item?" }
             };
 
-            await IPopupService.Current.PushAsync(popup);
+            bool confirmed = await IPopupService.Current.PushAsync(popup, parameters);
+
+            if (confirmed)
+            {
+                await _supabase.Client.Auth.SignOut();
+                await Shell.Current.GoToAsync("///StartPage");
+            }
+
+
+
+            //var popup = new SimpleActionPopup()
+            //{
+            //    Title = "Log out",
+            //    Text = "Do you want to continue?",
+            //    ActionButtonText = "Yes",
+            //    SecondaryActionButtonText = "Cancel",
+            //    ActionButtonCommand = new Command(async () =>
+            //    {
+            //        await IPopupService.Current.PopAsync();
+            //        await _supabase.Client.Auth.SignOut();
+            //        await Shell.Current.GoToAsync("///StartPage");
+            //    })
+            //};
+
         }
 
         public Task DisposeRealtimeAsync()

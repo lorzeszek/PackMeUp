@@ -5,27 +5,27 @@ namespace PackMeUp
     public partial class App : Application
     {
         private readonly ISupabaseService _supabaseService;
+        private readonly ISessionService _sessionService;
 
         public App(ISupabaseService supabaseService, ISessionService sessionService)
         {
             InitializeComponent();
             _supabaseService = supabaseService;
-            _ = sessionService.InitializeAsync();
-
-            //MainPage = new AppShell();
-
-            //Task.Run(async () => await supabaseService.InitializeAsync());
+            _sessionService = sessionService;
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            // Ustawiamy główną stronę tutaj
-            var window = new Window(new AppShell());
+            _ = InitializeAppAsync();
 
-            // Inicjalizacja supabase w tle
-            _ = Task.Run(async () => await _supabaseService.InitializeAsync());
+            return new Window(new AppShell());
+        }
 
-            return window;
+        private async Task InitializeAppAsync()
+        {
+            await _sessionService.InitializeAsync();
+
+            _ = _supabaseService.InitializeAsync();
         }
     }
 }
