@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using PackMeUp.Interfaces;
+using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
 
 namespace PackMeUp.ViewModels
@@ -7,9 +8,10 @@ namespace PackMeUp.ViewModels
     public class StartViewModel : BaseViewModel
     {
         private readonly IGoogleAuthService _googleAuthService;
+
         public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
 
-        public StartViewModel(ISupabaseService supabase, ISessionService sessionService, IGoogleAuthService googleAuthService) : base(supabase, sessionService)
+        public StartViewModel(ISupabaseService supabase, ISessionService sessionService, IGoogleAuthService googleAuthService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
         {
             _googleAuthService = googleAuthService;
         }
@@ -36,6 +38,11 @@ namespace PackMeUp.ViewModels
                         //await Shell.Current.GoToAsync(nameof(TripListPage));
                     }
                 }
+
+                await _tripRepository.StartRealtimeAsync();
+
+                await _packingItemRepository.StartRealtimeAsync();
+
             }
             catch (Exception ex)
             {

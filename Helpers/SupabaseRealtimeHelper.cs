@@ -4,7 +4,7 @@ namespace PackMeUp.Helpers
 {
     public static class RealtimeSubscriptionHelper
     {
-        public static async Task<List<Supabase.Realtime.RealtimeChannel>> SubscribeTableChanges<T>(
+        public static async Task<Supabase.Realtime.RealtimeChannel> SubscribeTableChanges<T>(
             Supabase.Client client,
             Action<T> onInsert,
             Action<T> onUpdate,
@@ -12,36 +12,33 @@ namespace PackMeUp.Helpers
         ) where T : BaseModel, new()
         {
             var table = client.From<T>();
-            var channels = new List<Supabase.Realtime.RealtimeChannel>();
 
-            var insertChannel = await table.On(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Inserts, async (sender, args) =>
-            {
-                var newItem = args.Model<T>();
-                if (newItem != null) onInsert?.Invoke(newItem);
-                await Task.CompletedTask;
-            });
-            channels.Add(insertChannel);
+            var channel = await table.On(
+                Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.All,
+                (sender, args) =>
+                {
+                    switch (args.Payload.Data.Type.ToString())
+                    {
+                        case "Insert":
+                            var inserted = args.Model<T>();
+                            if (inserted != null)
+                                onInsert?.Invoke(inserted);
+                            break;
 
-            var updateChannel = await table.On(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Updates, async (sender, args) =>
-            {
-                var updatedItem = args.Model<T>();
-                if (updatedItem != null) onUpdate?.Invoke(updatedItem);
-                await Task.CompletedTask;
-            });
-            channels.Add(updateChannel);
+                        case "Update":
+                            var updated = args.Model<T>();
+                            if (updated != null)
+                                onUpdate?.Invoke(updated);
+                            break;
 
-            var deleteChannel = await table.On(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Deletes, async (sender, args) =>
-            {
-                var deletedItem = args.Model<T>();
-                if (deletedItem != null) onDelete?.Invoke(deletedItem);
-                await Task.CompletedTask;
-            });
-            channels.Add(deleteChannel);
-
-            return channels;
+                        case "Delete":
+                            var deleted = args.OldModel<T>();
+                            if (deleted != null)
+                                onDelete?.Invoke(deleted);
+                            break;
+                    }
+                });
+            return channel;
         }
-
     }
-
-
 }

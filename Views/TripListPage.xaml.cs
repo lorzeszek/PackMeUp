@@ -1,8 +1,9 @@
+using PackMeUp.Models.Pages;
 using PackMeUp.ViewModels;
 
 namespace PackMeUp.Views;
 
-public partial class TripListPage : ContentPage
+public partial class TripListPage : BasePage// ContentPage
 {
     private readonly TripListViewModel _viewModel;
 
