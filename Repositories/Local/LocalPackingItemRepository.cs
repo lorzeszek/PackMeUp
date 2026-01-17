@@ -15,7 +15,6 @@ namespace PackMeUp.Repositories.Local
         public LocalPackingItemRepository(SQLiteAsyncConnection db)
         {
             _db = db;
-            //_db.CreateTableAsync<PackingItem>();
         }
 
         public async Task AddPackingItemAsync(PackingItem item)
@@ -88,7 +87,6 @@ namespace PackMeUp.Repositories.Local
 
         public Task SubscribeToPackingItemChangesAsync(int tripId, Action<PackingItemChange> onChange)
         {
-            // brak działania w lokalnym repo
             return Task.CompletedTask;
         }
 
@@ -101,7 +99,12 @@ namespace PackMeUp.Repositories.Local
 
         public Task StartRealtimeAsync()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
+        }
+
+        public Task<bool> IsChannelCreatedAsync()
+        {
+            return (Task<bool>)Task.CompletedTask;
         }
     }
 }

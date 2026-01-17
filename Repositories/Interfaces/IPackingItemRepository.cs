@@ -11,8 +11,8 @@ namespace PackMeUp.Repositories.Interfaces
         Task DeletePackingItemAsync(PackingItem item);
         Task UnsubscribeFromPackingItemChangesAsync();
         Task SyncPendingChangesAsync();
-
         Task StartRealtimeAsync();
+        Task<bool> IsChannelCreatedAsync();
 
         event Action<PackingItemChange>? PackingItemChanged;
     }

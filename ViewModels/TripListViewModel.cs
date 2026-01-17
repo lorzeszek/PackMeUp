@@ -163,21 +163,24 @@ namespace PackMeUp.ViewModels
         {
             var tripsWithStats = await _tripRepository.GetActiveTripsWithStatsAsync();
 
-            Trips.ReplaceRange(tripsWithStats.Select(x => new TripViewModel(x.Trip)));
+            Trips.Clear();
 
-            //Trips.Clear();
-
-            //foreach (var item in tripsWithStats)
-            //{
-            //    Trips.Add(new TripViewModel(item.Trip)
-            //    {
-            //        PackingSummary = item.PackingSummary
-            //    });
-            //}
+            foreach (var item in tripsWithStats)
+            {
+                Trips.Add(new TripViewModel(item.Trip)
+                {
+                    PackingSummary = item.PackingSummary
+                });
+            }
         }
 
         protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
         {
+            if (!await _tripRepository.IsChannelCreatedAsync())
+            {
+                await _tripRepository.StartRealtimeAsync();
+            }
+
             _tripRepository.TripChanged -= OnTripChanged;
             _tripRepository.TripChanged += OnTripChanged;
 

@@ -11,7 +11,7 @@ namespace PackMeUp.Repositories.Supabase
     public class SupabasePackingItemRepository : IPackingItemRepository
     {
         public readonly ISupabaseService _supabase;
-        private readonly List<RealtimeChannel> _channels = new();
+        public readonly List<RealtimeChannel> _channels = new();
         //private int? _currentTripId;
         private bool _isSubscribed;
         public event Action<PackingItemChange>? PackingItemChanged;
@@ -51,8 +51,6 @@ namespace PackMeUp.Repositories.Supabase
         {
             try
             {
-                //await _supabase.EnsureRealtimeConnectedAsync();
-
                 var result = await _supabase.Client
                     .From<PackingItem>()
                     .Where(x => x.TripId == tripId)
@@ -103,6 +101,11 @@ namespace PackMeUp.Repositories.Supabase
             return Task.CompletedTask;
         }
 
+        public async Task<bool> IsChannelCreatedAsync()
+        {
+            return _channels.Any();
+        }
+
         public async Task UnsubscribeFromPackingItemChangesAsync()
         {
             if (_channels.Count == 0)
@@ -113,8 +116,8 @@ namespace PackMeUp.Repositories.Supabase
                 channel.Unsubscribe();
             }
 
+            _isSubscribed = false;
             _channels.Clear();
-            //_currentTripId = null;
         }
 
         public async Task UpdatePackingItemAsync(PackingItem item)

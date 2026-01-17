@@ -39,6 +39,10 @@ namespace PackMeUp.ViewModels
                     }
                 }
 
+                //await _tripRepository.UnsubscribeFromTripChangesAsync();
+
+                //await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
+
                 await _tripRepository.StartRealtimeAsync();
 
                 await _packingItemRepository.StartRealtimeAsync();

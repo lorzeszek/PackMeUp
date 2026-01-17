@@ -40,6 +40,11 @@ namespace PackMeUp.Repositories.Supabase
             );
         }
 
+        public async Task<bool> IsChannelCreatedAsync()
+        {
+            return _channels.Any();
+        }
+
         public async Task UnsubscribeFromTripChangesAsync()
         {
             if (_channels == null) return;

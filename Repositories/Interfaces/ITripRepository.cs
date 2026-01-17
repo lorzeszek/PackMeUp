@@ -13,6 +13,7 @@ namespace PackMeUp.Repositories.Interfaces
         Task UnsubscribeFromTripChangesAsync(); // opcjonalnie
         Task SyncPendingChangesAsync();
         Task StartRealtimeAsync();
+        Task<bool> IsChannelCreatedAsync();
 
         event Action<Trip, string>? TripChanged;
     }

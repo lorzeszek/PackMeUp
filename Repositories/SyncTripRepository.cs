@@ -224,5 +224,10 @@ namespace PackMeUp.Repositories
             // delegujemy – BEZ sprawdzania internetu
             return _remote.StartRealtimeAsync();
         }
+
+        public Task<bool> IsChannelCreatedAsync()
+        {
+            return _remote.IsChannelCreatedAsync();
+        }
     }
 }

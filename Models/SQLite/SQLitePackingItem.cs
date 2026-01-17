@@ -5,6 +5,7 @@ namespace PackMeUp.Models.SQLite
     [Table("SQLitePackingItem")]
     public class SQLitePackingItem
     {
+        [PrimaryKey]
         public int SupabaseItemId { get; set; }
         public int TripId { get; set; }
         public string Name { get; set; } = string.Empty;

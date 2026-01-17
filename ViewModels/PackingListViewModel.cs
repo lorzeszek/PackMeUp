@@ -28,7 +28,7 @@ namespace PackMeUp.ViewModels
         }
 
         public ICommand AddItemCommand => new Command(async () => await AddItemAsync());
-        public ICommand ToggleIsPackedCommand => new Command<PackingItem>(async (packingItem) => await Task.Run(() => ToggleIsPackedAsync(packingItem)));
+        public ICommand ToggleIsPackedCommand => new Command<PackingItem>(async packingItem => await ToggleIsPackedAsync(packingItem));
 
         public PackingListViewModel(ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
         {
@@ -55,17 +55,7 @@ namespace PackMeUp.ViewModels
             {
                 try
                 {
-                    var getItemResult = await _supabase.Client.From<PackingItem>().Where(x => x.Id == packingItem.Id).Get();
-
-                    var selectedItem = getItemResult.Models.First();
-
-                    selectedItem.IsPacked = packingItem.IsPacked;
-
-                    var updateResponse = await _supabase.Client
-                    .From<PackingItem>()
-                    .Update(selectedItem);
-
-                    //await InitializeRealtimeAsync();
+                    await _packingItemRepository.UpdatePackingItemAsync(packingItem);
                 }
                 catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
                 {
@@ -109,12 +99,17 @@ namespace PackMeUp.ViewModels
                         break;
 
                     case PackingItemChangeType.Update:
-                        var index = Items.IndexOf(change.Item);
-                        if (index >= 0)
+                        var item = Items.FirstOrDefault(x => x.Id == change.Item.Id);
+                        if (item != null)
                         {
-                            // KLUCZOWE
-                            Items[index] = change.Item;
+                            var index = Items.IndexOf(item);
+
+                            if (index >= 0)
+                            {
+                                Items[index] = change.Item;
+                            }
                         }
+
                         break;
 
                     case PackingItemChangeType.Delete:
@@ -125,10 +120,6 @@ namespace PackMeUp.ViewModels
                 }
             });
         }
-
-
-
-
 
         private async Task LoadData()
         {
@@ -143,6 +134,12 @@ namespace PackMeUp.ViewModels
             {
                 _tripId = Convert.ToInt32(tripIdObj);
 
+                if (!await _packingItemRepository.IsChannelCreatedAsync())
+                {
+                    await _packingItemRepository.StartRealtimeAsync();
+                }
+
+                _packingItemRepository.PackingItemChanged -= OnPackingItemChanged;
                 _packingItemRepository.PackingItemChanged += OnPackingItemChanged;
 
                 await LoadData();

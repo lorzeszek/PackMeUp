@@ -124,5 +124,10 @@ namespace PackMeUp.Repositories.Local
         {
             return Task.CompletedTask;
         }
+
+        public Task<bool> IsChannelCreatedAsync()
+        {
+            return (Task<bool>)Task.CompletedTask;
+        }
     }
 }
