@@ -1,8 +1,9 @@
-﻿using PackMeUp.ViewModels;
+﻿using PackMeUp.Models.Pages;
+using PackMeUp.ViewModels;
 
 namespace PackMeUp.Views;
 
-public partial class PackingListPage : ContentPage//, IQueryAttributable
+public partial class PackingListPage : BasePage//ContentPage//, IQueryAttributable
 {
     private readonly PackingListViewModel _viewModel;
 

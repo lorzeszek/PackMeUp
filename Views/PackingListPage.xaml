@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+<local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns="http://schemas.microsoft.com/dotnet/maui/global"
              x:Class="PackMeUp.Views.PackingListPage"
              xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
+             xmlns:local="clr-namespace:PackMeUp.Models.Pages"
              x:DataType="PackingListViewModel"
              Title="{Binding Title}">
 
@@ -50,4 +51,4 @@
         </CollectionView>
     </Grid>
 
-</ContentPage>
+</local:BasePage>

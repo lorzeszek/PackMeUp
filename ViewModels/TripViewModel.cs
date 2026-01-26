@@ -51,6 +51,25 @@ namespace PackMeUp.ViewModels
                 return $"{startDate:dd MMM yyyy} - {endDate:dd MMM yyyy}";
         }
 
+        public void UpdateFromTrip(Trip trip)
+        {
+            TripModel.Destination = trip.Destination;
+            TripModel.IsActive = trip.IsActive;
+            TripModel.IsInTrash = trip.IsInTrash;
+            TripModel.StartDate = trip.StartDate;
+            TripModel.EndDate = trip.EndDate;
+            TripModel.ModifiedDate = trip.ModifiedDate;
+            TripModel.User_id = trip.User_id;
+
+            OnPropertyChanged(nameof(Destination));
+            OnPropertyChanged(nameof(TripModel.IsActive));
+            OnPropertyChanged(nameof(TripModel.IsInTrash));
+            OnPropertyChanged(nameof(TripModel.StartDate));
+            OnPropertyChanged(nameof(TripModel.EndDate));
+            OnPropertyChanged(nameof(TripModel.ModifiedDate));
+            OnPropertyChanged(nameof(TripModel.User_id));
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

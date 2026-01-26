@@ -1,13 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
 using Supabase.Realtime.Interfaces;
 
 namespace PackMeUp.ViewModels
 {
-    public abstract partial class BaseViewModel : ObservableObject, IQueryAttributable //: INotifyPropertyChanged
+    public abstract partial class BaseViewModel : ObservableObject, IQueryAttributable
     {
         public readonly ISupabaseService _supabase;
-        //public readonly ISessionService Session;
+        public readonly IPackingItemRepository _packingItemRepository;
+        public readonly ITripRepository _tripRepository;
 
         public ISessionService Session { get; }
 
@@ -32,10 +34,13 @@ namespace PackMeUp.ViewModels
             set => SetProperty(ref _isRefreshing, value);
         }
 
-        public BaseViewModel(ISupabaseService supabase, ISessionService sessionService)
+        public BaseViewModel(ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository)
         {
             _supabase = supabase;
             Session = sessionService;
+            _packingItemRepository = packingItemRepository;
+            _tripRepository = tripRepository;
+
 
             //RefreshCommand = new Command(async () => await ExecuteRefreshCommand());
         }
@@ -60,5 +65,17 @@ namespace PackMeUp.ViewModels
             // domyślnie nic nie robi
             return Task.CompletedTask;
         }
+
+        public virtual Task OnNavigatedFromAsync(IDictionary<string, object> query)
+        {
+            return Task.CompletedTask;
+        }
+
+        public async Task HandleNavigatedFromAsync(IDictionary<string, object> query)
+        {
+            await OnNavigatedFromAsync(query);
+        }
+
+
     }
 }
