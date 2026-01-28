@@ -16,6 +16,20 @@ namespace PackMeUp.ViewModels
             _googleAuthService = googleAuthService;
         }
 
+        //public async Task InitializeAsync()
+        //{
+        //    await Session.InitializeAsync();
+
+        //    if (Session.IsLoggedIn)
+        //    {
+        //        await Shell.Current.GoToAsync("//TripList");
+        //        return;
+        //    }
+
+        //    // jeśli NIE zalogowany → zostajemy na StartPage
+        //    // tu będzie AI onboarding
+        //}
+
         private async Task LoginWithGoogle()
         {
             try
@@ -53,5 +67,14 @@ namespace PackMeUp.ViewModels
                 // obsługa błędu
             }
         }
+
+
+        //protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
+        //{
+        //    if (Session.IsLoggedIn)
+        //    {
+        //        await Shell.Current.GoToAsync(nameof(TripListPage));
+        //    }
+        //}
     }
 }

@@ -18,19 +18,58 @@ namespace PackMeUp
             _db = db;
         }
 
+        //protected override Window CreateWindow(IActivationState? activationState)
+        //{
+        //    _ = InitializeAppAsync();
+
+        //    return new Window(new AppShell());
+        //}
+
+        //private async Task InitializeAppAsync()
+        //{
+        //    await _sessionService.InitializeAsync();
+        //    await _db.CreateTableAsync<SQLiteTrip>();
+        //    await _db.CreateTableAsync<SQLitePackingItem>();
+        //    await _supabaseService.InitializeAsync();
+        //}
+
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            _ = InitializeAppAsync();
+            var bootstrapPage = new ContentPage(); // pusta strona
+            var window = new Window(bootstrapPage);
 
-            return new Window(new AppShell());
+            _ = InitializeAndNavigateAsync();
+
+            return window;
         }
 
-        private async Task InitializeAppAsync()
+        private async Task InitializeAndNavigateAsync()
         {
+            // 🔥 init
             await _sessionService.InitializeAsync();
+
             await _db.CreateTableAsync<SQLiteTrip>();
             await _db.CreateTableAsync<SQLitePackingItem>();
-            await _supabaseService.InitializeAsync();
+
+            if (_sessionService.IsLoggedIn)
+            {
+                await _supabaseService.InitializeAsync();
+            }
+
+            // 🔥 routing
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                MainPage = new AppShell();
+
+                if (_sessionService.IsLoggedIn)
+                {
+                    Shell.Current.GoToAsync("//TripList");
+                }
+                else
+                {
+                    Shell.Current.GoToAsync("//StartPage");
+                }
+            });
         }
     }
 }

@@ -12,6 +12,13 @@ public partial class StartPage : ContentPage
         BindingContext = _viewModel;
     }
 
+    //protected override async void OnAppearing()
+    //{
+    //    base.OnAppearing();
+
+    //    await _viewModel.InitializeAsync();
+    //}
+
     private async void StartButton_Clicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync(nameof(TripListPage));

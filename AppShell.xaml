@@ -8,13 +8,15 @@
     xmlns:views="clr-namespace:PackMeUp.Views"
     Title="PackMeUp">
 
-    <!--pierwsza strona w aplikacji-->
-    <!--<ShellContent Title="Trips" ContentTemplate="{DataTemplate views:TripListPage}" Route="triplist" />-->
-
     <ShellContent
         Title="StartPage"
         ContentTemplate="{DataTemplate views:StartPage}"
         Route="StartPage" />
+
+    <ShellContent
+        Route="TripList"
+        ContentTemplate="{DataTemplate views:TripListPage}"
+        IsVisible="False" />
 
     <!-- To są tylko ukryte trasy, nie będą widoczne w menu -->
     <!--<ShellContent
