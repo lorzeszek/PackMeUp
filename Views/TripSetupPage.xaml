@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns="http://schemas.microsoft.com/dotnet/maui/global"
+             x:Class="PackMeUp.Views.TripSetupPage"
+             xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
+             xmlns:local="clr-namespace:PackMeUp.Models.Pages"
+             x:DataType="TripSetupViewModel"                
+             Title="TripSetupPage">
+
+    <VerticalStackLayout Padding="24" Spacing="16">
+
+        <Label Text="Dokąd jedziesz?" FontSize="20" />
+
+        <Entry
+            Placeholder="np. Barcelona"
+            Text="{Binding Destination}" />
+
+        <Label Text="Data rozpoczęcia" />
+        <DatePicker Date="{Binding StartDate}" />
+
+        <Label Text="Data zakończenia" />
+        <DatePicker Date="{Binding EndDate}" />
+
+        <Button
+            Text="Utwórz listę"
+            Command="{Binding CreateTripCommand}" />
+    </VerticalStackLayout>
+    
+</local:BasePage>

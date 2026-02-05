@@ -2,6 +2,7 @@
 using PackMeUp.Models.SQLite;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
+using PackMeUp.Services.Interfaces;
 using SQLite;
 
 namespace PackMeUp.Repositories.Local
@@ -9,12 +10,15 @@ namespace PackMeUp.Repositories.Local
     public class LocalTripRepository : ITripRepository
     {
         private readonly SQLiteAsyncConnection _db;
+        private readonly ISessionService _sessionService;
+
 
         public event Action<Trip, string>? TripChanged;
 
-        public LocalTripRepository(SQLiteAsyncConnection db)
+        public LocalTripRepository(SQLiteAsyncConnection db, ISessionService sessionService)
         {
             _db = db;
+            _sessionService = sessionService;
         }
 
         public Task UnsubscribeFromTripChangesAsync() => Task.CompletedTask;
@@ -55,7 +59,7 @@ namespace PackMeUp.Repositories.Local
 
         public async Task<IReadOnlyList<TripWithStats>> GetActiveTripsWithStatsAsync()
         {
-            var sqliteTrips = await _db.Table<SQLiteTrip>().ToListAsync();
+            var sqliteTrips = await _db.Table<SQLiteTrip>().Where(x => x.ClientId == _sessionService.LocalUserId).ToListAsync();
 
             var trips = sqliteTrips.Select(x => new Trip
             {

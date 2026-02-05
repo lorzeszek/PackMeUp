@@ -2,6 +2,8 @@
 using PackMeUp.Interfaces;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
+using PackMeUp.Views;
+using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
 {
@@ -10,6 +12,8 @@ namespace PackMeUp.ViewModels
         private readonly IGoogleAuthService _googleAuthService;
 
         public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
+
+        public ICommand StartPackingCommand => new AsyncRelayCommand(StartPackingAsync);
 
         public StartViewModel(ISupabaseService supabase, ISessionService sessionService, IGoogleAuthService googleAuthService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
         {
@@ -29,6 +33,12 @@ namespace PackMeUp.ViewModels
         //    // jeśli NIE zalogowany → zostajemy na StartPage
         //    // tu będzie AI onboarding
         //}
+
+        private async Task StartPackingAsync()
+        {
+            // przechodzisz do flow zbierania danych
+            await Shell.Current.GoToAsync(nameof(TripSetupPage));
+        }
 
         private async Task LoginWithGoogle()
         {

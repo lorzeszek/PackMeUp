@@ -156,7 +156,7 @@ namespace PackMeUp.Repositories
             if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
                 return;
 
-            var pendingChanges = await _pendingDb.Table<PendingTripChange>().ToListAsync();
+            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().ToListAsync();
 
             foreach (var change in pendingChanges)
             {

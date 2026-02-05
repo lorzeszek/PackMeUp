@@ -1,6 +1,8 @@
 ﻿using PackMeUp.Models;
+using PackMeUp.Repositories.DTO;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
+using PackMeUp.Services.Interfaces;
 using SQLite;
 using System.Text.Json;
 
@@ -11,6 +13,7 @@ namespace PackMeUp.Repositories
         private readonly ITripRepository _local;
         private readonly ITripRepository _remote;
         private readonly SQLiteAsyncConnection _pendingDb;
+        private readonly ISessionService _sessionService;
 
         public event Action<Trip, string>? TripChanged
         {
@@ -18,10 +21,11 @@ namespace PackMeUp.Repositories
             remove => _remote.TripChanged -= value;
         }
 
-        public SyncTripRepository(ITripRepository local, ITripRepository remote, SQLiteAsyncConnection pendingDb)
+        public SyncTripRepository(ITripRepository local, ITripRepository remote, ISessionService sessionService, SQLiteAsyncConnection pendingDb)
         {
             _local = local;
             _remote = remote;
+            _sessionService = sessionService;
             _pendingDb = pendingDb;
         }
 
@@ -36,7 +40,7 @@ namespace PackMeUp.Repositories
         {
             await _local.AddTripAsync(trip);
 
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _sessionService.IsAuthenticated)
             {
                 try
                 {
@@ -44,7 +48,7 @@ namespace PackMeUp.Repositories
                 }
                 catch
                 {
-                    var pending = new PendingTripChange
+                    var pending = new SQLitePendingTripChange
                     {
                         //TripId = trip.Id,
                         Operation = "Add",
@@ -55,11 +59,24 @@ namespace PackMeUp.Repositories
             }
             else
             {
-                var pending = new PendingTripChange
+
+                var pending = new SQLitePendingTripChange
                 {
                     //TripId = trip.Id,
+                    //Id = trip.Id,
+                    ClientId = trip.ClientId,
                     Operation = "Add",
-                    TripJson = JsonSerializer.Serialize(trip)
+                    TripJson = JsonSerializer.Serialize(new PendingTripDTO
+                    {
+                        Id = trip?.Id,
+                        ClientId = trip.ClientId,
+                        Destination = trip.Destination,
+                        CreatedDate = trip.CreatedDate,
+                        ModifiedDate = trip.ModifiedDate,
+                        StartDate = trip.StartDate,
+                        EndDate = trip.EndDate,
+                        User_id = trip.User_id
+                    })
                 };
                 await _pendingDb.InsertAsync(pending);
             }
@@ -77,7 +94,7 @@ namespace PackMeUp.Repositories
                 }
                 catch
                 {
-                    var pending = new PendingTripChange
+                    var pending = new SQLitePendingTripChange
                     {
                         //TripId = trip.Id,
                         Operation = "Delete",
@@ -88,7 +105,7 @@ namespace PackMeUp.Repositories
             }
             else
             {
-                var pending = new PendingTripChange
+                var pending = new SQLitePendingTripChange
                 {
                     //TripId = trip.Id,
                     Operation = "Delete",
@@ -127,7 +144,7 @@ namespace PackMeUp.Repositories
                 }
                 catch
                 {
-                    var pending = new PendingTripChange
+                    var pending = new SQLitePendingTripChange
                     {
                         //TripId = trip.Id,
                         Operation = "Update",
@@ -138,7 +155,7 @@ namespace PackMeUp.Repositories
             }
             else
             {
-                var pending = new PendingTripChange
+                var pending = new SQLitePendingTripChange
                 {
                     //TripId = trip.Id,
                     Operation = "Update",
@@ -150,14 +167,15 @@ namespace PackMeUp.Repositories
 
         public async Task SyncPendingChangesAsync()
         {
-            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet && _sessionService.IsAuthenticated)
                 return;
 
-            var pendingChanges = await _pendingDb.Table<PendingTripChange>().ToListAsync();
+            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().Where(x => x.ClientId == _sessionService.LocalUserId).ToListAsync();
 
             foreach (var change in pendingChanges)
             {
                 var trip = JsonSerializer.Deserialize<Trip>(change.TripJson);
+                trip.User_id = _sessionService.UserId;
 
                 try
                 {
@@ -188,7 +206,7 @@ namespace PackMeUp.Repositories
 
         public async Task<IReadOnlyList<TripWithStats>> GetActiveTripsWithStatsAsync()
         {
-            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated)
             //if (true)
             {
                 var localTrips = await _local.GetActiveTripsWithStatsAsync();

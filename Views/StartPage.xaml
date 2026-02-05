@@ -17,9 +17,10 @@
             <Label Text="Witaj w PackMeUp!" FontSize="24" />
             <Button Text="Zacznijmy pakowanie"
 					Clicked="StartButton_Clicked"
-					HorizontalOptions="Center" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}}" />
+					HorizontalOptions="Center" IsVisible="{Binding Session.HasLocalUser, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-            <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+            <Button Text="Start packing (TEST)" Command="{Binding StartPackingCommand}" IsVisible="{Binding Session.HasLocalUser, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+            <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsAuthenticated, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
         </StackLayout>
     </Grid>
 
