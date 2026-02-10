@@ -2,6 +2,7 @@
 using PackMeUp.Repositories.Enums;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
+using PackMeUp.Services.Interfaces;
 using SQLite;
 using System.Text.Json;
 
@@ -12,6 +13,7 @@ namespace PackMeUp.Repositories
         private readonly IPackingItemRepository _local;
         private readonly IPackingItemRepository _remote;
         private readonly SQLiteAsyncConnection _pendingDb;
+        private readonly ISessionService _sessionService;
 
         public event Action<PackingItemChange>? PackingItemChanged
         {
@@ -19,10 +21,12 @@ namespace PackMeUp.Repositories
             remove => _remote.PackingItemChanged -= value;
         }
 
-        public SyncPackingItemRepository(IPackingItemRepository local, IPackingItemRepository remote, SQLiteAsyncConnection pendingDb)
+        public SyncPackingItemRepository(IPackingItemRepository local, IPackingItemRepository remote, ISessionService sessionService, SQLiteAsyncConnection pendingDb)
         {
             _local = local;
             _remote = remote;
+            _sessionService = sessionService;
+
             _pendingDb = pendingDb;
         }
 
@@ -153,10 +157,11 @@ namespace PackMeUp.Repositories
 
         public async Task SyncPendingChangesAsync()
         {
-            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated)
                 return;
 
-            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().ToListAsync();
+            //var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().ToListAsync();
+            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().Where(x => x.ClientId == _sessionService.LocalUserId).ToListAsync();
 
             foreach (var change in pendingChanges)
             {

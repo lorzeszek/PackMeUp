@@ -169,6 +169,7 @@ namespace PackMeUp.ViewModels
                 await _packingItemRepository.StartRealtimeAsync();
 
                 await _tripRepository.SyncPendingChangesAsync();
+                await _packingItemRepository.SyncPendingChangesAsync();
 
             }
             catch (Exception ex)

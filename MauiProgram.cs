@@ -68,8 +68,9 @@ namespace PackMeUp
             {
                 var local = sp.GetRequiredService<LocalPackingItemRepository>();
                 var remote = sp.GetRequiredService<SupabasePackingItemRepository>();
+                var session = sp.GetRequiredService<ISessionService>();
                 var pendingDb = sp.GetRequiredService<SQLiteAsyncConnection>();
-                return new SyncPackingItemRepository(local, remote, pendingDb);
+                return new SyncPackingItemRepository(local, remote, session, pendingDb);
             });
 
             // === UI ===

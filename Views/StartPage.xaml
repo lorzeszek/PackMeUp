@@ -19,7 +19,8 @@
 					Clicked="StartButton_Clicked"
 					HorizontalOptions="Center" IsVisible="{Binding Session.HasLocalUser, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-            <Button Text="Start packing (TEST)" Command="{Binding StartPackingCommand}" IsVisible="{Binding Session.HasLocalUser, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+            <Button Text="Start packing (TEST)" Command="{Binding StartPackingCommand}" />
+            <!--<Button Text="Start packing (TEST)" Command="{Binding StartPackingCommand}" IsVisible="{Binding Session.HasLocalUser, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />-->
             <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsAuthenticated, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
         </StackLayout>
     </Grid>

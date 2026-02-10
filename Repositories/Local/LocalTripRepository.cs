@@ -59,6 +59,7 @@ namespace PackMeUp.Repositories.Local
 
         public async Task<IReadOnlyList<TripWithStats>> GetActiveTripsWithStatsAsync()
         {
+            var sqliteTripsAll = await _db.Table<SQLiteTrip>().ToListAsync();
             var sqliteTrips = await _db.Table<SQLiteTrip>().Where(x => x.ClientId == _sessionService.LocalUserId).ToListAsync();
 
             var trips = sqliteTrips.Select(x => new Trip

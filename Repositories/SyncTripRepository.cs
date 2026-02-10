@@ -68,14 +68,16 @@ namespace PackMeUp.Repositories
                     Operation = "Add",
                     TripJson = JsonSerializer.Serialize(new PendingTripDTO
                     {
-                        Id = trip?.Id,
+                        //Id = trip?.Id,
                         ClientId = trip.ClientId,
                         Destination = trip.Destination,
                         CreatedDate = trip.CreatedDate,
                         ModifiedDate = trip.ModifiedDate,
                         StartDate = trip.StartDate,
                         EndDate = trip.EndDate,
-                        User_id = trip.User_id
+                        User_id = trip.User_id,
+                        IsActive = trip.IsActive,
+                        IsInTrash = trip.IsInTrash
                     })
                 };
                 await _pendingDb.InsertAsync(pending);
@@ -167,15 +169,26 @@ namespace PackMeUp.Repositories
 
         public async Task SyncPendingChangesAsync()
         {
-            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet && _sessionService.IsAuthenticated)
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated)
                 return;
 
             var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().Where(x => x.ClientId == _sessionService.LocalUserId).ToListAsync();
 
             foreach (var change in pendingChanges)
             {
-                var trip = JsonSerializer.Deserialize<Trip>(change.TripJson);
-                trip.User_id = _sessionService.UserId;
+                var tripDeserialized = JsonSerializer.Deserialize<Trip>(change.TripJson);
+
+                var trip = new Trip()
+                {
+                    User_id = _sessionService.UserId,
+                    ClientId = tripDeserialized.ClientId,
+                    StartDate = tripDeserialized.StartDate,
+                    CreatedDate = tripDeserialized.CreatedDate,
+                    EndDate = tripDeserialized.EndDate,
+                    Destination = tripDeserialized.Destination,
+                    IsActive = tripDeserialized.IsActive,
+                    IsInTrash = tripDeserialized.IsInTrash
+                };
 
                 try
                 {
