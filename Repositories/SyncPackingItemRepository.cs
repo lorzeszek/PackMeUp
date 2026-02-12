@@ -161,7 +161,7 @@ namespace PackMeUp.Repositories
                 return;
 
             //var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().ToListAsync();
-            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().Where(x => x.ClientId == _sessionService.LocalUserId).ToListAsync();
+            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
 
             foreach (var change in pendingChanges)
             {

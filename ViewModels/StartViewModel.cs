@@ -60,6 +60,10 @@ namespace PackMeUp.ViewModels
                         //var LoggedInUserName = user?.Email ?? user?.Id;
 
                         //await Shell.Current.GoToAsync(nameof(TripListPage));
+
+                        await _tripRepository.StartRealtimeAsync();
+
+                        await _packingItemRepository.StartRealtimeAsync();
                     }
                 }
 
@@ -67,9 +71,7 @@ namespace PackMeUp.ViewModels
 
                 //await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
 
-                await _tripRepository.StartRealtimeAsync();
 
-                await _packingItemRepository.StartRealtimeAsync();
 
             }
             catch (Exception ex)

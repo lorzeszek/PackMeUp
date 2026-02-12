@@ -1,11 +1,9 @@
-﻿using SQLite;
-
-namespace PackMeUp.Repositories.Models
+﻿namespace PackMeUp.Repositories.Models
 {
     public class PendingPackingItemChange
     {
-        [PrimaryKey, AutoIncrement]
-        public int Id { get; set; }
+        //[PrimaryKey, AutoIncrement]
+        //public int Id { get; set; }
 
         //public int TripId { get; set; }
         public string Operation { get; set; } // "Add", "Update", "Delete"

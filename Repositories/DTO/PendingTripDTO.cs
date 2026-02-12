@@ -3,7 +3,7 @@
     public class PendingTripDTO
     {
         //public int? Id { get; set; }
-        public string ClientId { get; set; } = string.Empty;
+        public string LocalUserId { get; set; } = string.Empty;
         public string Destination { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }

@@ -1,4 +1,5 @@
 ﻿using PackMeUp.Models;
+using PackMeUp.Models.DTO;
 using PackMeUp.Repositories.DTO;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
@@ -15,7 +16,7 @@ namespace PackMeUp.Repositories
         private readonly SQLiteAsyncConnection _pendingDb;
         private readonly ISessionService _sessionService;
 
-        public event Action<Trip, string>? TripChanged
+        public event Action<TripDTO, string>? TripChanged
         {
             add => _remote.TripChanged += value;
             remove => _remote.TripChanged -= value;
@@ -36,7 +37,7 @@ namespace PackMeUp.Repositories
             await _remote.UnsubscribeFromTripChangesAsync();
         }
 
-        public async Task AddTripAsync(Trip trip)
+        public async Task AddTripAsync(TripDTO trip)
         {
             await _local.AddTripAsync(trip);
 
@@ -64,18 +65,18 @@ namespace PackMeUp.Repositories
                 {
                     //TripId = trip.Id,
                     //Id = trip.Id,
-                    ClientId = trip.ClientId,
+                    LocalUserId = trip.LocalUserId,
                     Operation = "Add",
                     TripJson = JsonSerializer.Serialize(new PendingTripDTO
                     {
                         //Id = trip?.Id,
-                        ClientId = trip.ClientId,
+                        LocalUserId = trip.LocalUserId,
                         Destination = trip.Destination,
                         CreatedDate = trip.CreatedDate,
                         ModifiedDate = trip.ModifiedDate,
                         StartDate = trip.StartDate,
                         EndDate = trip.EndDate,
-                        User_id = trip.User_id,
+                        User_id = trip.RemoteUserId,
                         IsActive = trip.IsActive,
                         IsInTrash = trip.IsInTrash
                     })
@@ -84,7 +85,7 @@ namespace PackMeUp.Repositories
             }
         }
 
-        public async Task DeleteTripAsync(Trip trip)
+        public async Task DeleteTripAsync(TripDTO trip)
         {
             await _local.DeleteTripAsync(trip);
 
@@ -117,7 +118,7 @@ namespace PackMeUp.Repositories
             }
         }
 
-        public async Task<Trip?> GetTripAsync(Trip trip)
+        public async Task<Trip?> GetTripAsync(TripDTO trip)
         {
             if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
             {
@@ -134,7 +135,7 @@ namespace PackMeUp.Repositories
             return localTrip;
         }
 
-        public async Task UpdateTripAsync(Trip trip)
+        public async Task UpdateTripAsync(TripDTO trip)
         {
             await _local.UpdateTripAsync(trip);
 
@@ -172,16 +173,16 @@ namespace PackMeUp.Repositories
             if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated)
                 return;
 
-            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().Where(x => x.ClientId == _sessionService.LocalUserId).ToListAsync();
+            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
 
             foreach (var change in pendingChanges)
             {
                 var tripDeserialized = JsonSerializer.Deserialize<Trip>(change.TripJson);
 
-                var trip = new Trip()
+                var trip = new TripDTO()
                 {
-                    User_id = _sessionService.UserId,
-                    ClientId = tripDeserialized.ClientId,
+                    RemoteUserId = _sessionService.UserId,
+                    LocalUserId = _sessionService.LocalUserId,
                     StartDate = tripDeserialized.StartDate,
                     CreatedDate = tripDeserialized.CreatedDate,
                     EndDate = tripDeserialized.EndDate,

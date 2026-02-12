@@ -1,13 +1,11 @@
-﻿using SQLite;
-
-namespace PackMeUp.Models.SQLite
+﻿namespace PackMeUp.Models.DTO
 {
-    [Table("SQLiteTrip")]
-    public class SQLiteTrip
+    public class TripDTO
     {
-        [PrimaryKey, AutoIncrement]
+        public int RemoteId { get; set; }
         public int LocalId { get; set; }
         public string LocalUserId { get; set; }
+        public string RemoteUserId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime? StartDate { get; set; }

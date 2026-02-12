@@ -1,4 +1,5 @@
 ﻿using PackMeUp.Models;
+using PackMeUp.Models.DTO;
 using PackMeUp.Models.SQLite;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
@@ -13,7 +14,7 @@ namespace PackMeUp.Repositories.Local
         private readonly ISessionService _sessionService;
 
 
-        public event Action<Trip, string>? TripChanged;
+        public event Action<TripDTO, string>? TripChanged;
 
         public LocalTripRepository(SQLiteAsyncConnection db, ISessionService sessionService)
         {
@@ -23,11 +24,11 @@ namespace PackMeUp.Repositories.Local
 
         public Task UnsubscribeFromTripChangesAsync() => Task.CompletedTask;
 
-        public async Task AddTripAsync(Trip trip)
+        public async Task AddTripAsync(TripDTO trip)
         {
             var localTrip = new SQLiteTrip()
             {
-                ClientId = trip.ClientId.ToString(),
+                LocalUserId = trip.LocalUserId.ToString(),
                 CreatedDate = trip.CreatedDate,
                 ModifiedDate = trip.ModifiedDate,
                 StartDate = trip.StartDate,
@@ -40,11 +41,12 @@ namespace PackMeUp.Repositories.Local
             await _db.InsertAsync(localTrip);
         }
 
-        public async Task DeleteTripAsync(Trip trip)
+        public async Task DeleteTripAsync(TripDTO trip)
         {
             var localTrip = new SQLiteTrip()
             {
-                ClientId = trip.ClientId.ToString(),
+                LocalId = trip.LocalId,
+                LocalUserId = trip.LocalUserId.ToString(),
                 CreatedDate = trip.CreatedDate,
                 ModifiedDate = trip.ModifiedDate,
                 StartDate = trip.StartDate,
@@ -60,11 +62,12 @@ namespace PackMeUp.Repositories.Local
         public async Task<IReadOnlyList<TripWithStats>> GetActiveTripsWithStatsAsync()
         {
             var sqliteTripsAll = await _db.Table<SQLiteTrip>().ToListAsync();
-            var sqliteTrips = await _db.Table<SQLiteTrip>().Where(x => x.ClientId == _sessionService.LocalUserId).ToListAsync();
+            var sqliteTrips = await _db.Table<SQLiteTrip>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
 
-            var trips = sqliteTrips.Select(x => new Trip
+            var trips = sqliteTrips.Select(x => new TripDTO
             {
-                ClientId = x.ClientId,
+                LocalId = x.LocalId,
+                LocalUserId = x.LocalUserId,
                 CreatedDate = x.CreatedDate,
                 ModifiedDate = x.ModifiedDate,
                 StartDate = x.StartDate,
@@ -74,25 +77,24 @@ namespace PackMeUp.Repositories.Local
                 IsInTrash = x.IsInTrash
             });
 
-            return trips.Select(trip =>
+            return trips.Select(tripDTO =>
             {
                 var stat = new TripItemsStats { IsNotPackedCount = 0, IsPackedCount = 0 };
                 var summary = stat == null
                     ? "0 / 0"
                     : $"{stat.IsPackedCount} / {stat.IsPackedCount + stat.IsNotPackedCount}";
-
-                return new TripWithStats(trip, summary);
+                return new TripWithStats(tripDTO, summary);
             }).ToList();
 
         }
 
-        public async Task<Trip?> GetTripAsync(Trip trip)
+        public async Task<Trip?> GetTripAsync(TripDTO trip)
         {
-            var sqliteTrip = await _db.Table<SQLiteTrip>().FirstOrDefaultAsync(x => x.ClientId == trip.ClientId);
+            var sqliteTrip = await _db.Table<SQLiteTrip>().FirstOrDefaultAsync(x => x.LocalUserId == trip.LocalUserId);
 
             return new Trip
             {
-                ClientId = sqliteTrip.ClientId,
+                ClientId = sqliteTrip.LocalUserId,
                 CreatedDate = sqliteTrip.CreatedDate,
                 ModifiedDate = sqliteTrip.ModifiedDate,
                 StartDate = sqliteTrip.StartDate,
@@ -103,11 +105,11 @@ namespace PackMeUp.Repositories.Local
             };
         }
 
-        public async Task UpdateTripAsync(Trip trip)
+        public async Task UpdateTripAsync(TripDTO trip)
         {
             var localTrip = new SQLiteTrip()
             {
-                ClientId = trip.ClientId,
+                LocalUserId = trip.LocalUserId,
                 CreatedDate = trip.CreatedDate,
                 ModifiedDate = trip.ModifiedDate,
                 StartDate = trip.StartDate,

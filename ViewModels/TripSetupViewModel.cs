@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PackMeUp.Models;
+using PackMeUp.Models.DTO;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
 
@@ -46,9 +46,9 @@ namespace PackMeUp.ViewModels
 
             Session.SetLocalUser(localUser.LocalUserId);
 
-            var trip = new Trip
+            var trip = new TripDTO
             {
-                ClientId = localUser.LocalUserId,
+                LocalUserId = localUser.LocalUserId,
                 CreatedDate = DateTime.Now,
                 StartDate = StartDate,
                 EndDate = EndDate,

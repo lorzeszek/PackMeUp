@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using PackMeUp.Extensions;
 using PackMeUp.Interfaces;
-using PackMeUp.Models;
+using PackMeUp.Models.DTO;
 using PackMeUp.Popups;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
@@ -42,7 +42,7 @@ namespace PackMeUp.ViewModels
 
             await Shell.Current.GoToAsync(nameof(PackingListPage), new Dictionary<string, object>
             {
-                ["tripId"] = trip.TripModel.Id
+                ["tripId"] = trip.TripModel.RemoteId
             });
         }
 
@@ -88,7 +88,8 @@ namespace PackMeUp.ViewModels
         private async Task AddTrip(string destinationName)
         {
             //await _tripRepository.AddTripAsync(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = Session.UserId, ClientId = Guid.NewGuid().ToString() });
-            await _tripRepository.AddTripAsync(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = Session.UserId, ClientId = Session.LocalUserId });
+            //await _tripRepository.AddTripAsync(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = Session.UserId, ClientId = Session.LocalUserId });
+            await _tripRepository.AddTripAsync(new TripDTO { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId });
 
             if (!Session.IsAuthenticated)
             {
@@ -157,6 +158,13 @@ namespace PackMeUp.ViewModels
                         //var LoggedInUserName = user?.Email ?? user?.Id;
 
                         //await Shell.Current.GoToAsync(nameof(TripListPage));
+
+                        await _tripRepository.StartRealtimeAsync();
+
+                        await _packingItemRepository.StartRealtimeAsync();
+
+                        await _tripRepository.SyncPendingChangesAsync();
+                        await _packingItemRepository.SyncPendingChangesAsync();
                     }
                 }
 
@@ -164,13 +172,8 @@ namespace PackMeUp.ViewModels
 
                 //await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
 
-                await _tripRepository.StartRealtimeAsync();
 
-                await _packingItemRepository.StartRealtimeAsync();
-
-                await _tripRepository.SyncPendingChangesAsync();
-                await _packingItemRepository.SyncPendingChangesAsync();
-
+                await LoadData();
             }
             catch (Exception ex)
             {
@@ -190,7 +193,7 @@ namespace PackMeUp.ViewModels
 
 
 
-        private void OnTripChanged(Trip trip, string operation)
+        private void OnTripChanged(TripDTO trip, string operation)
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -200,7 +203,7 @@ namespace PackMeUp.ViewModels
                         Trips.Add(new TripViewModel(trip));
                         break;
                     case "UPDATE":
-                        var existing = Trips.FirstOrDefault(t => t.TripModel.Id == trip.Id);
+                        var existing = Trips.FirstOrDefault(t => t.TripModel.RemoteId == trip.RemoteId);
                         if (existing != null)
                         {
                             Trips.Remove(existing);
@@ -209,7 +212,7 @@ namespace PackMeUp.ViewModels
                         //
                         break;
                     case "DELETE":
-                        var toRemove = Trips.FirstOrDefault(t => t.TripModel.Id == trip.Id);
+                        var toRemove = Trips.FirstOrDefault(t => t.TripModel.RemoteId == trip.RemoteId);
                         if (toRemove != null)
                             Trips.Remove(toRemove);
                         break;
@@ -234,7 +237,7 @@ namespace PackMeUp.ViewModels
 
         protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
         {
-            if (!await _tripRepository.IsChannelCreatedAsync())
+            if (Session.IsAuthenticated && !await _tripRepository.IsChannelCreatedAsync())
             {
                 await _tripRepository.StartRealtimeAsync();
             }
@@ -251,7 +254,7 @@ namespace PackMeUp.ViewModels
             {
                 _initialized = true;
 
-                if (!await _tripRepository.IsChannelCreatedAsync())
+                if (Session.IsAuthenticated && !await _tripRepository.IsChannelCreatedAsync())
                     await _tripRepository.StartRealtimeAsync();
 
                 _tripRepository.TripChanged -= OnTripChanged;

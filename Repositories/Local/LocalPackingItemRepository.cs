@@ -21,12 +21,13 @@ namespace PackMeUp.Repositories.Local
         {
             var localPackingItem = new SQLitePackingItem()
             {
-                SupabaseItemId = item.Id,
-                TripId = item.TripId,
+                //ClientId = item..ToString(),
+                //SupabaseItemId = item.Id,
+                //TripId = item.TripId,
                 Name = item.Name,
                 CreatedDate = item.CreatedDate,
                 ModifiedDate = item.ModifiedDate,
-                User_id = item.User_id,
+                //User_id = item.User_id,
                 IsPacked = item.IsPacked,
                 Category = item.Category,
             };
@@ -38,12 +39,12 @@ namespace PackMeUp.Repositories.Local
         {
             var localPackingItem = new SQLitePackingItem()
             {
-                SupabaseItemId = item.Id,
-                TripId = item.TripId,
+                //SupabaseItemId = item.Id,
+                //TripId = item.TripId,
                 Name = item.Name,
                 CreatedDate = item.CreatedDate,
                 ModifiedDate = item.ModifiedDate,
-                User_id = item.User_id,
+                //User_id = item.User_id,
                 IsPacked = item.IsPacked,
                 Category = item.Category,
             };
@@ -55,12 +56,12 @@ namespace PackMeUp.Repositories.Local
         {
             var localPackingItem = new SQLitePackingItem()
             {
-                SupabaseItemId = item.Id,
-                TripId = item.TripId,
+                //SupabaseItemId = item.Id,
+                //TripId = item.TripId,
                 Name = item.Name,
                 CreatedDate = item.CreatedDate,
                 ModifiedDate = item.ModifiedDate,
-                User_id = item.User_id,
+                //User_id = item.User_id,
                 IsPacked = item.IsPacked,
                 Category = item.Category,
             };
@@ -70,19 +71,21 @@ namespace PackMeUp.Repositories.Local
 
         public async Task<IReadOnlyList<PackingItem>> GetPackingItemsForTripAsync(int tripId)
         {
-            var sqlitePackingItem = await _db.Table<SQLitePackingItem>().Where(x => x.TripId == tripId).ToListAsync();
+            //var sqlitePackingItem = await _db.Table<SQLitePackingItem>().Where(x => x.TripId == tripId).ToListAsync();
 
-            return sqlitePackingItem.Select(x => new PackingItem
-            {
-                TripId = x.TripId,
-                Id = x.SupabaseItemId,
-                Name = x.Name,
-                CreatedDate = x.CreatedDate,
-                ModifiedDate = x.ModifiedDate,
-                User_id = x.User_id,
-                IsPacked = x.IsPacked,
-                Category = x.Category,
-            }).ToList();
+            //return sqlitePackingItem.Select(x => new PackingItem
+            //{
+            //    TripId = x.TripId,
+            //    Id = x.SupabaseItemId,
+            //    Name = x.Name,
+            //    CreatedDate = x.CreatedDate,
+            //    ModifiedDate = x.ModifiedDate,
+            //    User_id = x.User_id,
+            //    IsPacked = x.IsPacked,
+            //    Category = x.Category,
+            //}).ToList();
+
+            return null;
         }
 
         public Task SubscribeToPackingItemChangesAsync(int tripId, Action<PackingItemChange> onChange)

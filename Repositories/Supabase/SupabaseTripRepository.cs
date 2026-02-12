@@ -1,5 +1,6 @@
 ﻿using PackMeUp.Helpers;
 using PackMeUp.Models;
+using PackMeUp.Models.DTO;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
 using PackMeUp.Services.Interfaces;
@@ -13,7 +14,7 @@ namespace PackMeUp.Repositories.Supabase
         public readonly ISupabaseService _supabase;
         private readonly List<RealtimeChannel> _channels = new();
         private bool _isSubscribed;
-        public event Action<Trip, string>? TripChanged;
+        public event Action<TripDTO, string>? TripChanged;
 
 
         public SupabaseTripRepository(ISupabaseService supabase)
@@ -33,9 +34,9 @@ namespace PackMeUp.Repositories.Supabase
             _channels.AddRange(
                 await RealtimeSubscriptionHelper.SubscribeTableChanges<Trip>(
                     _supabase.Client,
-                    onInsert: trip => TripChanged?.Invoke(trip, "INSERT"),
-                    onUpdate: trip => TripChanged?.Invoke(trip, "UPDATE"),
-                    onDelete: trip => TripChanged?.Invoke(trip, "DELETE")
+                    onInsert: trip => TripChanged?.Invoke(Mappers.MapToTripDTO(trip), "INSERT"),
+                    onUpdate: trip => TripChanged?.Invoke(Mappers.MapToTripDTO(trip), "UPDATE"),
+                    onDelete: trip => TripChanged?.Invoke(Mappers.MapToTripDTO(trip), "DELETE")
                 )
             );
         }
@@ -58,11 +59,28 @@ namespace PackMeUp.Repositories.Supabase
             _channels.Clear();
         }
 
-        public async Task AddTripAsync(Trip trip)
+        public async Task AddTripAsync(TripDTO trip)
         {
             try
             {
-                await _supabase.Client.From<Trip>().Insert(trip);
+                Trip mappedTrip = Mappers.MapToTrip(trip);
+
+                await _supabase.Client.From<Trip>().Insert(mappedTrip);
+            }
+            catch (Exception ex)
+            {
+                var message = ex.Message;
+                throw;
+            }
+        }
+
+        public async Task DeleteTripAsync(TripDTO trip)
+        {
+            try
+            {
+                Trip mappedTrip = Mappers.MapToTrip(trip);
+
+                await _supabase.Client.From<Trip>().Delete(mappedTrip);
             }
             catch (Exception)
             {
@@ -71,24 +89,13 @@ namespace PackMeUp.Repositories.Supabase
             }
         }
 
-        public async Task DeleteTripAsync(Trip trip)
+        public async Task<Trip?> GetTripAsync(TripDTO trip)
         {
             try
             {
-                await _supabase.Client.From<Trip>().Delete(trip);
-            }
-            catch (Exception)
-            {
+                Trip mappedTrip = Mappers.MapToTrip(trip);
 
-                throw;
-            }
-        }
-
-        public async Task<Trip?> GetTripAsync(Trip trip)
-        {
-            try
-            {
-                var response = await _supabase.Client.From<Trip>().Where(x => x.Id == trip.Id).Get();
+                var response = await _supabase.Client.From<Trip>().Where(x => x.Id == mappedTrip.Id).Get();
 
                 return response.Models.FirstOrDefault();
             }
@@ -99,13 +106,15 @@ namespace PackMeUp.Repositories.Supabase
             }
         }
 
-        public async Task UpdateTripAsync(Trip trip)
+        public async Task UpdateTripAsync(TripDTO trip)
         {
             try
             {
+                Trip mappedTrip = Mappers.MapToTrip(trip);
+
                 await _supabase.Client
                         .From<Trip>()
-                        .Update(trip);
+                        .Update(mappedTrip);
             }
             catch (Exception)
             {
@@ -161,8 +170,8 @@ namespace PackMeUp.Repositories.Supabase
                 var summary = stat == null
                     ? "0 / 0"
                     : $"{stat.IsPackedCount} / {stat.IsPackedCount + stat.IsNotPackedCount}";
-
-                return new TripWithStats(trip, summary);
+                var tripDTO = Mappers.MapToTripDTO(trip);
+                return new TripWithStats(tripDTO, summary);
             }).ToList();
 
             return result;
