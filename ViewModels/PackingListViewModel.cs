@@ -167,8 +167,6 @@ namespace PackMeUp.ViewModels
         public override async Task OnNavigatedFromAsync(IDictionary<string, object> query)
         {
             _packingItemRepository.PackingItemChanged -= OnPackingItemChanged;
-
-            //await _packingItemRepository.SyncPendingChangesAsync();
         }
     }
 }

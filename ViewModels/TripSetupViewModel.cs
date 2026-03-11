@@ -49,6 +49,7 @@ namespace PackMeUp.ViewModels
             var trip = new TripDTO
             {
                 LocalUserId = localUser.LocalUserId,
+                RemoteUserId = Session.UserId,
                 CreatedDate = DateTime.Now,
                 StartDate = StartDate,
                 EndDate = EndDate,
