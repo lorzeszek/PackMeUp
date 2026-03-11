@@ -20,6 +20,14 @@ public partial class TripListPage : BasePage// ContentPage
         await _viewModel.DisposeRealtimeAsync();
     }
 
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is TripListViewModel vm)
+            await vm.OnAppearingAsync();
+    }
+
     //private async void OnTripSelected(object sender, SelectionChangedEventArgs e)
     //{
     //    if (e.CurrentSelection.FirstOrDefault() is Trip selectedTrip)

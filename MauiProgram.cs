@@ -51,28 +51,36 @@ namespace PackMeUp
                 return new SQLiteAsyncConnection(dbPath);
             });
 
+            builder.Services.AddSingleton<ILocalUserService, LocalUserService>();
+
+
             builder.Services.AddSingleton<ITripRepository>(sp =>
             {
                 var local = sp.GetRequiredService<LocalTripRepository>();
                 var remote = sp.GetRequiredService<SupabaseTripRepository>();
+                var session = sp.GetRequiredService<ISessionService>();
                 var pendingDb = sp.GetRequiredService<SQLiteAsyncConnection>();
-                return new SyncTripRepository(local, remote, pendingDb);
+
+                return new SyncTripRepository(local, remote, session, pendingDb);
             });
 
             builder.Services.AddSingleton<IPackingItemRepository>(sp =>
             {
                 var local = sp.GetRequiredService<LocalPackingItemRepository>();
                 var remote = sp.GetRequiredService<SupabasePackingItemRepository>();
+                var session = sp.GetRequiredService<ISessionService>();
                 var pendingDb = sp.GetRequiredService<SQLiteAsyncConnection>();
-                return new SyncPackingItemRepository(local, remote, pendingDb);
+                return new SyncPackingItemRepository(local, remote, session, pendingDb);
             });
 
             // === UI ===
             builder.Services.AddTransient<StartPage>();
             builder.Services.AddTransient<TripListPage>();
+            builder.Services.AddTransient<TripSetupPage>();
             builder.Services.AddTransient<PackingListPage>();
 
             builder.Services.AddTransient<StartViewModel>();
+            builder.Services.AddTransient<TripSetupViewModel>();
             builder.Services.AddTransient<TripListViewModel>();
             builder.Services.AddTransient<PackingListViewModel>();
 

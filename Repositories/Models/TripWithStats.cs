@@ -1,13 +1,13 @@
-﻿using PackMeUp.Models;
+﻿using PackMeUp.Models.DTO;
 
 namespace PackMeUp.Repositories.Models
 {
     public class TripWithStats
     {
-        public Trip Trip { get; }
+        public TripDTO Trip { get; }
         public string PackingSummary { get; }
 
-        public TripWithStats(Trip trip, string packingSummary)
+        public TripWithStats(TripDTO trip, string packingSummary)
         {
             Trip = trip;
             PackingSummary = packingSummary;

@@ -1,4 +1,4 @@
-﻿using PackMeUp.Models;
+﻿using PackMeUp.Models.DTO;
 using PackMeUp.Models.SQLite;
 using PackMeUp.Repositories.Enums;
 using PackMeUp.Repositories.Interfaces;
@@ -17,33 +17,41 @@ namespace PackMeUp.Repositories.Local
             _db = db;
         }
 
-        public async Task AddPackingItemAsync(PackingItem item)
+        public async Task<int> AddPackingItemAsync(PackingItemDTO item)
         {
             var localPackingItem = new SQLitePackingItem()
             {
-                SupabaseItemId = item.Id,
-                TripId = item.TripId,
+                LocalPackingItemId = item.LocalPackingItemId,
+                LocalUserId = item.LocalUserId.ToString(),
+                LocalTripId = item.LocalTripId,
+                //ClientId = item..ToString(),
+                //SupabaseItemId = item.Id,
+                //TripId = item.TripId,
                 Name = item.Name,
                 CreatedDate = item.CreatedDate,
                 ModifiedDate = item.ModifiedDate,
-                User_id = item.User_id,
+                //User_id = item.User_id,
                 IsPacked = item.IsPacked,
                 Category = item.Category,
             };
 
             await _db.InsertAsync(localPackingItem);
+
+            return localPackingItem.LocalPackingItemId;
         }
 
-        public async Task DeletePackingItemAsync(PackingItem item)
+        public async Task DeletePackingItemAsync(PackingItemDTO item)
         {
             var localPackingItem = new SQLitePackingItem()
             {
-                SupabaseItemId = item.Id,
-                TripId = item.TripId,
+                LocalPackingItemId = item.LocalPackingItemId,
+                LocalUserId = item.LocalUserId.ToString(),
+                //SupabaseItemId = item.Id,
+                //TripId = item.TripId,
                 Name = item.Name,
                 CreatedDate = item.CreatedDate,
                 ModifiedDate = item.ModifiedDate,
-                User_id = item.User_id,
+                //User_id = item.User_id,
                 IsPacked = item.IsPacked,
                 Category = item.Category,
             };
@@ -51,16 +59,19 @@ namespace PackMeUp.Repositories.Local
             await _db.DeleteAsync(localPackingItem);
         }
 
-        public async Task UpdatePackingItemAsync(PackingItem item)
+        public async Task UpdatePackingItemAsync(PackingItemDTO item)
         {
             var localPackingItem = new SQLitePackingItem()
             {
-                SupabaseItemId = item.Id,
-                TripId = item.TripId,
+                LocalUserId = item.LocalUserId,
+                LocalPackingItemId = item.LocalPackingItemId,
+                RemotePackingItemId = item.RemotePackingItemId,
+                RemoteTripId = item.RemoteTripId,
+                LocalTripId = item.LocalTripId,
                 Name = item.Name,
                 CreatedDate = item.CreatedDate,
                 ModifiedDate = item.ModifiedDate,
-                User_id = item.User_id,
+                RemoteUserId = item.RemoteUserId,
                 IsPacked = item.IsPacked,
                 Category = item.Category,
             };
@@ -68,24 +79,31 @@ namespace PackMeUp.Repositories.Local
             await _db.UpdateAsync(localPackingItem);
         }
 
-        public async Task<IReadOnlyList<PackingItem>> GetPackingItemsForTripAsync(int tripId)
+        public async Task<IReadOnlyList<PackingItemDTO>> GetPackingItemsForTripAsync(int localTripId, int remoteTripId)
         {
-            var sqlitePackingItem = await _db.Table<SQLitePackingItem>().Where(x => x.TripId == tripId).ToListAsync();
+            var sqlitePackingItem = await _db.Table<SQLitePackingItem>().Where(x => x.LocalTripId == localTripId).ToListAsync();
 
-            return sqlitePackingItem.Select(x => new PackingItem
+            return sqlitePackingItem.Select(x => new PackingItemDTO
             {
-                TripId = x.TripId,
-                Id = x.SupabaseItemId,
+                LocalPackingItemId = x.LocalPackingItemId,
+                RemotePackingItemId = x.RemotePackingItemId,
+                RemoteTripId = x.RemoteTripId,
+                LocalTripId = x.LocalTripId,
                 Name = x.Name,
                 CreatedDate = x.CreatedDate,
                 ModifiedDate = x.ModifiedDate,
-                User_id = x.User_id,
+                LocalUserId = x.LocalUserId,
                 IsPacked = x.IsPacked,
                 Category = x.Category,
             }).ToList();
         }
 
-        public Task SubscribeToPackingItemChangesAsync(int tripId, Action<PackingItemChange> onChange)
+        public Task UpdatePendingPackingItems(int localTripId, int remoteTripId)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task SubscribeToPackingItemChangesAsync(int tripId, Action<PackingItemDTO> onChange)
         {
             return Task.CompletedTask;
         }

@@ -1,5 +1,6 @@
 ﻿using PackMeUp.Helpers;
-using PackMeUp.Models;
+using PackMeUp.Models.DTO;
+using PackMeUp.Models.Supabase;
 using PackMeUp.Repositories.Enums;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
@@ -11,21 +12,42 @@ namespace PackMeUp.Repositories.Supabase
     public class SupabasePackingItemRepository : IPackingItemRepository
     {
         public readonly ISupabaseService _supabase;
+        private readonly ISessionService _sessionService;
+
         public readonly List<RealtimeChannel> _channels = new();
-        //private int? _currentTripId;
         private bool _isSubscribed;
         public event Action<PackingItemChange>? PackingItemChanged;
 
-        public SupabasePackingItemRepository(ISupabaseService supabase)
+        public SupabasePackingItemRepository(ISupabaseService supabase, ISessionService sessionService)
         {
             _supabase = supabase;
+            _sessionService = sessionService;
         }
 
-        public async Task AddPackingItemAsync(PackingItem item)
+        public async Task<int> AddPackingItemAsync(PackingItemDTO item)
         {
             try
             {
-                await _supabase.Client.From<PackingItem>().Insert(item);
+                PackingItemSupabase mappedPackingItem = Mappers.MapToPackingItemSupabase(item);
+
+                await _supabase.Client.From<PackingItemSupabase>().Insert(mappedPackingItem);
+
+                return mappedPackingItem.Id;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task DeletePackingItemAsync(PackingItemDTO item)
+        {
+            try
+            {
+                PackingItemSupabase mappedPackingItem = Mappers.MapToPackingItemSupabase(item);
+
+                await _supabase.Client.From<PackingItemSupabase>().Delete(mappedPackingItem);
             }
             catch (Exception)
             {
@@ -34,40 +56,26 @@ namespace PackMeUp.Repositories.Supabase
             }
         }
 
-        public async Task DeletePackingItemAsync(PackingItem item)
-        {
-            try
-            {
-                await _supabase.Client.From<PackingItem>().Delete(item);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        public async Task<IReadOnlyList<PackingItem>> GetPackingItemsForTripAsync(int tripId)
+        public async Task<IReadOnlyList<PackingItemDTO>> GetPackingItemsForTripAsync(int localTripId, int remoteTripId)
         {
             try
             {
                 var result = await _supabase.Client
-                    .From<PackingItem>()
-                    .Where(x => x.TripId == tripId)
+                    .From<PackingItemSupabase>()
+                    .Where(x => x.TripId == remoteTripId)
                     .Get();
 
-                return result.Models;
+                return result.Models.Any() ? result.Models.Select(x => Mappers.MapToPackingItemDTO(x)).ToList() : new List<PackingItemDTO>();
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
 
         public async Task StartRealtimeAsync()
         {
-            if (_isSubscribed)
+            if (_isSubscribed || (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated))
                 return;
 
             _isSubscribed = true;
@@ -75,28 +83,27 @@ namespace PackMeUp.Repositories.Supabase
             await _supabase.EnsureRealtimeConnectedAsync();
 
             _channels.AddRange(
-                await RealtimeSubscriptionHelper.SubscribeTableChanges<PackingItem>(
+                await RealtimeSubscriptionHelper.SubscribeTableChanges<PackingItemSupabase>(
                     _supabase.Client,
 
                     onInsert: item =>
-                        PackingItemChanged?.Invoke(
-                            new PackingItemChange(PackingItemChangeType.Insert, item)
-                        ),
+                        PackingItemChanged?.Invoke(new PackingItemChange(PackingItemChangeType.Insert, Mappers.MapToPackingItemDTO(item))),
 
                     onUpdate: item =>
-                        PackingItemChanged?.Invoke(
-                            new PackingItemChange(PackingItemChangeType.Update, item)
-                        ),
+                        PackingItemChanged?.Invoke(new PackingItemChange(PackingItemChangeType.Update, Mappers.MapToPackingItemDTO(item))),
 
                     onDelete: item =>
-                        PackingItemChanged?.Invoke(
-                            new PackingItemChange(PackingItemChangeType.Delete, item)
-                        )
+                        PackingItemChanged?.Invoke(new PackingItemChange(PackingItemChangeType.Delete, Mappers.MapToPackingItemDTO(item)))
                 )
             );
         }
 
         public Task SyncPendingChangesAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task UpdatePendingPackingItems(int localTripId, int remoteTripId)
         {
             return Task.CompletedTask;
         }
@@ -120,12 +127,12 @@ namespace PackMeUp.Repositories.Supabase
             _channels.Clear();
         }
 
-        public async Task UpdatePackingItemAsync(PackingItem item)
+        public async Task UpdatePackingItemAsync(PackingItemDTO item)
         {
             try
             {
-                //await _supabase.EnsureRealtimeConnectedAsync();
-                await _supabase.Client.From<PackingItem>().Update(item);
+                PackingItemSupabase mappedPackingItem = Mappers.MapToPackingItemSupabase(item);
+                await _supabase.Client.From<PackingItemSupabase>().Update(mappedPackingItem);
             }
             catch (Exception)
             {

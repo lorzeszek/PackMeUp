@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using PackMeUp.Extensions;
-using PackMeUp.Models;
+using PackMeUp.Interfaces;
+using PackMeUp.Models.DTO;
 using PackMeUp.Popups;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
@@ -14,16 +15,20 @@ namespace PackMeUp.ViewModels
     {
         public ObservableRangeCollection<TripViewModel> Trips { get; } = new();
 
+        private readonly IGoogleAuthService _googleAuthService;
+
         public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
         public ICommand AddTripCommand => new Command(async () => await AddTrip("wycieczka 1 test"));
         public ICommand DeleteTripCommand => new Command<TripViewModel>(async (trip) => await DeleteTripAsync(trip));
         public ICommand TrashTripCommand => new Command<TripViewModel>(TrashTripAsync);
         public IRelayCommand LogoutCommand => new AsyncRelayCommand(async () => Logout());
 
+        public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
 
-        public TripListViewModel(ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
+        public TripListViewModel(ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService) : base(supabase, sessionService, packingItemRepository, tripRepository)
         {
             Title = "Moje wycieczki";
+            _googleAuthService = googleAuthService;
         }
 
         private async void OnTripTapped(TripViewModel trip)
@@ -35,7 +40,8 @@ namespace PackMeUp.ViewModels
 
             await Shell.Current.GoToAsync(nameof(PackingListPage), new Dictionary<string, object>
             {
-                ["tripId"] = trip.TripModel.Id
+                ["remoteTripId"] = trip.TripModel.RemoteTripId,
+                ["localTripId"] = trip.TripModel.LocalTripId
             });
         }
 
@@ -80,7 +86,12 @@ namespace PackMeUp.ViewModels
 
         private async Task AddTrip(string destinationName)
         {
-            await _tripRepository.AddTripAsync(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = Session.UserId, ClientId = Guid.NewGuid().ToString() });
+            await _tripRepository.AddTripAsync(new TripDTO { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId });
+
+            if (!Session.IsAuthenticated)
+            {
+                await LoadData();
+            }
         }
 
         public async void Logout()
@@ -99,7 +110,7 @@ namespace PackMeUp.ViewModels
                 await _tripRepository.UnsubscribeFromTripChangesAsync();
                 await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
                 await _supabase.Client.Auth.SignOut();
-                await Shell.Current.GoToAsync("///StartPage");
+                await Shell.Current.GoToAsync(nameof(StartPage));
             }
 
 
@@ -120,6 +131,63 @@ namespace PackMeUp.ViewModels
 
         }
 
+        private async Task LoginWithGoogle()
+        {
+            try
+            {
+                var token = await _googleAuthService.SignInWithGoogleAsync();
+
+                if (token != null)
+                {
+                    // Tutaj możesz np. zalogować użytkownika w Supabase:
+                    var session = await _supabase.Client.Auth.SignInWithIdToken(Supabase.Gotrue.Constants.Provider.Google, token);
+
+                    if (session != null)
+                    {
+                        Session.SetUser(session.User);
+
+                        //_sessionService.SetUser(session.User);
+
+                        // Możesz teraz np. ustawić w ViewModel flagę:
+                        //IsLoggedIn = true;
+                        //var LoggedInUserName = user?.Email ?? user?.Id;
+
+                        //await Shell.Current.GoToAsync(nameof(TripListPage));
+
+                        await _tripRepository.StartRealtimeAsync();
+
+                        await _packingItemRepository.StartRealtimeAsync();
+
+                        await _tripRepository.SyncPendingChangesAsync();
+
+                        //await LoadData();
+
+                        var trips = await _tripRepository.GetActiveTripsWithStatsAsync();
+
+                        foreach (var trip in trips)
+                        {
+                            await _packingItemRepository.UpdatePendingPackingItems(trip.Trip.LocalTripId, trip.Trip.RemoteTripId);
+                            await _packingItemRepository.SyncPendingChangesAsync();
+                        }
+
+                        _tripRepository.TripChanged += OnTripChanged;
+                        //await _packingItemRepository.SyncPendingChangesAsync();
+                    }
+                }
+
+                //await _tripRepository.UnsubscribeFromTripChangesAsync();
+
+                //await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
+
+
+                await LoadData();
+            }
+            catch (Exception ex)
+            {
+                // obsługa błędu
+            }
+        }
+
         public Task DisposeRealtimeAsync()
         {
             if (_subscription != null)
@@ -132,7 +200,7 @@ namespace PackMeUp.ViewModels
 
 
 
-        private void OnTripChanged(Trip trip, string operation)
+        private void OnTripChanged(TripDTO trip, string operation)
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -142,7 +210,7 @@ namespace PackMeUp.ViewModels
                         Trips.Add(new TripViewModel(trip));
                         break;
                     case "UPDATE":
-                        var existing = Trips.FirstOrDefault(t => t.TripModel.Id == trip.Id);
+                        var existing = Trips.FirstOrDefault(t => t.TripModel.RemoteTripId == trip.RemoteTripId);
                         if (existing != null)
                         {
                             Trips.Remove(existing);
@@ -151,7 +219,7 @@ namespace PackMeUp.ViewModels
                         //
                         break;
                     case "DELETE":
-                        var toRemove = Trips.FirstOrDefault(t => t.TripModel.Id == trip.Id);
+                        var toRemove = Trips.FirstOrDefault(t => t.TripModel.RemoteTripId == trip.RemoteTripId);
                         if (toRemove != null)
                             Trips.Remove(toRemove);
                         break;
@@ -174,15 +242,33 @@ namespace PackMeUp.ViewModels
             }
         }
 
-        protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
-        {
-            if (!await _tripRepository.IsChannelCreatedAsync())
-            {
-                await _tripRepository.StartRealtimeAsync();
-            }
+        //protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
+        //{
+        //    if (Session.IsAuthenticated && !await _tripRepository.IsChannelCreatedAsync())
+        //    {
+        //        await _tripRepository.StartRealtimeAsync();
+        //    }
 
-            _tripRepository.TripChanged -= OnTripChanged;
-            _tripRepository.TripChanged += OnTripChanged;
+        //    _tripRepository.TripChanged -= OnTripChanged;
+        //    _tripRepository.TripChanged += OnTripChanged;
+
+        //    await LoadData();
+        //}
+
+        public async Task OnAppearingAsync()
+        {
+            if (Session.IsAuthenticated)
+            {
+                if (!await _tripRepository.IsChannelCreatedAsync())
+                {
+                    await _tripRepository.StartRealtimeAsync();
+                }
+
+                _tripRepository.TripChanged += OnTripChanged;
+
+                //_tripRepository.TripChanged -= OnTripChanged;
+
+            }
 
             await LoadData();
         }

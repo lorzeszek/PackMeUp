@@ -1,5 +1,6 @@
 ﻿using PackMeUp.Helpers;
-using PackMeUp.Models;
+using PackMeUp.Models.DTO;
+using PackMeUp.Models.Supabase;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
 using PackMeUp.Services.Interfaces;
@@ -13,7 +14,7 @@ namespace PackMeUp.Repositories.Supabase
         public readonly ISupabaseService _supabase;
         private readonly List<RealtimeChannel> _channels = new();
         private bool _isSubscribed;
-        public event Action<Trip, string>? TripChanged;
+        public event Action<TripDTO, string>? TripChanged;
 
 
         public SupabaseTripRepository(ISupabaseService supabase)
@@ -31,11 +32,11 @@ namespace PackMeUp.Repositories.Supabase
             await _supabase.EnsureRealtimeConnectedAsync();
 
             _channels.AddRange(
-                await RealtimeSubscriptionHelper.SubscribeTableChanges<Trip>(
+                await RealtimeSubscriptionHelper.SubscribeTableChanges<TripSupabase>(
                     _supabase.Client,
-                    onInsert: trip => TripChanged?.Invoke(trip, "INSERT"),
-                    onUpdate: trip => TripChanged?.Invoke(trip, "UPDATE"),
-                    onDelete: trip => TripChanged?.Invoke(trip, "DELETE")
+                    onInsert: trip => TripChanged?.Invoke(Mappers.MapToTripDTO(trip), "INSERT"),
+                    onUpdate: trip => TripChanged?.Invoke(Mappers.MapToTripDTO(trip), "UPDATE"),
+                    onDelete: trip => TripChanged?.Invoke(Mappers.MapToTripDTO(trip), "DELETE")
                 )
             );
         }
@@ -58,11 +59,30 @@ namespace PackMeUp.Repositories.Supabase
             _channels.Clear();
         }
 
-        public async Task AddTripAsync(Trip trip)
+        public async Task<int> AddTripAsync(TripDTO trip)
         {
             try
             {
-                await _supabase.Client.From<Trip>().Insert(trip);
+                TripSupabase mappedTrip = Mappers.MapToTripSupabase(trip);
+
+                await _supabase.Client.From<TripSupabase>().Insert(mappedTrip);
+
+                return mappedTrip.Id;
+            }
+            catch (Exception ex)
+            {
+                var message = ex.Message;
+                throw;
+            }
+        }
+
+        public async Task DeleteTripAsync(TripDTO trip)
+        {
+            try
+            {
+                TripSupabase mappedTrip = Mappers.MapToTripSupabase(trip);
+
+                await _supabase.Client.From<TripSupabase>().Delete(mappedTrip);
             }
             catch (Exception)
             {
@@ -71,24 +91,11 @@ namespace PackMeUp.Repositories.Supabase
             }
         }
 
-        public async Task DeleteTripAsync(Trip trip)
+        public async Task<TripSupabase?> GetTripAsync(TripDTO trip)
         {
             try
             {
-                await _supabase.Client.From<Trip>().Delete(trip);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        public async Task<Trip?> GetTripAsync(Trip trip)
-        {
-            try
-            {
-                var response = await _supabase.Client.From<Trip>().Where(x => x.Id == trip.Id).Get();
+                var response = await _supabase.Client.From<TripSupabase>().Where(x => x.Id == trip.RemoteTripId).Get();
 
                 return response.Models.FirstOrDefault();
             }
@@ -99,13 +106,15 @@ namespace PackMeUp.Repositories.Supabase
             }
         }
 
-        public async Task UpdateTripAsync(Trip trip)
+        public async Task UpdateTripAsync(TripDTO trip)
         {
             try
             {
+                TripSupabase mappedTrip = Mappers.MapToTripSupabase(trip);
+
                 await _supabase.Client
-                        .From<Trip>()
-                        .Update(trip);
+                        .From<TripSupabase>()
+                        .Update(mappedTrip);
             }
             catch (Exception)
             {
@@ -114,45 +123,45 @@ namespace PackMeUp.Repositories.Supabase
             }
         }
 
-        public async Task<List<TripItemsStats>> GetTripStatsAsync()
+        public async Task<List<TripItemsStatsSupabase>> GetTripStatsAsync()
         {
             var response = await _supabase.Client.Rpc("count_items_stats_for_all_trips", null);
 
             if (response?.Content == null)
-                return new List<TripItemsStats>();
+                return new List<TripItemsStatsSupabase>();
 
-            return JsonSerializer.Deserialize<List<TripItemsStats>>(response.Content)
-                   ?? new List<TripItemsStats>();
+            return JsonSerializer.Deserialize<List<TripItemsStatsSupabase>>(response.Content)
+                   ?? new List<TripItemsStatsSupabase>();
         }
 
-        public async Task<IReadOnlyList<Trip>> GetActiveTripsAsync()
+        public async Task<IReadOnlyList<TripSupabase>> GetActiveTripsAsync()
         {
             var response = await _supabase.Client
-                .From<Trip>()
+                .From<TripSupabase>()
                 .Where(x => x.IsActive && !x.IsInTrash)
                 .Get();
 
-            return response.Models ?? new List<Trip>();
+            return response.Models ?? new List<TripSupabase>();
         }
 
         public async Task<IReadOnlyList<TripWithStats>> GetActiveTripsWithStatsAsync()
         {
             // 1. Pobranie aktywnych tripów
             var tripsResponse = await _supabase.Client
-                    .From<Trip>()
+                    .From<TripSupabase>()
                     .Select("*")
                     .Where(x => x.IsActive == true && x.IsInTrash == false)
                     .Get();
 
-            var trips = tripsResponse.Models ?? new List<Trip>();
+            var trips = tripsResponse.Models ?? new List<TripSupabase>();
 
             // 2. Wywołanie RPC do pobrania statystyk
             var statsResponse = await _supabase.Client.Rpc("count_items_stats_for_all_trips", new { });
 
             var stats = statsResponse?.Content == null
-                ? new List<TripItemsStats>()
-                : JsonSerializer.Deserialize<List<TripItemsStats>>(statsResponse.Content)
-                  ?? new List<TripItemsStats>();
+                ? new List<TripItemsStatsSupabase>()
+                : JsonSerializer.Deserialize<List<TripItemsStatsSupabase>>(statsResponse.Content)
+                  ?? new List<TripItemsStatsSupabase>();
 
             // 3. Połączenie tripów ze statystykami
             var result = trips.Select(trip =>
@@ -161,8 +170,8 @@ namespace PackMeUp.Repositories.Supabase
                 var summary = stat == null
                     ? "0 / 0"
                     : $"{stat.IsPackedCount} / {stat.IsPackedCount + stat.IsNotPackedCount}";
-
-                return new TripWithStats(trip, summary);
+                var tripDTO = Mappers.MapToTripDTO(trip);
+                return new TripWithStats(tripDTO, summary);
             }).ToList();
 
             return result;

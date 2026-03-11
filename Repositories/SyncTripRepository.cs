@@ -1,6 +1,8 @@
-﻿using PackMeUp.Models;
+﻿using PackMeUp.Models.DTO;
+using PackMeUp.Models.Supabase;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
+using PackMeUp.Services.Interfaces;
 using SQLite;
 using System.Text.Json;
 
@@ -11,17 +13,19 @@ namespace PackMeUp.Repositories
         private readonly ITripRepository _local;
         private readonly ITripRepository _remote;
         private readonly SQLiteAsyncConnection _pendingDb;
+        private readonly ISessionService _sessionService;
 
-        public event Action<Trip, string>? TripChanged
+        public event Action<TripDTO, string>? TripChanged
         {
             add => _remote.TripChanged += value;
             remove => _remote.TripChanged -= value;
         }
 
-        public SyncTripRepository(ITripRepository local, ITripRepository remote, SQLiteAsyncConnection pendingDb)
+        public SyncTripRepository(ITripRepository local, ITripRepository remote, ISessionService sessionService, SQLiteAsyncConnection pendingDb)
         {
             _local = local;
             _remote = remote;
+            _sessionService = sessionService;
             _pendingDb = pendingDb;
         }
 
@@ -32,11 +36,13 @@ namespace PackMeUp.Repositories
             await _remote.UnsubscribeFromTripChangesAsync();
         }
 
-        public async Task AddTripAsync(Trip trip)
+        public async Task<int> AddTripAsync(TripDTO trip)
         {
-            await _local.AddTripAsync(trip);
+            int localTripId = await _local.AddTripAsync(trip);
 
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            trip.LocalTripId = localTripId;
+
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _sessionService.IsAuthenticated)
             {
                 try
                 {
@@ -44,9 +50,9 @@ namespace PackMeUp.Repositories
                 }
                 catch
                 {
-                    var pending = new PendingTripChange
+                    var pending = new SQLitePendingTripChange
                     {
-                        //TripId = trip.Id,
+                        LocalUserId = trip.LocalUserId,
                         Operation = "Add",
                         TripJson = JsonSerializer.Serialize(trip)
                     };
@@ -55,17 +61,19 @@ namespace PackMeUp.Repositories
             }
             else
             {
-                var pending = new PendingTripChange
+                var pending = new SQLitePendingTripChange
                 {
-                    //TripId = trip.Id,
+                    LocalUserId = trip.LocalUserId,
                     Operation = "Add",
                     TripJson = JsonSerializer.Serialize(trip)
                 };
                 await _pendingDb.InsertAsync(pending);
             }
+
+            return localTripId;
         }
 
-        public async Task DeleteTripAsync(Trip trip)
+        public async Task DeleteTripAsync(TripDTO trip)
         {
             await _local.DeleteTripAsync(trip);
 
@@ -77,9 +85,8 @@ namespace PackMeUp.Repositories
                 }
                 catch
                 {
-                    var pending = new PendingTripChange
+                    var pending = new SQLitePendingTripChange
                     {
-                        //TripId = trip.Id,
                         Operation = "Delete",
                         TripJson = JsonSerializer.Serialize(trip)
                     };
@@ -88,9 +95,8 @@ namespace PackMeUp.Repositories
             }
             else
             {
-                var pending = new PendingTripChange
+                var pending = new SQLitePendingTripChange
                 {
-                    //TripId = trip.Id,
                     Operation = "Delete",
                     TripJson = JsonSerializer.Serialize(trip)
                 };
@@ -98,7 +104,7 @@ namespace PackMeUp.Repositories
             }
         }
 
-        public async Task<Trip?> GetTripAsync(Trip trip)
+        public async Task<TripSupabase?> GetTripAsync(TripDTO trip)
         {
             if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
             {
@@ -115,7 +121,7 @@ namespace PackMeUp.Repositories
             return localTrip;
         }
 
-        public async Task UpdateTripAsync(Trip trip)
+        public async Task UpdateTripAsync(TripDTO trip)
         {
             await _local.UpdateTripAsync(trip);
 
@@ -127,9 +133,8 @@ namespace PackMeUp.Repositories
                 }
                 catch
                 {
-                    var pending = new PendingTripChange
+                    var pending = new SQLitePendingTripChange
                     {
-                        //TripId = trip.Id,
                         Operation = "Update",
                         TripJson = JsonSerializer.Serialize(trip)
                     };
@@ -138,9 +143,8 @@ namespace PackMeUp.Repositories
             }
             else
             {
-                var pending = new PendingTripChange
+                var pending = new SQLitePendingTripChange
                 {
-                    //TripId = trip.Id,
                     Operation = "Update",
                     TripJson = JsonSerializer.Serialize(trip)
                 };
@@ -150,27 +154,32 @@ namespace PackMeUp.Repositories
 
         public async Task SyncPendingChangesAsync()
         {
-            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated)
                 return;
 
-            var pendingChanges = await _pendingDb.Table<PendingTripChange>().ToListAsync();
+            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
 
             foreach (var change in pendingChanges)
             {
-                var trip = JsonSerializer.Deserialize<Trip>(change.TripJson);
+                var tripDeserialized = JsonSerializer.Deserialize<TripDTO>(change.TripJson);
+
+                if (tripDeserialized == null)
+                    return;
+
+                tripDeserialized.RemoteUserId = _sessionService.UserId;
 
                 try
                 {
                     switch (change.Operation)
                     {
                         case "Add":
-                            await _remote.AddTripAsync(trip!);
+                            await _remote.AddTripAsync(tripDeserialized!);
                             break;
                         case "Update":
-                            await _remote.UpdateTripAsync(trip!);
+                            await _remote.UpdateTripAsync(tripDeserialized!);
                             break;
                         case "Delete":
-                            await _remote.DeleteTripAsync(trip!);
+                            await _remote.DeleteTripAsync(tripDeserialized!);
                             break;
                     }
 
@@ -188,36 +197,14 @@ namespace PackMeUp.Repositories
 
         public async Task<IReadOnlyList<TripWithStats>> GetActiveTripsWithStatsAsync()
         {
-            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
-            //if (true)
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated)
             {
                 var localTrips = await _local.GetActiveTripsWithStatsAsync();
-                //return localTrips.Select(t => new TripWithStats(t, "summary")).ToList();
                 return localTrips.ToList();
             }
 
-            //await _supabase.EnsureRealtimeConnectedAsync();
-
-            var trips = await _remote.GetActiveTripsWithStatsAsync();
-            //var trips = await _remote.GetActiveTripsAsync();
-            //var stats = await _remote.GetTripStatsAsync(); // ← tutaj Twoja funkcja RPC
-
-            //var result = trips.Select(trip =>
-            //{
-            //    var stat = stats.FirstOrDefault(s => s.TripId == trip.Id);
-            //    var summary = stat == null
-            //        ? "0 / 0"
-            //        : $"{stat.IsPackedCount} / {stat.IsPackedCount + stat.IsNotPackedCount}";
-
-            //    return new TripWithStats(trip, summary);
-            //}).ToList();
-
-            //await _local.ReplaceAllAsync(trips);
-
-            return trips.ToList();
+            return await _remote.GetActiveTripsWithStatsAsync();
         }
-
-
 
         public Task StartRealtimeAsync()
         {

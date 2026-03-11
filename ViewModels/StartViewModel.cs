@@ -2,6 +2,8 @@
 using PackMeUp.Interfaces;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
+using PackMeUp.Views;
+using System.Windows.Input;
 
 namespace PackMeUp.ViewModels
 {
@@ -11,9 +13,31 @@ namespace PackMeUp.ViewModels
 
         public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
 
+        public ICommand StartPackingCommand => new AsyncRelayCommand(StartPackingAsync);
+
         public StartViewModel(ISupabaseService supabase, ISessionService sessionService, IGoogleAuthService googleAuthService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
         {
             _googleAuthService = googleAuthService;
+        }
+
+        //public async Task InitializeAsync()
+        //{
+        //    await Session.InitializeAsync();
+
+        //    if (Session.IsLoggedIn)
+        //    {
+        //        await Shell.Current.GoToAsync("//TripList");
+        //        return;
+        //    }
+
+        //    // jeśli NIE zalogowany → zostajemy na StartPage
+        //    // tu będzie AI onboarding
+        //}
+
+        private async Task StartPackingAsync()
+        {
+            // przechodzisz do flow zbierania danych
+            await Shell.Current.GoToAsync(nameof(TripSetupPage));
         }
 
         private async Task LoginWithGoogle()
@@ -36,6 +60,10 @@ namespace PackMeUp.ViewModels
                         //var LoggedInUserName = user?.Email ?? user?.Id;
 
                         //await Shell.Current.GoToAsync(nameof(TripListPage));
+
+                        await _tripRepository.StartRealtimeAsync();
+
+                        await _packingItemRepository.StartRealtimeAsync();
                     }
                 }
 
@@ -43,9 +71,7 @@ namespace PackMeUp.ViewModels
 
                 //await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
 
-                await _tripRepository.StartRealtimeAsync();
 
-                await _packingItemRepository.StartRealtimeAsync();
 
             }
             catch (Exception ex)
@@ -53,5 +79,14 @@ namespace PackMeUp.ViewModels
                 // obsługa błędu
             }
         }
+
+
+        //protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
+        //{
+        //    if (Session.IsLoggedIn)
+        //    {
+        //        await Shell.Current.GoToAsync(nameof(TripListPage));
+        //    }
+        //}
     }
 }
