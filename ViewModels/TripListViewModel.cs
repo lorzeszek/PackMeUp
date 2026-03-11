@@ -13,11 +13,9 @@ namespace PackMeUp.ViewModels
 {
     public partial class TripListViewModel : BaseViewModel
     {
-        private bool _initialized;
         public ObservableRangeCollection<TripViewModel> Trips { get; } = new();
 
         private readonly IGoogleAuthService _googleAuthService;
-
 
         public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
         public ICommand AddTripCommand => new Command(async () => await AddTrip("wycieczka 1 test"));
@@ -42,7 +40,8 @@ namespace PackMeUp.ViewModels
 
             await Shell.Current.GoToAsync(nameof(PackingListPage), new Dictionary<string, object>
             {
-                ["tripId"] = trip.TripModel.RemoteId
+                ["remoteTripId"] = trip.TripModel.RemoteTripId,
+                ["localTripId"] = trip.TripModel.LocalTripId
             });
         }
 
@@ -87,8 +86,6 @@ namespace PackMeUp.ViewModels
 
         private async Task AddTrip(string destinationName)
         {
-            //await _tripRepository.AddTripAsync(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = Session.UserId, ClientId = Guid.NewGuid().ToString() });
-            //await _tripRepository.AddTripAsync(new Trip { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, User_id = Session.UserId, ClientId = Session.LocalUserId });
             await _tripRepository.AddTripAsync(new TripDTO { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId });
 
             if (!Session.IsAuthenticated)
@@ -145,8 +142,6 @@ namespace PackMeUp.ViewModels
                     // Tutaj możesz np. zalogować użytkownika w Supabase:
                     var session = await _supabase.Client.Auth.SignInWithIdToken(Supabase.Gotrue.Constants.Provider.Google, token);
 
-
-
                     if (session != null)
                     {
                         Session.SetUser(session.User);
@@ -164,7 +159,19 @@ namespace PackMeUp.ViewModels
                         await _packingItemRepository.StartRealtimeAsync();
 
                         await _tripRepository.SyncPendingChangesAsync();
-                        await _packingItemRepository.SyncPendingChangesAsync();
+
+                        //await LoadData();
+
+                        var trips = await _tripRepository.GetActiveTripsWithStatsAsync();
+
+                        foreach (var trip in trips)
+                        {
+                            await _packingItemRepository.UpdatePendingPackingItems(trip.Trip.LocalTripId, trip.Trip.RemoteTripId);
+                            await _packingItemRepository.SyncPendingChangesAsync();
+                        }
+
+                        _tripRepository.TripChanged += OnTripChanged;
+                        //await _packingItemRepository.SyncPendingChangesAsync();
                     }
                 }
 
@@ -203,7 +210,7 @@ namespace PackMeUp.ViewModels
                         Trips.Add(new TripViewModel(trip));
                         break;
                     case "UPDATE":
-                        var existing = Trips.FirstOrDefault(t => t.TripModel.RemoteId == trip.RemoteId);
+                        var existing = Trips.FirstOrDefault(t => t.TripModel.RemoteTripId == trip.RemoteTripId);
                         if (existing != null)
                         {
                             Trips.Remove(existing);
@@ -212,7 +219,7 @@ namespace PackMeUp.ViewModels
                         //
                         break;
                     case "DELETE":
-                        var toRemove = Trips.FirstOrDefault(t => t.TripModel.RemoteId == trip.RemoteId);
+                        var toRemove = Trips.FirstOrDefault(t => t.TripModel.RemoteTripId == trip.RemoteTripId);
                         if (toRemove != null)
                             Trips.Remove(toRemove);
                         break;
@@ -235,33 +242,35 @@ namespace PackMeUp.ViewModels
             }
         }
 
-        protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
-        {
-            if (Session.IsAuthenticated && !await _tripRepository.IsChannelCreatedAsync())
-            {
-                await _tripRepository.StartRealtimeAsync();
-            }
+        //protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
+        //{
+        //    if (Session.IsAuthenticated && !await _tripRepository.IsChannelCreatedAsync())
+        //    {
+        //        await _tripRepository.StartRealtimeAsync();
+        //    }
 
-            _tripRepository.TripChanged -= OnTripChanged;
-            _tripRepository.TripChanged += OnTripChanged;
+        //    _tripRepository.TripChanged -= OnTripChanged;
+        //    _tripRepository.TripChanged += OnTripChanged;
 
-            await LoadData();
-        }
+        //    await LoadData();
+        //}
 
         public async Task OnAppearingAsync()
         {
-            if (!_initialized)
+            if (Session.IsAuthenticated)
             {
-                _initialized = true;
-
-                if (Session.IsAuthenticated && !await _tripRepository.IsChannelCreatedAsync())
+                if (!await _tripRepository.IsChannelCreatedAsync())
+                {
                     await _tripRepository.StartRealtimeAsync();
+                }
 
-                _tripRepository.TripChanged -= OnTripChanged;
                 _tripRepository.TripChanged += OnTripChanged;
 
-                await LoadData();
+                //_tripRepository.TripChanged -= OnTripChanged;
+
             }
+
+            await LoadData();
         }
 
         public override async Task OnNavigatedFromAsync(IDictionary<string, object> query)

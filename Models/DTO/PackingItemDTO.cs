@@ -1,13 +1,11 @@
-﻿using SQLite;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace PackMeUp.Models.SQLite
+namespace PackMeUp.Models.DTO
 {
-    [Table("SQLitePackingItem")]
-    public class SQLitePackingItem
+    public class PackingItemDTO : ObservableObject
     {
-        [PrimaryKey, AutoIncrement]
-        public int LocalPackingItemId { get; set; }
         public int? RemotePackingItemId { get; set; }
+        public int LocalPackingItemId { get; set; }
         public int LocalTripId { get; set; }
         public int? RemoteTripId { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -17,5 +15,6 @@ namespace PackMeUp.Models.SQLite
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public bool IsPacked { get; set; }
+        string PackingItemJson { get; set; }
     }
 }

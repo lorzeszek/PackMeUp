@@ -8,7 +8,7 @@ namespace PackMeUp.ViewModels
 {
     public partial class TripSetupViewModel : BaseViewModel
     {
-        private readonly ITripRepository _tripRepository;
+        //private readonly ITripRepository _tripRepository;
         private readonly ILocalUserService _localUserService;
 
         //public AsyncRelayCommand CreateTripCommand => new AsyncRelayCommand(CreateTripAsync, CanCreateTrip);
@@ -16,9 +16,9 @@ namespace PackMeUp.ViewModels
         //public IAsyncRelayCommand CreateTripCommand { get; }
 
 
-        public TripSetupViewModel(ITripRepository tripRepository, ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
+        public TripSetupViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
         {
-            _tripRepository = tripRepository;
+            //_tripRepository = tripRepository;
             _localUserService = localUserService;
 
             //CreateTripCommand = new AsyncCommand(CreateTripAsync, CanCreateTrip);

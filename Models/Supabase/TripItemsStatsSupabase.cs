@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PackMeUp.Models
+namespace PackMeUp.Models.Supabase
 {
-    public class TripItemsStats
+    public class TripItemsStatsSupabase
     {
         [JsonPropertyName("tripid")]
         public int TripId { get; set; }

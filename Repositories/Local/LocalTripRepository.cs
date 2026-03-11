@@ -1,6 +1,6 @@
-﻿using PackMeUp.Models;
-using PackMeUp.Models.DTO;
+﻿using PackMeUp.Models.DTO;
 using PackMeUp.Models.SQLite;
+using PackMeUp.Models.Supabase;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
 using PackMeUp.Services.Interfaces;
@@ -24,7 +24,7 @@ namespace PackMeUp.Repositories.Local
 
         public Task UnsubscribeFromTripChangesAsync() => Task.CompletedTask;
 
-        public async Task AddTripAsync(TripDTO trip)
+        public async Task<int> AddTripAsync(TripDTO trip)
         {
             var localTrip = new SQLiteTrip()
             {
@@ -39,13 +39,15 @@ namespace PackMeUp.Repositories.Local
             };
 
             await _db.InsertAsync(localTrip);
+
+            return localTrip.LocalTripId;
         }
 
         public async Task DeleteTripAsync(TripDTO trip)
         {
             var localTrip = new SQLiteTrip()
             {
-                LocalId = trip.LocalId,
+                LocalTripId = trip.LocalTripId,
                 LocalUserId = trip.LocalUserId.ToString(),
                 CreatedDate = trip.CreatedDate,
                 ModifiedDate = trip.ModifiedDate,
@@ -61,12 +63,12 @@ namespace PackMeUp.Repositories.Local
 
         public async Task<IReadOnlyList<TripWithStats>> GetActiveTripsWithStatsAsync()
         {
-            var sqliteTripsAll = await _db.Table<SQLiteTrip>().ToListAsync();
             var sqliteTrips = await _db.Table<SQLiteTrip>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
+            var sqlitePackingItems = await _db.Table<SQLitePackingItem>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
 
             var trips = sqliteTrips.Select(x => new TripDTO
             {
-                LocalId = x.LocalId,
+                LocalTripId = x.LocalTripId,
                 LocalUserId = x.LocalUserId,
                 CreatedDate = x.CreatedDate,
                 ModifiedDate = x.ModifiedDate,
@@ -79,8 +81,12 @@ namespace PackMeUp.Repositories.Local
 
             return trips.Select(tripDTO =>
             {
-                var stat = new TripItemsStats { IsNotPackedCount = 0, IsPackedCount = 0 };
-                var summary = stat == null
+                var stat = new TripItemsStatsSupabase
+                {
+                    IsNotPackedCount = sqlitePackingItems.Where(x => x.LocalTripId == tripDTO.LocalTripId && !x.IsPacked).Count(),
+                    IsPackedCount = sqlitePackingItems.Where(x => x.LocalTripId == tripDTO.LocalTripId && x.IsPacked).Count()
+                };
+                var summary = (stat.IsPackedCount + stat.IsNotPackedCount) == 0
                     ? "0 / 0"
                     : $"{stat.IsPackedCount} / {stat.IsPackedCount + stat.IsNotPackedCount}";
                 return new TripWithStats(tripDTO, summary);
@@ -88,13 +94,14 @@ namespace PackMeUp.Repositories.Local
 
         }
 
-        public async Task<Trip?> GetTripAsync(TripDTO trip)
+        public async Task<TripSupabase?> GetTripAsync(TripDTO trip)
         {
-            var sqliteTrip = await _db.Table<SQLiteTrip>().FirstOrDefaultAsync(x => x.LocalUserId == trip.LocalUserId);
+            var sqliteTrip = await _db.Table<SQLiteTrip>().FirstOrDefaultAsync(x => x.LocalUserId == trip.LocalUserId && x.LocalTripId == trip.LocalTripId);
 
-            return new Trip
+            return new TripSupabase
             {
                 ClientId = sqliteTrip.LocalUserId,
+                LocalTripId = sqliteTrip.LocalTripId,
                 CreatedDate = sqliteTrip.CreatedDate,
                 ModifiedDate = sqliteTrip.ModifiedDate,
                 StartDate = sqliteTrip.StartDate,

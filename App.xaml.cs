@@ -48,20 +48,23 @@ namespace PackMeUp
 
         private async Task InitializeAndNavigateAsync()
         {
-            //SecureStorage.Remove("access_token");
-            //SecureStorage.Remove("refresh_token");
+            SecureStorage.Remove("access_token");
+            SecureStorage.Remove("refresh_token");
 
-            //await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLiteTrip");
+            await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLiteTrip");
             await _db.CreateTableAsync<SQLiteTrip>();
 
+            await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLitePackingItem");
             await _db.CreateTableAsync<SQLitePackingItem>();
 
-            //await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLiteUser");
+            await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLiteUser");
             await _db.CreateTableAsync<SQLiteUser>();
 
-            //await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLitePendingTripChange");
+            await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLitePendingTripChange");
             await _db.CreateTableAsync<SQLitePendingTripChange>();
 
+            await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLitePendingPackingItemChange");
+            await _db.CreateTableAsync<SQLitePendingPackingItemChange>();
 
             //await _localUserService.GetOrCreateAsync();
 

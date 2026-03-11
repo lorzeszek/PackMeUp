@@ -2,8 +2,8 @@
 {
     public class TripDTO
     {
-        public int RemoteId { get; set; }
-        public int LocalId { get; set; }
+        public int RemoteTripId { get; set; }
+        public int LocalTripId { get; set; }
         public string LocalUserId { get; set; }
         public string RemoteUserId { get; set; }
         public DateTime CreatedDate { get; set; }

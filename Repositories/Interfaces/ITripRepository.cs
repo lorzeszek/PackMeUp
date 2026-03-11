@@ -1,13 +1,13 @@
-﻿using PackMeUp.Models;
-using PackMeUp.Models.DTO;
+﻿using PackMeUp.Models.DTO;
+using PackMeUp.Models.Supabase;
 using PackMeUp.Repositories.Models;
 
 namespace PackMeUp.Repositories.Interfaces
 {
     public interface ITripRepository
     {
-        Task AddTripAsync(TripDTO trip);
-        Task<Trip?> GetTripAsync(TripDTO trip);
+        Task<int> AddTripAsync(TripDTO trip);
+        Task<TripSupabase?> GetTripAsync(TripDTO trip);
         Task UpdateTripAsync(TripDTO trip);
         Task<IReadOnlyList<TripWithStats>> GetActiveTripsWithStatsAsync();
         Task DeleteTripAsync(TripDTO trip);

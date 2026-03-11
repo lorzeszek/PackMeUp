@@ -6,7 +6,7 @@ namespace PackMeUp.Models.SQLite
     public class SQLiteTrip
     {
         [PrimaryKey, AutoIncrement]
-        public int LocalId { get; set; }
+        public int LocalTripId { get; set; }
         public string LocalUserId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }

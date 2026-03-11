@@ -1,4 +1,4 @@
-﻿using PackMeUp.Models;
+﻿using PackMeUp.Models.DTO;
 
 namespace PackMeUp.Repositories.Enums
 {
@@ -11,6 +11,6 @@ namespace PackMeUp.Repositories.Enums
 
     public record PackingItemChange(
     PackingItemChangeType Type,
-    PackingItem Item
+    PackingItemDTO Item
     );
 }

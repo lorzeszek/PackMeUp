@@ -1,5 +1,7 @@
 ﻿using PackMeUp.Extensions;
+using PackMeUp.Helpers;
 using PackMeUp.Models;
+using PackMeUp.Models.DTO;
 using PackMeUp.Repositories.Enums;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
@@ -11,7 +13,8 @@ namespace PackMeUp.ViewModels
     {
         public ObservableRangeCollection<PackingItem> Items { get; } = new();
 
-        private int _tripId { get; set; }
+        private int _remoteTripId { get; set; }
+        private int _localTripId { get; set; }
 
         private string _newItemName = string.Empty;
         public string NewItemName
@@ -40,11 +43,16 @@ namespace PackMeUp.ViewModels
             IsRefreshing = true;
 
             //var newItem = new PackingItem { Name = _newItemName, Category = 3, TripId = _tripId, User_id = Session.UserId, Cli Session.LocalUserId, CreatedDate = DateTime.Now };
-            var newItem = new PackingItem { Name = _newItemName, Category = 3, TripId = _tripId, User_id = Session.UserId, CreatedDate = DateTime.Now };
+            var newItem = new PackingItemDTO { Name = _newItemName, Category = 3, RemoteTripId = _remoteTripId, LocalTripId = _localTripId, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId, CreatedDate = DateTime.Now };
 
             await _packingItemRepository.AddPackingItemAsync(newItem);
 
             NewItemName = string.Empty;
+
+            if (!Session.IsAuthenticated)
+            {
+                await LoadData();
+            }
 
             IsBusy = false;
             IsRefreshing = false;
@@ -56,7 +64,7 @@ namespace PackMeUp.ViewModels
             {
                 try
                 {
-                    await _packingItemRepository.UpdatePackingItemAsync(packingItem);
+                    await _packingItemRepository.UpdatePackingItemAsync(Mappers.MapToPackingItemDTO(packingItem));
                 }
                 catch (Supabase.Postgrest.Exceptions.PostgrestException ex)
                 {
@@ -88,7 +96,7 @@ namespace PackMeUp.ViewModels
 
         private void OnPackingItemChanged(PackingItemChange change)
         {
-            if (change.Item.TripId != _tripId)
+            if (change.Item.RemoteTripId != _remoteTripId)
                 return;
 
             MainThread.BeginInvokeOnMainThread(() =>
@@ -96,25 +104,25 @@ namespace PackMeUp.ViewModels
                 switch (change.Type)
                 {
                     case PackingItemChangeType.Insert:
-                        Items.Add(change.Item);
+                        Items.Add(Mappers.MapToPackingItem(change.Item));
                         break;
 
                     case PackingItemChangeType.Update:
-                        var item = Items.FirstOrDefault(x => x.Id == change.Item.Id);
+                        var item = Items.FirstOrDefault(x => x.RemoteId == change.Item.RemotePackingItemId);
                         if (item != null)
                         {
                             var index = Items.IndexOf(item);
 
                             if (index >= 0)
                             {
-                                Items[index] = change.Item;
+                                Items[index] = Mappers.MapToPackingItem(change.Item);
                             }
                         }
 
                         break;
 
                     case PackingItemChangeType.Delete:
-                        var toRemove = Items.FirstOrDefault(i => i.Id == change.Item.Id);
+                        var toRemove = Items.FirstOrDefault(i => i.RemoteId == change.Item.RemotePackingItemId);
                         if (toRemove != null)
                             Items.Remove(toRemove);
                         break;
@@ -124,24 +132,33 @@ namespace PackMeUp.ViewModels
 
         private async Task LoadData()
         {
-            var tripsWithStats = await _packingItemRepository.GetPackingItemsForTripAsync(_tripId);
+            var tripsWithStats = await _packingItemRepository.GetPackingItemsForTripAsync(_localTripId, _remoteTripId);
 
-            Items.ReplaceRange(tripsWithStats);
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Items.ReplaceRange(tripsWithStats.Select(Mappers.MapToPackingItem));
+            });
+
+            //Items.ReplaceRange(tripsWithStats);
         }
 
         protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
         {
-            if (query.TryGetValue("tripId", out var tripIdObj))
+            if (query.TryGetValue("remoteTripId", out var remoteTripIdObj) && query.TryGetValue("localTripId", out var localTripIdObj))
             {
-                _tripId = Convert.ToInt32(tripIdObj);
+                _remoteTripId = Convert.ToInt32(remoteTripIdObj);
+                _localTripId = Convert.ToInt32(localTripIdObj);
 
-                if (!await _packingItemRepository.IsChannelCreatedAsync())
+                if (Session.IsAuthenticated && !await _packingItemRepository.IsChannelCreatedAsync())
                 {
                     await _packingItemRepository.StartRealtimeAsync();
                 }
 
                 _packingItemRepository.PackingItemChanged -= OnPackingItemChanged;
                 _packingItemRepository.PackingItemChanged += OnPackingItemChanged;
+
+                //await _packingItemRepository.UpdatePendingPackingItems(_localTripId, _remoteTripId);
+                //await _packingItemRepository.SyncPendingChangesAsync();
 
                 await LoadData();
             }
@@ -151,7 +168,7 @@ namespace PackMeUp.ViewModels
         {
             _packingItemRepository.PackingItemChanged -= OnPackingItemChanged;
 
-            await _packingItemRepository.SyncPendingChangesAsync();
+            //await _packingItemRepository.SyncPendingChangesAsync();
         }
     }
 }

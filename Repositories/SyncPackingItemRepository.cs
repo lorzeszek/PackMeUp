@@ -1,4 +1,4 @@
-﻿using PackMeUp.Models;
+﻿using PackMeUp.Models.DTO;
 using PackMeUp.Repositories.Enums;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
@@ -30,11 +30,13 @@ namespace PackMeUp.Repositories
             _pendingDb = pendingDb;
         }
 
-        public async Task AddPackingItemAsync(PackingItem item)
+        public async Task<int> AddPackingItemAsync(PackingItemDTO item)
         {
-            await _local.AddPackingItemAsync(item);
+            int packinItemId = await _local.AddPackingItemAsync(item);
 
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            item.LocalPackingItemId = packinItemId;
+
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _sessionService.IsAuthenticated)
             {
                 try
                 {
@@ -42,9 +44,11 @@ namespace PackMeUp.Repositories
                 }
                 catch
                 {
-                    var pending = new PendingPackingItemChange
+                    var pending = new SQLitePendingPackingItemChange
                     {
-                        //TripId = trip.Id,
+                        LocalUserId = item.LocalUserId,
+                        LocalTripId = item.LocalTripId,
+                        LocalPackingItemId = item.LocalPackingItemId,
                         Operation = "Add",
                         PackingItemJson = JsonSerializer.Serialize(item)
                     };
@@ -54,21 +58,25 @@ namespace PackMeUp.Repositories
 
             else
             {
-                var pending = new PendingPackingItemChange
+                var pending = new SQLitePendingPackingItemChange
                 {
-                    //TripId = trip.Id,
+                    LocalUserId = item.LocalUserId,
+                    LocalTripId = item.LocalTripId,
+                    LocalPackingItemId = item.LocalPackingItemId,
                     Operation = "Add",
                     PackingItemJson = JsonSerializer.Serialize(item)
                 };
                 await _pendingDb.InsertAsync(pending);
             }
+
+            return packinItemId;
         }
 
-        public async Task DeletePackingItemAsync(PackingItem item)
+        public async Task DeletePackingItemAsync(PackingItemDTO item)
         {
             await _local.DeletePackingItemAsync(item);
 
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _sessionService.IsAuthenticated)
             {
                 try
                 {
@@ -76,9 +84,10 @@ namespace PackMeUp.Repositories
                 }
                 catch
                 {
-                    var pending = new PendingPackingItemChange
+                    var pending = new SQLitePendingPackingItemChange
                     {
-                        //TripId = trip.Id,
+                        LocalUserId = item.LocalUserId,
+                        LocalTripId = item.LocalTripId,
                         Operation = "Delete",
                         PackingItemJson = JsonSerializer.Serialize(item)
                     };
@@ -88,9 +97,10 @@ namespace PackMeUp.Repositories
 
             else
             {
-                var pending = new PendingPackingItemChange
+                var pending = new SQLitePendingPackingItemChange
                 {
-                    //TripId = trip.Id,
+                    LocalUserId = item.LocalUserId,
+                    LocalTripId = item.LocalTripId,
                     Operation = "Delete",
                     PackingItemJson = JsonSerializer.Serialize(item)
                 };
@@ -98,11 +108,11 @@ namespace PackMeUp.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<PackingItem>> GetPackingItemsForTripAsync(int tripId)
+        public async Task<IReadOnlyList<PackingItemDTO>> GetPackingItemsForTripAsync(int localTripId, int remoteTripId)
         {
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _sessionService.IsAuthenticated)
             {
-                var packingItems = await _remote.GetPackingItemsForTripAsync(tripId);
+                var packingItems = await _remote.GetPackingItemsForTripAsync(remoteTripId, remoteTripId);
                 if (packingItems != null)
                 {
                     //await _local.UpdatePackingItemAsync(packingItems); // synchronizacja lokalna
@@ -110,7 +120,7 @@ namespace PackMeUp.Repositories
                 return packingItems;
             }
 
-            var localTrip = await _local.GetPackingItemsForTripAsync(tripId);
+            var localTrip = await _local.GetPackingItemsForTripAsync(localTripId, remoteTripId);
 
             return localTrip;
         }
@@ -121,11 +131,11 @@ namespace PackMeUp.Repositories
             await _remote.UnsubscribeFromPackingItemChangesAsync();
         }
 
-        public async Task UpdatePackingItemAsync(PackingItem item)
+        public async Task UpdatePackingItemAsync(PackingItemDTO item)
         {
             await _local.UpdatePackingItemAsync(item);
 
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _sessionService.IsAuthenticated)
             {
                 try
                 {
@@ -133,26 +143,78 @@ namespace PackMeUp.Repositories
                 }
                 catch
                 {
-                    var pending = new PendingPackingItemChange
+                    if (item.RemotePackingItemId != null)
                     {
-                        //TripId = trip.Id,
-                        Operation = "Update",
-                        PackingItemJson = JsonSerializer.Serialize(item)
-                    };
-                    await _pendingDb.InsertAsync(pending);
+                        var pending = new SQLitePendingPackingItemChange
+                        {
+                            LocalUserId = item.LocalUserId,
+                            LocalTripId = item.LocalTripId,
+                            Operation = "Update",
+                            PackingItemJson = JsonSerializer.Serialize(item)
+                        };
+                        await _pendingDb.InsertAsync(pending);
+                    }
+                    else
+                    {
+                        var existingPendingChange = await _pendingDb.Table<SQLitePendingPackingItemChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId && x.LocalTripId == item.LocalTripId && x.LocalPackingItemId == item.LocalPackingItemId).DeleteAsync();
+
+                        var pending = new SQLitePendingPackingItemChange
+                        {
+                            LocalUserId = item.LocalUserId,
+                            LocalTripId = item.LocalTripId,
+                            Operation = "Add",
+                            PackingItemJson = JsonSerializer.Serialize(item)
+                        };
+                        await _pendingDb.InsertAsync(pending);
+                    }
                 }
             }
 
             else
             {
-                var pending = new PendingPackingItemChange
+                if (item.RemotePackingItemId != null)
                 {
-                    //TripId = trip.Id,
-                    Operation = "Update",
-                    PackingItemJson = JsonSerializer.Serialize(item)
-                };
-                await _pendingDb.InsertAsync(pending);
+                    var pending = new SQLitePendingPackingItemChange
+                    {
+                        LocalUserId = item.LocalUserId,
+                        LocalTripId = item.LocalTripId,
+                        Operation = "Update",
+                        PackingItemJson = JsonSerializer.Serialize(item)
+                    };
+                    await _pendingDb.InsertAsync(pending);
+                }
+                else
+                {
+                    var existingPendingChange = await _pendingDb.Table<SQLitePendingPackingItemChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId && x.LocalTripId == item.LocalTripId && x.LocalPackingItemId == item.LocalPackingItemId).DeleteAsync();
+
+                    var pending = new SQLitePendingPackingItemChange
+                    {
+                        LocalUserId = item.LocalUserId,
+                        LocalTripId = item.LocalTripId,
+                        Operation = "Add",
+                        PackingItemJson = JsonSerializer.Serialize(item)
+                    };
+                    await _pendingDb.InsertAsync(pending);
+                }
+
+                var pendingChanges = await _pendingDb.Table<SQLitePendingPackingItemChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId && x.LocalTripId == item.LocalTripId).ToListAsync();
+
             }
+        }
+
+        public async Task UpdatePendingPackingItems(int localTripId, int remoteTripId)
+        {
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated)
+                return;
+
+            var pendingChanges = await _pendingDb.Table<SQLitePendingPackingItemChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId && x.LocalTripId == localTripId).ToListAsync();
+
+            foreach (var pendingChange in pendingChanges)
+            {
+                pendingChange.RemoteTripId = remoteTripId;
+            }
+
+            await _pendingDb.UpdateAllAsync(pendingChanges);
         }
 
         public async Task SyncPendingChangesAsync()
@@ -160,16 +222,17 @@ namespace PackMeUp.Repositories
             if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated)
                 return;
 
-            //var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().ToListAsync();
-            var pendingChanges = await _pendingDb.Table<SQLitePendingTripChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
+            var pendingChanges = await _pendingDb.Table<SQLitePendingPackingItemChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
 
-            foreach (var change in pendingChanges)
+            foreach (var pendingChange in pendingChanges)
             {
-                var packingItem = JsonSerializer.Deserialize<PackingItem>(change.TripJson);
+                var packingItem = JsonSerializer.Deserialize<PackingItemDTO>(pendingChange.PackingItemJson);
+                packingItem.RemoteTripId = pendingChange.RemoteTripId;
+                packingItem.RemoteUserId = _sessionService.UserId;
 
                 try
                 {
-                    switch (change.Operation)
+                    switch (pendingChange.Operation)
                     {
                         case "Add":
                             await _remote.AddPackingItemAsync(packingItem!);
@@ -183,7 +246,7 @@ namespace PackMeUp.Repositories
                     }
 
                     // Po sukcesie – usuń z kolejki
-                    await _pendingDb.DeleteAsync(change);
+                    await _pendingDb.DeleteAsync(pendingChange);
                 }
                 catch
                 {

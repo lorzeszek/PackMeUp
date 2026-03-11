@@ -14,6 +14,6 @@ namespace PackMeUp.Repositories.Models
 
         public string Operation { get; set; } = string.Empty; // "Add", "Update", "Delete"
         public string TripJson { get; set; } = string.Empty;  // serializacja Trip do JSON
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        //public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }

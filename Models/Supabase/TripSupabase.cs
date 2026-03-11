@@ -2,10 +2,10 @@
 using Supabase.Postgrest.Models;
 using System.ComponentModel;
 
-namespace PackMeUp.Models
+namespace PackMeUp.Models.Supabase
 {
     [Table("Trip")]
-    public class Trip : BaseModel, INotifyPropertyChanged
+    public class TripSupabase : BaseModel, INotifyPropertyChanged
     {
         [PrimaryKey("Id", false)]
         public int Id { get; set; }
@@ -31,6 +31,9 @@ namespace PackMeUp.Models
 
         [Column("user_id")]
         public string User_id { get; set; } = string.Empty;
+
+        [Column("LocalTripId")]
+        public int LocalTripId { get; set; }
 
         //[Column("IsInTrash")]
         //public bool IsInTrash { get; set; }
