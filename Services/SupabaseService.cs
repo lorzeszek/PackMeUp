@@ -15,13 +15,20 @@ namespace PackMeUp.Services
 
             _client = new Supabase.Client(url, apiKey, new Supabase.SupabaseOptions
             {
-                AutoConnectRealtime = true,
+                AutoConnectRealtime = false,
             });
         }
 
         public async Task InitializeAsync()
         {
             await _client.InitializeAsync(); // bardzo ważne
+        }
+
+        public async Task EnsureRealtimeConnectedAsync()
+        {
+            if (_client.Realtime.Socket != null && _client.Realtime.Socket.IsConnected)
+                return;
+            await _client.Realtime.ConnectAsync();
         }
     }
 }

@@ -1,8 +1,9 @@
+using PackMeUp.Models.Pages;
 using PackMeUp.ViewModels;
 
 namespace PackMeUp.Views;
 
-public partial class TripListPage : ContentPage
+public partial class TripListPage : BasePage// ContentPage
 {
     private readonly TripListViewModel _viewModel;
 
@@ -17,6 +18,14 @@ public partial class TripListPage : ContentPage
     {
         base.OnDisappearing();
         await _viewModel.DisposeRealtimeAsync();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is TripListViewModel vm)
+            await vm.OnAppearingAsync();
     }
 
     //private async void OnTripSelected(object sender, SelectionChangedEventArgs e)

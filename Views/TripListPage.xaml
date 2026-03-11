@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+<local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns="http://schemas.microsoft.com/dotnet/maui/global"
              x:DataType="TripListViewModel"
              x:Class="PackMeUp.Views.TripListPage"
+             xmlns:local="clr-namespace:PackMeUp.Models.Pages"
              x:Name="TripListView"
              Title="{Binding Title}"
              Shell.NavBarIsVisible="False">
@@ -169,10 +170,12 @@
         
     </CollectionView>
         <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
-        <Button Grid.Row="2" Margin="0,0,10,0" HorizontalOptions="End"  Text="Logout" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding LogoutCommand}" IsVisible="{Binding Session.IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <Button Grid.Row="2" Margin="0,0,10,0" HorizontalOptions="End"  Text="Logout" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding LogoutCommand}" IsVisible="{Binding Session.IsAuthenticated, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <Button Grid.Row="2" Margin="0,0,10,0" HorizontalOptions="End" Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsAuthenticated, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+
 
     </Grid>
-</ContentPage>
+</local:BasePage>
 
 
 

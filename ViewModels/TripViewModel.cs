@@ -1,12 +1,12 @@
-﻿using PackMeUp.Models;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PackMeUp.Models.DTO;
 
 namespace PackMeUp.ViewModels
 {
-    public class TripViewModel : INotifyPropertyChanged
+    public class TripViewModel : ObservableObject
     {
-        public Trip TripModel { get; }
+        //public Trip TripModel { get; }
+        public TripDTO TripModel { get; }
 
         public string Destination => TripModel.Destination;
 
@@ -29,7 +29,8 @@ namespace PackMeUp.ViewModels
         //public string BackgroundImage => $"https://cdn.example.com/trips/{Model.Destination}.jpg";
         public string BackgroundImage => "italy.webp";
 
-        public TripViewModel(Trip trip)
+        //public TripViewModel(Trip trip)
+        public TripViewModel(TripDTO trip)
         {
             TripModel = trip;
         }
@@ -51,11 +52,30 @@ namespace PackMeUp.ViewModels
                 return $"{startDate:dd MMM yyyy} - {endDate:dd MMM yyyy}";
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public void UpdateFromTrip(TripDTO trip)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            TripModel.Destination = trip.Destination;
+            TripModel.IsActive = trip.IsActive;
+            TripModel.IsInTrash = trip.IsInTrash;
+            TripModel.StartDate = trip.StartDate;
+            TripModel.EndDate = trip.EndDate;
+            TripModel.ModifiedDate = trip.ModifiedDate;
+            TripModel.RemoteUserId = trip.RemoteUserId;
+
+            OnPropertyChanged(nameof(Destination));
+            OnPropertyChanged(nameof(TripModel.IsActive));
+            OnPropertyChanged(nameof(TripModel.IsInTrash));
+            OnPropertyChanged(nameof(TripModel.StartDate));
+            OnPropertyChanged(nameof(TripModel.EndDate));
+            OnPropertyChanged(nameof(TripModel.ModifiedDate));
+            OnPropertyChanged(nameof(TripModel.RemoteUserId));
         }
+
+        //public event PropertyChangedEventHandler? PropertyChanged;
+
+        //protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        //}
     }
 }

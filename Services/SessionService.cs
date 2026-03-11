@@ -8,8 +8,12 @@ namespace PackMeUp.Services
     public class SessionService : ISessionService, INotifyPropertyChanged
     {
         public readonly ISupabaseService _supabase;
+        public readonly ILocalUserService _localUserService;
 
-        public bool IsLoggedIn => User != null;
+        public bool IsAuthenticated => User != null;
+        public bool HasLocalUser => !string.IsNullOrEmpty(LocalUserId); // SQLite
+
+        public string? LocalUserId { get; private set; }
 
         private string? _userId;
         public string? UserId
@@ -35,14 +39,15 @@ namespace PackMeUp.Services
                 {
                     _user = value;
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(IsLoggedIn));
+                    OnPropertyChanged(nameof(IsAuthenticated));
                 }
             }
         }
 
-        public SessionService(ISupabaseService supabase)
+        public SessionService(ISupabaseService supabase, ILocalUserService localUserService)
         {
             _supabase = supabase;
+            _localUserService = localUserService;
         }
 
         public async Task InitializeAsync()
@@ -64,6 +69,8 @@ namespace PackMeUp.Services
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         SetUser(currentSession.User);
+
+                        _localUserService.LinkSupabaseUserAsync(currentSession.User.Id);
                     });
                 }
                 else
@@ -77,6 +84,11 @@ namespace PackMeUp.Services
                     });
                 }
             });
+        }
+
+        public void SetLocalUser(string localUserId)
+        {
+            LocalUserId = localUserId;
         }
 
         public void SetUser(User? user)

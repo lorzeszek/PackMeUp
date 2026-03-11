@@ -1,0 +1,128 @@
+﻿using PackMeUp.Models.DTO;
+using PackMeUp.Models.SQLite;
+using PackMeUp.Repositories.Enums;
+using PackMeUp.Repositories.Interfaces;
+using SQLite;
+
+namespace PackMeUp.Repositories.Local
+{
+    public class LocalPackingItemRepository : IPackingItemRepository
+    {
+        private readonly SQLiteAsyncConnection _db;
+
+        public event Action<PackingItemChange>? PackingItemChanged;
+
+        public LocalPackingItemRepository(SQLiteAsyncConnection db)
+        {
+            _db = db;
+        }
+
+        public async Task<int> AddPackingItemAsync(PackingItemDTO item)
+        {
+            var localPackingItem = new SQLitePackingItem()
+            {
+                LocalPackingItemId = item.LocalPackingItemId,
+                LocalUserId = item.LocalUserId.ToString(),
+                LocalTripId = item.LocalTripId,
+                //ClientId = item..ToString(),
+                //SupabaseItemId = item.Id,
+                //TripId = item.TripId,
+                Name = item.Name,
+                CreatedDate = item.CreatedDate,
+                ModifiedDate = item.ModifiedDate,
+                //User_id = item.User_id,
+                IsPacked = item.IsPacked,
+                Category = item.Category,
+            };
+
+            await _db.InsertAsync(localPackingItem);
+
+            return localPackingItem.LocalPackingItemId;
+        }
+
+        public async Task DeletePackingItemAsync(PackingItemDTO item)
+        {
+            var localPackingItem = new SQLitePackingItem()
+            {
+                LocalPackingItemId = item.LocalPackingItemId,
+                LocalUserId = item.LocalUserId.ToString(),
+                //SupabaseItemId = item.Id,
+                //TripId = item.TripId,
+                Name = item.Name,
+                CreatedDate = item.CreatedDate,
+                ModifiedDate = item.ModifiedDate,
+                //User_id = item.User_id,
+                IsPacked = item.IsPacked,
+                Category = item.Category,
+            };
+
+            await _db.DeleteAsync(localPackingItem);
+        }
+
+        public async Task UpdatePackingItemAsync(PackingItemDTO item)
+        {
+            var localPackingItem = new SQLitePackingItem()
+            {
+                LocalUserId = item.LocalUserId,
+                LocalPackingItemId = item.LocalPackingItemId,
+                RemotePackingItemId = item.RemotePackingItemId,
+                RemoteTripId = item.RemoteTripId,
+                LocalTripId = item.LocalTripId,
+                Name = item.Name,
+                CreatedDate = item.CreatedDate,
+                ModifiedDate = item.ModifiedDate,
+                RemoteUserId = item.RemoteUserId,
+                IsPacked = item.IsPacked,
+                Category = item.Category,
+            };
+
+            await _db.UpdateAsync(localPackingItem);
+        }
+
+        public async Task<IReadOnlyList<PackingItemDTO>> GetPackingItemsForTripAsync(int localTripId, int remoteTripId)
+        {
+            var sqlitePackingItem = await _db.Table<SQLitePackingItem>().Where(x => x.LocalTripId == localTripId).ToListAsync();
+
+            return sqlitePackingItem.Select(x => new PackingItemDTO
+            {
+                LocalPackingItemId = x.LocalPackingItemId,
+                RemotePackingItemId = x.RemotePackingItemId,
+                RemoteTripId = x.RemoteTripId,
+                LocalTripId = x.LocalTripId,
+                Name = x.Name,
+                CreatedDate = x.CreatedDate,
+                ModifiedDate = x.ModifiedDate,
+                LocalUserId = x.LocalUserId,
+                IsPacked = x.IsPacked,
+                Category = x.Category,
+            }).ToList();
+        }
+
+        public Task UpdatePendingPackingItems(int localTripId, int remoteTripId)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task SubscribeToPackingItemChangesAsync(int tripId, Action<PackingItemDTO> onChange)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task UnsubscribeFromPackingItemChangesAsync() => Task.CompletedTask;
+
+        public Task SyncPendingChangesAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task StartRealtimeAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<bool> IsChannelCreatedAsync()
+        {
+            return (Task<bool>)Task.CompletedTask;
+        }
+    }
+}
