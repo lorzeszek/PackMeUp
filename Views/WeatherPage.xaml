@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns="http://schemas.microsoft.com/dotnet/maui/global"
+             xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
+			 xmlns:local="clr-namespace:PackMeUp.Models.Pages"
+             x:DataType="viewmodels:WeatherViewModel"
+             x:Class="PackMeUp.Views.WeatherPage"
+             Title="Weather">
+
+    <Grid Padding="20">
+        <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+            <Label Text="🌤️" FontSize="64" HorizontalTextAlignment="Center" />
+            <Label Text="Weather Forecast" 
+                   FontSize="24" 
+                   HorizontalTextAlignment="Center"
+                   Margin="0,20,0,10"/>
+            <Label Text="Weather information for your destinations will appear here." 
+                   FontSize="16" 
+                   HorizontalTextAlignment="Center"
+                   TextColor="Gray"/>
+        </StackLayout>
+    </Grid>
+
+</local:BasePage>

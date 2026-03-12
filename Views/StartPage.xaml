@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns="http://schemas.microsoft.com/dotnet/maui/global"
+			 xmlns="http://schemas.microsoft.com/dotnet/maui/global"
 			 x:DataType="StartViewModel"
 			 x:Name="StartView"
-             x:Class="PackMeUp.Views.StartPage"
-             Title="Witamy">
+			 x:Class="PackMeUp.Views.StartPage"
+			 Title="Witamy"
+			 Shell.NavBarIsVisible="True"
+			 NavigationPage.HasBackButton="False">
 
     <ContentPage.Resources>
         <ResourceDictionary>

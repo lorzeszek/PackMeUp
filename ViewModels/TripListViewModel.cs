@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using PackMeUp.Extensions;
 using PackMeUp.Interfaces;
+using PackMeUp.Messages;
 using PackMeUp.Models.DTO;
 using PackMeUp.Popups;
 using PackMeUp.Repositories.Interfaces;
@@ -15,7 +17,7 @@ namespace PackMeUp.ViewModels
     {
         public ObservableRangeCollection<TripViewModel> Trips { get; } = new();
 
-        private readonly IGoogleAuthService _googleAuthService;
+
 
         public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
         public ICommand AddTripCommand => new Command(async () => await AddTrip("wycieczka 1 test"));
@@ -25,10 +27,21 @@ namespace PackMeUp.ViewModels
 
         public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
 
-        public TripListViewModel(ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService) : base(supabase, sessionService, packingItemRepository, tripRepository)
+        public TripListViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
         {
             Title = "Moje wycieczki";
-            _googleAuthService = googleAuthService;
+
+            // Subscribe to login completed message
+            WeakReferenceMessenger.Default.Register<LoginCompletedMessage>(this, async (r, m) =>
+            {
+                await OnLoginCompleted();
+            });
+        }
+
+        private async Task OnLoginCompleted()
+        {
+            _tripRepository.TripChanged += OnTripChanged;
+            await LoadData();
         }
 
         private async void OnTripTapped(TripViewModel trip)
@@ -86,6 +99,13 @@ namespace PackMeUp.ViewModels
 
         private async Task AddTrip(string destinationName)
         {
+            if (Session.LocalUserId == null)
+            {
+                var localUser = await _localUserService.CreateLocalUserAsync();
+
+                Session.SetLocalUser(localUser.LocalUserId);
+            }
+
             await _tripRepository.AddTripAsync(new TripDTO { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId });
 
             if (!Session.IsAuthenticated)
