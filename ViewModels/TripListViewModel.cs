@@ -130,7 +130,7 @@ namespace PackMeUp.ViewModels
                 await _tripRepository.UnsubscribeFromTripChangesAsync();
                 await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
                 await _supabase.Client.Auth.SignOut();
-                await Shell.Current.GoToAsync(nameof(StartPage));
+                await Shell.Current.GoToAsync("//Home");
             }
 
 

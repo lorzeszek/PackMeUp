@@ -31,7 +31,14 @@ namespace PackMeUp
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIcons");
                 })
-                .UseMPowerKitLottie();
+                .UseMPowerKitLottie()
+                .ConfigureMauiHandlers(handlers =>
+                {
+#if ANDROID
+                    handlers.AddHandler(typeof(AppShell), typeof(Platforms.Android.CustomShellRenderer));
+#endif
+                });
+
 
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjGyl/Vkd+XU9FcVRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS3tSd0RrWHpccndWR2BaUE91Xg==");
 

@@ -62,6 +62,9 @@ namespace PackMeUp.ViewModels
             };
 
             await _tripRepository.AddTripAsync(trip);
+
+            // Pop TripSetupPage off the Home tab's stack before switching tabs
+            await Shell.Current.Navigation.PopAsync(false);
             await Shell.Current.GoToAsync("//TripList");
         }
 

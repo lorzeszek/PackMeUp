@@ -4,13 +4,15 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:PackMeUp"
-    Shell.FlyoutBehavior="Disabled"
+    FlyoutBehavior="Disabled"
     xmlns:views="clr-namespace:PackMeUp.Views"
     Title="PackMeUp">
 
     <Shell.TitleView>
         <views:ShellHeaderView />
     </Shell.TitleView>
+
+        
 
     <TabBar>
 

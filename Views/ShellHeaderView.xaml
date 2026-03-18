@@ -5,7 +5,7 @@
              xmlns:converters="clr-namespace:PackMeUp.Converters"
              x:Class="PackMeUp.Views.ShellHeaderView"
              x:DataType="viewmodels:ShellHeaderViewModel"
-             HorizontalOptions="FillAndExpand"
+             
 			 >
 
     <ContentView.Resources>
@@ -14,7 +14,7 @@
         </ResourceDictionary>
     </ContentView.Resources>
 
-    <Grid Padding="10,5" BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}" HorizontalOptions="FillAndExpand">
+    <Grid Padding="10,5" BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}" HorizontalOptions="Fill">
         <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
             
             <!-- Login Button (shown when NOT authenticated) -->
