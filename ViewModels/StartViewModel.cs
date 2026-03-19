@@ -9,15 +9,15 @@ namespace PackMeUp.ViewModels
 {
     public class StartViewModel : BaseViewModel
     {
-        private readonly IGoogleAuthService _googleAuthService;
+        //private readonly IGoogleAuthService _googleAuthService;
 
         public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
 
         public ICommand StartPackingCommand => new AsyncRelayCommand(StartPackingAsync);
 
-        public StartViewModel(ISupabaseService supabase, ISessionService sessionService, IGoogleAuthService googleAuthService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
+        public StartViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
         {
-            _googleAuthService = googleAuthService;
+            //_googleAuthService = googleAuthService;
         }
 
         //public async Task InitializeAsync()

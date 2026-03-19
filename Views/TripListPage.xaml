@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:PackMeUp.Models.Pages"
              x:Name="TripListView"
              Title="{Binding Title}"
-             Shell.NavBarIsVisible="False">
+             Shell.NavBarIsVisible="True">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -99,7 +99,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height ="*"/>
             <RowDefinition Height ="Auto"/>
-            <RowDefinition Height ="Auto"/>
         </Grid.RowDefinitions>
         <CollectionView Grid.Row="0" ItemsSource="{Binding Trips}" SelectionMode="None">
         <CollectionView.ItemsLayout>
@@ -118,7 +117,7 @@
                     <Grid>
                         <Image Source="italy.webp"
                            Aspect="AspectFill"/>
-                        
+
                         <BoxView 
                             VerticalOptions="End" 
                             HeightRequest="80"
@@ -167,11 +166,9 @@
                 </Border>
             </DataTemplate>
         </CollectionView.ItemTemplate>
-        
+
     </CollectionView>
         <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
-        <Button Grid.Row="2" Margin="0,0,10,0" HorizontalOptions="End"  Text="Logout" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding LogoutCommand}" IsVisible="{Binding Session.IsAuthenticated, Converter={StaticResource BoolToVisibilityConverter}}" />
-        <Button Grid.Row="2" Margin="0,0,10,0" HorizontalOptions="End" Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsAuthenticated, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
 
 
     </Grid>

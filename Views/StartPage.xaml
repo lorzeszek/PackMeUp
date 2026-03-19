@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns="http://schemas.microsoft.com/dotnet/maui/global"
+			 xmlns="http://schemas.microsoft.com/dotnet/maui/global"
 			 x:DataType="StartViewModel"
 			 x:Name="StartView"
-             x:Class="PackMeUp.Views.StartPage"
-             Title="Witamy">
+			 x:Class="PackMeUp.Views.StartPage"
+			 Title="Witamy"
+			 Shell.NavBarIsVisible="True"
+			 NavigationPage.HasBackButton="False">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -21,7 +23,7 @@
 
             <Button Text="Start packing (TEST)" Command="{Binding StartPackingCommand}" />
             <!--<Button Text="Start packing (TEST)" Command="{Binding StartPackingCommand}" IsVisible="{Binding Session.HasLocalUser, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />-->
-            <Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsAuthenticated, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+            <!--<Button Text="Zaloguj przez Google" Command="{Binding LoginWithGoogleCommand}" IsVisible="{Binding Session.IsAuthenticated, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />-->
         </StackLayout>
     </Grid>
 

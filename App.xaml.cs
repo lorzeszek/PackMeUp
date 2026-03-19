@@ -114,7 +114,7 @@ namespace PackMeUp
                 }
                 else
                 {
-                    await Shell.Current.GoToAsync(nameof(StartPage));
+                    await Shell.Current.GoToAsync("//Home");
                 }
             });
         }

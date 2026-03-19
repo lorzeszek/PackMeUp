@@ -8,7 +8,6 @@ namespace PackMeUp
         {
             InitializeComponent();
 
-            Routing.RegisterRoute(nameof(StartPage), typeof(StartPage));
             //Routing.RegisterRoute(nameof(TripListPage), typeof(TripListPage));
             Routing.RegisterRoute(nameof(TripSetupPage), typeof(TripSetupPage));
             Routing.RegisterRoute(nameof(PackingListPage), typeof(PackingListPage));

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns="http://schemas.microsoft.com/dotnet/maui/global"
+             xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
+             x:DataType="viewmodels:DocsViewModel"
+             x:Class="PackMeUp.Views.DocsPage"
+             xmlns:local="clr-namespace:PackMeUp.Models.Pages"
+             Title="{Binding Title}">
+
+    <Grid Padding="20">
+        <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+            <Label Text="📄" FontSize="64" HorizontalTextAlignment="Center" />
+            <Label Text="Travel Documents" 
+                   FontSize="24" 
+                   HorizontalTextAlignment="Center"
+                   Margin="0,20,0,10"/>
+            <Label Text="Store and manage your travel documents here." 
+                   FontSize="16" 
+                   HorizontalTextAlignment="Center"
+                   TextColor="Gray"/>
+        </StackLayout>
+    </Grid>
+
+
+</local:BasePage>

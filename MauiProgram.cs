@@ -31,7 +31,14 @@ namespace PackMeUp
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIcons");
                 })
-                .UseMPowerKitLottie();
+                .UseMPowerKitLottie()
+                .ConfigureMauiHandlers(handlers =>
+                {
+#if ANDROID
+                    handlers.AddHandler(typeof(AppShell), typeof(Platforms.Android.CustomShellRenderer));
+#endif
+                });
+
 
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjGyl/Vkd+XU9FcVRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS3tSd0RrWHpccndWR2BaUE91Xg==");
 
@@ -78,11 +85,17 @@ namespace PackMeUp
             builder.Services.AddTransient<TripListPage>();
             builder.Services.AddTransient<TripSetupPage>();
             builder.Services.AddTransient<PackingListPage>();
+            builder.Services.AddTransient<WeatherPage>();
+            builder.Services.AddTransient<DocsPage>();
+            builder.Services.AddSingleton<ShellHeaderView>();
 
             builder.Services.AddTransient<StartViewModel>();
             builder.Services.AddTransient<TripSetupViewModel>();
             builder.Services.AddTransient<TripListViewModel>();
             builder.Services.AddTransient<PackingListViewModel>();
+            builder.Services.AddTransient<WeatherViewModel>();
+            builder.Services.AddTransient<DocsViewModel>();
+            builder.Services.AddSingleton<ShellHeaderViewModel>();
 
             //builder.Services.AddScoped<LocalTripRepository>();
             //builder.Services.AddScoped<SupabaseTripRepository>();

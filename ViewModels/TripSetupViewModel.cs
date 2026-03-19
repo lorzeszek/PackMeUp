@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PackMeUp.Interfaces;
 using PackMeUp.Models.DTO;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
@@ -9,17 +10,17 @@ namespace PackMeUp.ViewModels
     public partial class TripSetupViewModel : BaseViewModel
     {
         //private readonly ITripRepository _tripRepository;
-        private readonly ILocalUserService _localUserService;
+        //private readonly ILocalUserService _localUserService;
 
         //public AsyncRelayCommand CreateTripCommand => new AsyncRelayCommand(CreateTripAsync, CanCreateTrip);
 
         //public IAsyncRelayCommand CreateTripCommand { get; }
 
 
-        public TripSetupViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
+        public TripSetupViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
         {
             //_tripRepository = tripRepository;
-            _localUserService = localUserService;
+            //_localUserService = localUserService;
 
             //CreateTripCommand = new AsyncCommand(CreateTripAsync, CanCreateTrip);
         }
@@ -42,13 +43,16 @@ namespace PackMeUp.ViewModels
         [RelayCommand(CanExecute = nameof(CanCreateTrip))]
         private async Task CreateTripAsync()
         {
-            var localUser = await _localUserService.CreateLocalUserAsync();
+            if (Session.LocalUserId == null)
+            {
+                var localUser = await _localUserService.CreateLocalUserAsync();
 
-            Session.SetLocalUser(localUser.LocalUserId);
+                Session.SetLocalUser(localUser.LocalUserId);
+            }
 
             var trip = new TripDTO
             {
-                LocalUserId = localUser.LocalUserId,
+                LocalUserId = Session.LocalUserId,
                 RemoteUserId = Session.UserId,
                 CreatedDate = DateTime.Now,
                 StartDate = StartDate,
@@ -58,6 +62,9 @@ namespace PackMeUp.ViewModels
             };
 
             await _tripRepository.AddTripAsync(trip);
+
+            // Pop TripSetupPage off the Home tab's stack before switching tabs
+            await Shell.Current.Navigation.PopAsync(false);
             await Shell.Current.GoToAsync("//TripList");
         }
 
