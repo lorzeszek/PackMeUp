@@ -1,5 +1,6 @@
 ﻿using PackMeUp.Extensions;
 using PackMeUp.Helpers;
+using PackMeUp.Interfaces;
 using PackMeUp.Models;
 using PackMeUp.Models.DTO;
 using PackMeUp.Repositories.Enums;
@@ -33,7 +34,7 @@ namespace PackMeUp.ViewModels
         public ICommand AddItemCommand => new Command(async () => await AddItemAsync());
         public ICommand ToggleIsPackedCommand => new Command<PackingItem>(async packingItem => await ToggleIsPackedAsync(packingItem));
 
-        public PackingListViewModel(ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository) : base(supabase, sessionService, packingItemRepository, tripRepository)
+        public PackingListViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
         {
         }
 

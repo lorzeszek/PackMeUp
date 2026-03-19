@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PackMeUp.Interfaces;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
 using Supabase.Realtime.Interfaces;
@@ -10,6 +11,8 @@ namespace PackMeUp.ViewModels
         public readonly ISupabaseService _supabase;
         public readonly IPackingItemRepository _packingItemRepository;
         public readonly ITripRepository _tripRepository;
+        public readonly ILocalUserService _localUserService;
+        public readonly IGoogleAuthService _googleAuthService;
 
         public ISessionService Session { get; }
 
@@ -34,13 +37,14 @@ namespace PackMeUp.ViewModels
             set => SetProperty(ref _isRefreshing, value);
         }
 
-        public BaseViewModel(ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository)
+        public BaseViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService)
         {
             _supabase = supabase;
             Session = sessionService;
             _packingItemRepository = packingItemRepository;
             _tripRepository = tripRepository;
-
+            _localUserService = localUserService;
+            _googleAuthService = googleAuthService;
 
             //RefreshCommand = new Command(async () => await ExecuteRefreshCommand());
         }
