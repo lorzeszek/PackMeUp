@@ -14,7 +14,7 @@
 
         
 
-    <TabBar>
+    <TabBar Shell.TabBarBackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}">
 
         <Tab Title="Home" Icon="home.png">
             <ShellContent
