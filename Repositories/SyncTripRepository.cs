@@ -1,5 +1,4 @@
 ﻿using PackMeUp.Models.DTO;
-using PackMeUp.Models.Supabase;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Repositories.Models;
 using PackMeUp.Services.Interfaces;
@@ -104,9 +103,9 @@ namespace PackMeUp.Repositories
             }
         }
 
-        public async Task<TripSupabase?> GetTripAsync(TripDTO trip)
+        public async Task<TripDTO?> GetTripAsync(TripDTO trip)
         {
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _sessionService.IsAuthenticated)
             {
                 var remoteTrip = await _remote.GetTripAsync(trip);
                 //if (remoteTrip != null)
@@ -125,7 +124,7 @@ namespace PackMeUp.Repositories
         {
             await _local.UpdateTripAsync(trip);
 
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet && _sessionService.IsAuthenticated)
             {
                 try
                 {

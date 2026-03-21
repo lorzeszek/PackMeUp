@@ -72,6 +72,14 @@ namespace PackMeUp.Repositories
             return packinItemId;
         }
 
+        public async Task AddPackingItemsAsync(List<PackingItemDTO> items)
+        {
+            foreach (var item in items)
+            {
+                await AddPackingItemAsync(item);
+            }
+        }
+
         public async Task DeletePackingItemAsync(PackingItemDTO item)
         {
             await _local.DeletePackingItemAsync(item);

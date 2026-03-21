@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using PackMeUp.Extensions;
 using PackMeUp.Interfaces;
@@ -9,7 +10,6 @@ using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
 using PackMeUp.Views;
 using System.Windows.Input;
-using UXDivers.Popups.Services;
 
 namespace PackMeUp.ViewModels
 {
@@ -99,32 +99,30 @@ namespace PackMeUp.ViewModels
 
         private async Task AddTrip(string destinationName)
         {
-            if (Session.LocalUserId == null)
-            {
-                var localUser = await _localUserService.CreateLocalUserAsync();
+            await Shell.Current.GoToAsync(nameof(TripSetupPage));
 
-                Session.SetLocalUser(localUser.LocalUserId);
-            }
+            //if (Session.LocalUserId == null)
+            //{
+            //    var localUser = await _localUserService.CreateLocalUserAsync();
 
-            await _tripRepository.AddTripAsync(new TripDTO { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId });
+            //    Session.SetLocalUser(localUser.LocalUserId);
+            //}
 
-            if (!Session.IsAuthenticated)
-            {
-                await LoadData();
-            }
+            //await _tripRepository.AddTripAsync(new TripDTO { IsActive = true, Destination = destinationName, CreatedDate = DateTime.Now, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId });
+
+            //if (!Session.IsAuthenticated)
+            //{
+            //    await LoadData();
+            //}
         }
 
         public async void Logout()
         {
-            var popup = new ConfirmationPopup();
-            var parameters = new Dictionary<string, object?>
-            {
-                { "message", "Do you want to delete this item?" }
-            };
+            var popup = new ConfirmPopup("Log out", "Do you want to log out?");
 
-            bool confirmed = await IPopupService.Current.PushAsync(popup, parameters);
+            var result = await Application.Current.MainPage.ShowPopupAsync<bool>(popup);
 
-            if (confirmed)
+            if (result.Result)
             {
                 //_tripRepository.TripChanged -= OnTripChanged;
                 await _tripRepository.UnsubscribeFromTripChangesAsync();
@@ -132,23 +130,6 @@ namespace PackMeUp.ViewModels
                 await _supabase.Client.Auth.SignOut();
                 await Shell.Current.GoToAsync("//Home");
             }
-
-
-
-            //var popup = new SimpleActionPopup()
-            //{
-            //    Title = "Log out",
-            //    Text = "Do you want to continue?",
-            //    ActionButtonText = "Yes",
-            //    SecondaryActionButtonText = "Cancel",
-            //    ActionButtonCommand = new Command(async () =>
-            //    {
-            //        await IPopupService.Current.PopAsync();
-            //        await _supabase.Client.Auth.SignOut();
-            //        await Shell.Current.GoToAsync("///StartPage");
-            //    })
-            //};
-
         }
 
         private async Task LoginWithGoogle()
