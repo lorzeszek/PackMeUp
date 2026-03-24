@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using PackMeUp.Interfaces;
@@ -5,8 +6,6 @@ using PackMeUp.Messages;
 using PackMeUp.Popups;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
-using PackMeUp.Views;
-using UXDivers.Popups.Services;
 
 namespace PackMeUp.ViewModels
 {
@@ -82,15 +81,11 @@ namespace PackMeUp.ViewModels
         {
             try
             {
-                var popup = new ConfirmationPopup();
-                var parameters = new Dictionary<string, object?>
-                {
-                    { "message", "Do you want to logout?" }
-                };
+                var popup = new ConfirmPopup("Log out", "Do you want to log out?");
 
-                bool confirmed = await IPopupService.Current.PushAsync(popup, parameters);
+                var result = await Application.Current.MainPage.ShowPopupAsync<bool>(popup);
 
-                if (confirmed)
+                if (result.Result)
                 {
                     await _tripRepository.UnsubscribeFromTripChangesAsync();
                     await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();

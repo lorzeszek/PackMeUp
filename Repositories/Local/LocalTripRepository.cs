@@ -94,13 +94,13 @@ namespace PackMeUp.Repositories.Local
 
         }
 
-        public async Task<TripSupabase?> GetTripAsync(TripDTO trip)
+        public async Task<TripDTO?> GetTripAsync(TripDTO trip)
         {
             var sqliteTrip = await _db.Table<SQLiteTrip>().FirstOrDefaultAsync(x => x.LocalUserId == trip.LocalUserId && x.LocalTripId == trip.LocalTripId);
 
-            return new TripSupabase
+            return new TripDTO
             {
-                ClientId = sqliteTrip.LocalUserId,
+                LocalUserId = sqliteTrip.LocalUserId,
                 LocalTripId = sqliteTrip.LocalTripId,
                 CreatedDate = sqliteTrip.CreatedDate,
                 ModifiedDate = sqliteTrip.ModifiedDate,
