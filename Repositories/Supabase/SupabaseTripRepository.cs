@@ -91,13 +91,15 @@ namespace PackMeUp.Repositories.Supabase
             }
         }
 
-        public async Task<TripSupabase?> GetTripAsync(TripDTO trip)
+        public async Task<TripDTO?> GetTripAsync(TripDTO trip)
         {
             try
             {
-                var response = await _supabase.Client.From<TripSupabase>().Where(x => x.Id == trip.RemoteTripId).Get();
+                var response = await _supabase.Client.From<TripSupabase>().Where(x => x.ClientId == trip.LocalUserId && x.LocalTripId == trip.LocalTripId).Get();
 
-                return response.Models.FirstOrDefault();
+                var tripModel = response.Models.FirstOrDefault();
+
+                return tripModel != null ? Mappers.MapToTripDTO(tripModel) : new TripDTO();
             }
             catch (Exception)
             {
