@@ -14,4 +14,21 @@ public partial class TripSetupPage : BasePage
         BindingContext = _viewModel;
     }
 
+    private void OnStartDateIconTapped(object sender, TappedEventArgs e)
+    {
+#if ANDROID
+        (StartDatePicker.Handler?.PlatformView as Android.Views.View)?.PerformClick();
+#else
+        StartDatePicker.Focus();
+#endif
+    }
+
+    private void OnEndDateIconTapped(object sender, TappedEventArgs e)
+    {
+#if ANDROID
+        (EndDatePicker.Handler?.PlatformView as Android.Views.View)?.PerformClick();
+#else
+        EndDatePicker.Focus();
+#endif
+    }
 }

@@ -31,6 +31,21 @@ namespace PackMeUp.ViewModels
         [NotifyCanExecuteChangedFor("CreateTripCommand")]
         private DateTime endDate = DateTime.Today.AddDays(1);
 
+        partial void OnStartDateChanged(DateTime value)
+        {
+            if (value < DateTime.Today)
+                StartDate = DateTime.Today;
+
+            if (EndDate < value)
+                EndDate = value;
+        }
+
+        partial void OnEndDateChanged(DateTime value)
+        {
+            if (value < StartDate)
+                EndDate = StartDate;
+        }
+
         // ====== COMMAND ======
 
         [RelayCommand(CanExecute = nameof(CanCreateTrip))]
