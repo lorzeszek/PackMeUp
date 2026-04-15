@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns="http://schemas.microsoft.com/dotnet/maui/global"
+             xmlns:viewModels="clr-namespace:PackMeUp.ViewModels"
              x:DataType="TripListViewModel"
              x:Class="PackMeUp.Views.TripListPage"
              xmlns:local="clr-namespace:PackMeUp.Models.Pages"
@@ -15,85 +16,6 @@
             <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
-
-    <!--<Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height ="*"/>
-            <RowDefinition Height ="Auto"/>
-        </Grid.RowDefinitions>
-        <SfCarousel Grid.Row="0"
- x:Name="carousel"
- HeightRequest="400"
- ItemHeight="300"
- ItemWidth="200"
- ItemsSource="{Binding Trips}"
- ViewMode="Default"
- WidthRequest="800" >
-            <SfCarousel.ItemTemplate>
-                <DataTemplate x:DataType="TripViewModel">
-                    <Border
- Margin="10"
- StrokeThickness="0"
- StrokeShape="RoundRectangle 12"
- HeightRequest="180"
- Opacity="{Binding TripModel.IsActive, Converter={StaticResource BoolToOpacityConverter}}">
-
-                        <Grid>
-                            <Image Source="italy.webp"
-        Aspect="AspectFill"/>
-
-                            <BoxView 
-         VerticalOptions="End" 
-         HeightRequest="80"
-         Opacity="0.6"
-         Background="{AppThemeBinding Light=Black, Dark=Black}" />
-
-                            <StackLayout 
-             Padding="10"
-             VerticalOptions="End"
-             Spacing="2">
-                                <Label Text="{Binding TripModel.Destination}"
-                    FontSize="18"
-                    FontAttributes="Bold"
-                    TextColor="White"
-                    LineBreakMode="TailTruncation" />
-                                <Label Text="{Binding TripDatesRange}" 
-            FontSize="13"
-            TextColor="White" />
-                                <Label Text="{Binding PackingSummary}"
-            FontSize="12"
-            TextColor="White" />
-                            </StackLayout>
-
-                            <LottieView
-             Source="RecycleBin.lottie"
-             HorizontalOptions="End"
-             VerticalOptions="Start"
-             WidthRequest="34"
-             AutoPlay="True"
-             HeightRequest="34">
-                                <LottieView.GestureRecognizers>
-                                    <TapGestureRecognizer 
-                     Command="{Binding BindingContext.TrashTripCommand, Source={x:Reference TripListView}}" 
-                     CommandParameter="{Binding .}" />
-                                </LottieView.GestureRecognizers>
-                            </LottieView>
-
-                            <BoxView IsVisible="{Binding TripModel.IsActive, Converter={StaticResource BoolToOppositeConverter}}" BackgroundColor="Black" Opacity="0.5"/>
-                        </Grid>
-
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer 
-         Command="{Binding BindingContext.TripTappedCommand, Source={x:Reference TripListView}}" 
-         CommandParameter="{Binding .}" />
-                        </Border.GestureRecognizers>
-                    </Border>
-                </DataTemplate>
-            </SfCarousel.ItemTemplate>
-        </SfCarousel>
-        <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
-    </Grid>-->
-
     
     <Grid>
         <Grid.RowDefinitions>
@@ -128,7 +50,14 @@
                                 Padding="10"
                                 VerticalOptions="End"
                                 Spacing="2">
-                                <Label Text="{Binding TripModel.Destination}"
+                                <Label Text="{Binding TripModel.Destination}" Style="{StaticResource TripDestination}"/>
+                                <Label Text="{Binding TripDatesRange}" 
+                                        FontSize="13"
+                                        TextColor="White" />
+                                <Label Text="{Binding PackingSummary}"
+                                        FontSize="12"
+                                        TextColor="White" />
+                                <!--<Label Text="{Binding TripModel.Destination}"
                                        FontSize="18"
                                        FontAttributes="Bold"
                                        TextColor="White"
@@ -138,7 +67,7 @@
                                TextColor="White" />
                                 <Label Text="{Binding PackingSummary}"
                                FontSize="12"
-                               TextColor="White" />
+                               TextColor="White" />-->
                             </StackLayout>
 
                             <LottieView
@@ -168,8 +97,17 @@
         </CollectionView.ItemTemplate>
 
     </CollectionView>
-        <Button Grid.Row="1" Margin="0,0,10,0" HorizontalOptions="End"  Text="+" FontSize="Title" Padding="0" MaximumHeightRequest="50" WidthRequest="50" Command="{Binding AddTripCommand}" />
+        <Button Grid.Row="1" BackgroundColor="#4285F4" Margin="10" HorizontalOptions="Fill" Text="+" FontSize="Title" Padding="0" Command="{Binding AddTripCommand}" />
 
+        <Grid Grid.RowSpan="2"
+              IsVisible="{Binding Session.GlobalIsBusy}"
+              BackgroundColor="#80000000"
+              InputTransparent="False">
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="12">
+                <ActivityIndicator IsRunning="True" WidthRequest="40" HeightRequest="40" />
+                <Label Text="Loading..." TextColor="White" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
 
     </Grid>
 </local:BasePage>

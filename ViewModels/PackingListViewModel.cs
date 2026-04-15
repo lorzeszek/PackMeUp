@@ -40,10 +40,8 @@ namespace PackMeUp.ViewModels
 
         private async Task AddItemAsync()
         {
-            IsBusy = true;
             IsRefreshing = true;
 
-            //var newItem = new PackingItem { Name = _newItemName, Category = 3, TripId = _tripId, User_id = Session.UserId, Cli Session.LocalUserId, CreatedDate = DateTime.Now };
             var newItem = new PackingItemDTO { Name = _newItemName, Category = 3, RemoteTripId = _remoteTripId, LocalTripId = _localTripId, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId, CreatedDate = DateTime.Now };
 
             await _packingItemRepository.AddPackingItemAsync(newItem);
@@ -55,7 +53,6 @@ namespace PackMeUp.ViewModels
                 await LoadData();
             }
 
-            IsBusy = false;
             IsRefreshing = false;
         }
 

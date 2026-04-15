@@ -4,9 +4,7 @@
              xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
              xmlns:converters="clr-namespace:PackMeUp.Converters"
              x:Class="PackMeUp.Views.ShellHeaderView"
-             x:DataType="viewmodels:ShellHeaderViewModel"
-             
-			 >
+             x:DataType="viewmodels:ShellHeaderViewModel">
 
     <ContentView.Resources>
         <ResourceDictionary>
@@ -24,7 +22,8 @@
                     BackgroundColor="#4285F4"
                     TextColor="White"
                     CornerRadius="5"
-                    Padding="15,8"
+                    Padding="15,5"
+                    Margin="5,0"
                     FontSize="14"/>
 
             <!-- User Info + Logout (shown when authenticated) -->
@@ -40,7 +39,8 @@
                         BackgroundColor="#DC3545"
                         TextColor="White"
                         CornerRadius="5"
-                        Padding="15,8"
+                        Padding="15,5"
+                        Margin="5,0"
                         FontSize="14"/>
             </HorizontalStackLayout>
 

@@ -25,11 +25,13 @@ namespace PackMeUp.ViewModels
         public ICommand TrashTripCommand => new Command<TripViewModel>(TrashTripAsync);
         public IRelayCommand LogoutCommand => new AsyncRelayCommand(async () => Logout());
 
-        public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
+        //public IAsyncRelayCommand LoginWithGoogleCommand { get; }
 
         public TripListViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
         {
             Title = "Moje wycieczki";
+
+            //LoginWithGoogleCommand = new AsyncRelayCommand(LoginWithGoogle, () => !IsBusy);
 
             // Subscribe to login completed message
             WeakReferenceMessenger.Default.Register<LoginCompletedMessage>(this, async (r, m) =>
@@ -132,62 +134,73 @@ namespace PackMeUp.ViewModels
             }
         }
 
-        private async Task LoginWithGoogle()
-        {
-            try
-            {
-                var token = await _googleAuthService.SignInWithGoogleAsync();
+        //private async Task LoginWithGoogle()
+        //{
+        //    if (IsBusy)
+        //        return;
 
-                if (token != null)
-                {
-                    // Tutaj możesz np. zalogować użytkownika w Supabase:
-                    var session = await _supabase.Client.Auth.SignInWithIdToken(Supabase.Gotrue.Constants.Provider.Google, token);
+        //    IsBusy = true;
+        //    LoginWithGoogleCommand.NotifyCanExecuteChanged();
 
-                    if (session != null)
-                    {
-                        Session.SetUser(session.User);
+        //    try
+        //    {
+        //        var token = await _googleAuthService.SignInWithGoogleAsync();
 
-                        //_sessionService.SetUser(session.User);
+        //        if (token != null)
+        //        {
+        //            // Tutaj możesz np. zalogować użytkownika w Supabase:
+        //            var session = await _supabase.Client.Auth.SignInWithIdToken(Supabase.Gotrue.Constants.Provider.Google, token);
 
-                        // Możesz teraz np. ustawić w ViewModel flagę:
-                        //IsLoggedIn = true;
-                        //var LoggedInUserName = user?.Email ?? user?.Id;
+        //            if (session != null)
+        //            {
+        //                Session.SetUser(session.User);
 
-                        //await Shell.Current.GoToAsync(nameof(TripListPage));
+        //                //_sessionService.SetUser(session.User);
 
-                        await _tripRepository.StartRealtimeAsync();
+        //                // Możesz teraz np. ustawić w ViewModel flagę:
+        //                //IsLoggedIn = true;
+        //                //var LoggedInUserName = user?.Email ?? user?.Id;
 
-                        await _packingItemRepository.StartRealtimeAsync();
+        //                //await Shell.Current.GoToAsync(nameof(TripListPage));
 
-                        await _tripRepository.SyncPendingChangesAsync();
+        //                await _tripRepository.StartRealtimeAsync();
 
-                        //await LoadData();
+        //                await _packingItemRepository.StartRealtimeAsync();
 
-                        var trips = await _tripRepository.GetActiveTripsWithStatsAsync();
+        //                await _tripRepository.SyncPendingChangesAsync();
 
-                        foreach (var trip in trips)
-                        {
-                            await _packingItemRepository.UpdatePendingPackingItems(trip.Trip.LocalTripId, trip.Trip.RemoteTripId);
-                            await _packingItemRepository.SyncPendingChangesAsync();
-                        }
+        //                //await LoadData();
 
-                        _tripRepository.TripChanged += OnTripChanged;
-                        //await _packingItemRepository.SyncPendingChangesAsync();
-                    }
-                }
+        //                var trips = await _tripRepository.GetActiveTripsWithStatsAsync();
 
-                //await _tripRepository.UnsubscribeFromTripChangesAsync();
+        //                foreach (var trip in trips)
+        //                {
+        //                    await _packingItemRepository.UpdatePendingPackingItems(trip.Trip.LocalTripId, trip.Trip.RemoteTripId);
+        //                    await _packingItemRepository.SyncPendingChangesAsync();
+        //                }
 
-                //await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
+        //                _tripRepository.TripChanged += OnTripChanged;
+        //                //await _packingItemRepository.SyncPendingChangesAsync();
+        //            }
+        //        }
+
+        //        //await _tripRepository.UnsubscribeFromTripChangesAsync();
+
+        //        //await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
 
 
-                await LoadData();
-            }
-            catch (Exception ex)
-            {
-                // obsługa błędu
-            }
-        }
+        //        await LoadData();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // obsługa błędu
+        //    }
+        //    finally
+        //    {
+        //        IsBusy = false;
+        //        LoginWithGoogleCommand.NotifyCanExecuteChanged();
+        //    }
+        //}
 
         public Task DisposeRealtimeAsync()
         {

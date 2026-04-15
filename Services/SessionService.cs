@@ -7,6 +7,21 @@ namespace PackMeUp.Services
 {
     public class SessionService : ISessionService, INotifyPropertyChanged
     {
+        private bool _globalIsBusy;
+        public bool GlobalIsBusy
+        {
+            get => _globalIsBusy;
+            set
+            {
+                if (_globalIsBusy == value)
+                    return;
+                _globalIsBusy = value;
+                OnPropertyChanged();
+                GlobalIsBusyChanged?.Invoke(this, value);
+            }
+        }
+
+        public event EventHandler<bool>? GlobalIsBusyChanged;
         public readonly ISupabaseService _supabase;
         public readonly ILocalUserService _localUserService;
 

@@ -17,12 +17,15 @@ namespace PackMeUp.ViewModels
 
         //public ISessionService Session => _sessionService;
 
-        public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
+        //public IRelayCommand LoginWithGoogleCommand => new AsyncRelayCommand(LoginWithGoogle);
+        public IAsyncRelayCommand LoginWithGoogleCommand { get; }
+
         public IRelayCommand LogoutCommand => new AsyncRelayCommand(Logout);
 
         public ShellHeaderViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
         {
 
+            LoginWithGoogleCommand = new AsyncRelayCommand(LoginWithGoogle, () => !Session.GlobalIsBusy);
 
         }
         //public ShellHeaderViewModel(ISessionService sessionService, IGoogleAuthService googleAuthService, ISupabaseService supabaseService)
@@ -34,46 +37,61 @@ namespace PackMeUp.ViewModels
 
         private async Task LoginWithGoogle()
         {
+            if (Session.GlobalIsBusy)
+                return;
+
+            try
             {
-                try
+                var token = await _googleAuthService.SignInWithGoogleAsync();
+
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    var token = await _googleAuthService.SignInWithGoogleAsync();
+                    Session.GlobalIsBusy = true;
+                    LoginWithGoogleCommand.NotifyCanExecuteChanged();
+                });
 
-                    if (token != null)
+                if (token != null)
+                {
+                    // Tutaj możesz np. zalogować użytkownika w Supabase:
+                    var session = await _supabase.Client.Auth.SignInWithIdToken(Supabase.Gotrue.Constants.Provider.Google, token);
+
+                    if (session != null)
                     {
-                        // Tutaj możesz np. zalogować użytkownika w Supabase:
-                        var session = await _supabase.Client.Auth.SignInWithIdToken(Supabase.Gotrue.Constants.Provider.Google, token);
+                        Session.SetUser(session.User);
 
-                        if (session != null)
+                        await _tripRepository.StartRealtimeAsync();
+
+                        await _packingItemRepository.StartRealtimeAsync();
+
+                        await _tripRepository.SyncPendingChangesAsync();
+
+                        var trips = await _tripRepository.GetActiveTripsWithStatsAsync();
+
+                        foreach (var trip in trips)
                         {
-                            Session.SetUser(session.User);
-
-                            await _tripRepository.StartRealtimeAsync();
-
-                            await _packingItemRepository.StartRealtimeAsync();
-
-                            await _tripRepository.SyncPendingChangesAsync();
-
-                            var trips = await _tripRepository.GetActiveTripsWithStatsAsync();
-
-                            foreach (var trip in trips)
-                            {
-                                await _packingItemRepository.UpdatePendingPackingItems(trip.Trip.LocalTripId, trip.Trip.RemoteTripId);
-                                await _packingItemRepository.SyncPendingChangesAsync();
-                            }
-
-                            // Send message to notify TripListViewModel about login completion
-                            WeakReferenceMessenger.Default.Send(new LoginCompletedMessage());
-
-                            // Navigate to TripList tab after successful login
-                            await Shell.Current.GoToAsync("//TripList");
+                            await _packingItemRepository.UpdatePendingPackingItems(trip.Trip.LocalTripId, trip.Trip.RemoteTripId);
+                            await _packingItemRepository.SyncPendingChangesAsync();
                         }
+
+                        // Send message to notify TripListViewModel about login completion
+                        WeakReferenceMessenger.Default.Send(new LoginCompletedMessage());
+
+                        // Navigate to TripList tab after successful login
+                        await Shell.Current.GoToAsync("//TripList");
                     }
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                // obsługa błędu
+            }
+            finally
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    // obsługa błędu
-                }
+                    Session.GlobalIsBusy = false;
+                    LoginWithGoogleCommand.NotifyCanExecuteChanged();
+                });
             }
         }
 
@@ -87,6 +105,12 @@ namespace PackMeUp.ViewModels
 
                 if (result.Result)
                 {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        Session.GlobalIsBusy = true;
+                        LoginWithGoogleCommand.NotifyCanExecuteChanged();
+                    });
+
                     await _tripRepository.UnsubscribeFromTripChangesAsync();
                     await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
                     await _supabase.Client.Auth.SignOut();
@@ -96,6 +120,14 @@ namespace PackMeUp.ViewModels
             catch (Exception ex)
             {
                 // Handle error
+            }
+            finally
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Session.GlobalIsBusy = false;
+                    LoginWithGoogleCommand.NotifyCanExecuteChanged();
+                });
             }
         }
     }
