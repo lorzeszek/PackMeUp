@@ -101,6 +101,7 @@ namespace PackMeUp
             builder.Services.AddTransient<PackingListPage>();
             builder.Services.AddTransient<WeatherPage>();
             builder.Services.AddTransient<DocsPage>();
+            builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddSingleton<ShellHeaderView>();
 
             builder.Services.AddTransient<StartViewModel>();
@@ -109,6 +110,7 @@ namespace PackMeUp
             builder.Services.AddTransient<PackingListViewModel>();
             builder.Services.AddTransient<WeatherViewModel>();
             builder.Services.AddTransient<DocsViewModel>();
+            builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddSingleton<ShellHeaderViewModel>();
 
             //builder.Services.AddScoped<LocalTripRepository>();

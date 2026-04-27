@@ -6,7 +6,11 @@
     xmlns:local="clr-namespace:PackMeUp"
     FlyoutBehavior="Disabled"
     xmlns:views="clr-namespace:PackMeUp.Views"
-    Title="PackMeUp">
+    Title="PackMeUp"
+    Shell.TabBarBackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}"
+    Shell.TabBarTitleColor="Red"
+    Shell.TabBarUnselectedColor="{AppThemeBinding Light=#888888, Dark=#888888}"
+    >
 
     <Shell.TitleView>
         <views:ShellHeaderView />
@@ -14,7 +18,7 @@
 
         
 
-    <TabBar Shell.TabBarBackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}">
+    <!--<TabBar>
 
         <Tab Title="Home" Icon="home.png">
             <ShellContent
@@ -39,6 +43,45 @@
                 Route="Docs"
                 ContentTemplate="{DataTemplate views:DocsPage}" />
         </Tab>
+
+        <Tab Title="Settings" Icon="settings.png">
+            <ShellContent
+                Route="Settings"
+                ContentTemplate="{DataTemplate views:SettingsPage}" />
+        </Tab>
+
+    </TabBar>-->
+    <TabBar>
+
+        <ShellContent
+            Title="Home"
+            Icon="home.png"
+            Route="Home"
+            ContentTemplate="{DataTemplate views:StartPage}" />
+
+        <ShellContent
+            Title="Trips"
+            Icon="travel_bag.png"
+            Route="TripList"
+            ContentTemplate="{DataTemplate views:TripListPage}" />
+
+        <ShellContent
+            Title="Weather"
+            Icon="cloudy.png"
+            Route="Weather"
+            ContentTemplate="{DataTemplate views:WeatherPage}" />
+
+        <ShellContent
+            Title="Docs"
+            Icon="archive.png"
+            Route="Docs"
+            ContentTemplate="{DataTemplate views:DocsPage}" />
+
+        <ShellContent 
+            Title="Settings" 
+            Icon="settings.png"
+            Route="Settings"
+            ContentTemplate="{DataTemplate views:SettingsPage}" />
 
     </TabBar>
 

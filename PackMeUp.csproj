@@ -63,6 +63,7 @@
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Resources\AppIcon\home.png" />
     <None Remove="Resources\Images\Countries\italy.jpg" />
     <None Remove="Resources\Images\Countries\italy.webp" />
   </ItemGroup>
