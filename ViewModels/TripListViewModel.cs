@@ -38,12 +38,24 @@ namespace PackMeUp.ViewModels
             {
                 await OnLoginCompleted();
             });
+
+            WeakReferenceMessenger.Default.Register<LogoutCompletedMessage>(this, async (r, m) =>
+            {
+                await OnLogoutCompleted();
+                //MainThread.BeginInvokeOnMainThread(() => Trips.Clear());
+            });
         }
 
         private async Task OnLoginCompleted()
         {
             _tripRepository.TripChanged += OnTripChanged;
             await LoadData();
+        }
+
+        private async Task OnLogoutCompleted()
+        {
+            Trips.Clear();
+            await _tripRepository.DeleteLocalTrips();
         }
 
         private async void OnTripTapped(TripViewModel trip)

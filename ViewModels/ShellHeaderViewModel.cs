@@ -35,6 +35,15 @@ namespace PackMeUp.ViewModels
         //    _supabaseService = supabaseService;
         //}
 
+        private void SetBusy(bool isBusy)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Session.GlobalIsBusy = isBusy;
+                LoginWithGoogleCommand.NotifyCanExecuteChanged();
+            });
+        }
+
         private async Task LoginWithGoogle()
         {
             if (Session.GlobalIsBusy)
@@ -42,44 +51,29 @@ namespace PackMeUp.ViewModels
 
             try
             {
+                SetBusy(true);
+
                 var token = await _googleAuthService.SignInWithGoogleAsync();
+                if (string.IsNullOrWhiteSpace(token))
+                    return;
 
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    Session.GlobalIsBusy = true;
-                    LoginWithGoogleCommand.NotifyCanExecuteChanged();
-                });
+                var authSession = await _supabase.Client.Auth.SignInWithIdToken(Supabase.Gotrue.Constants.Provider.Google, token);
+                if (authSession is null)
+                    return;
 
-                if (token != null)
-                {
-                    // Tutaj możesz np. zalogować użytkownika w Supabase:
-                    var session = await _supabase.Client.Auth.SignInWithIdToken(Supabase.Gotrue.Constants.Provider.Google, token);
+                Session.SetUser(authSession.User);
 
-                    if (session != null)
-                    {
-                        Session.SetUser(session.User);
+                await _tripRepository.StartRealtimeAsync();
+                await _packingItemRepository.StartRealtimeAsync();
 
-                        await _tripRepository.StartRealtimeAsync();
+                // Sync trips first (this now persists RemoteTripId into local storage)
+                await _tripRepository.SyncPendingChangesAsync();
 
-                        await _packingItemRepository.StartRealtimeAsync();
+                // Now packing items can be synced once (their pending rows should already contain RemoteTripId)
+                await _packingItemRepository.SyncPendingChangesAsync();
 
-                        await _tripRepository.SyncPendingChangesAsync();
-
-                        var trips = await _tripRepository.GetActiveTripsWithStatsAsync();
-
-                        foreach (var trip in trips)
-                        {
-                            await _packingItemRepository.UpdatePendingPackingItems(trip.Trip.LocalTripId, trip.Trip.RemoteTripId);
-                            await _packingItemRepository.SyncPendingChangesAsync();
-                        }
-
-                        // Send message to notify TripListViewModel about login completion
-                        WeakReferenceMessenger.Default.Send(new LoginCompletedMessage());
-
-                        // Navigate to TripList tab after successful login
-                        await Shell.Current.GoToAsync("//TripList");
-                    }
-                }
+                WeakReferenceMessenger.Default.Send(new LoginCompletedMessage());
+                await Shell.Current.GoToAsync("//TripList");
             }
             catch (Exception ex)
             {
@@ -87,11 +81,7 @@ namespace PackMeUp.ViewModels
             }
             finally
             {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    Session.GlobalIsBusy = false;
-                    LoginWithGoogleCommand.NotifyCanExecuteChanged();
-                });
+                SetBusy(false);
             }
         }
 
@@ -111,9 +101,13 @@ namespace PackMeUp.ViewModels
                         LoginWithGoogleCommand.NotifyCanExecuteChanged();
                     });
 
+
+
                     await _tripRepository.UnsubscribeFromTripChangesAsync();
                     await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
                     await _supabase.Client.Auth.SignOut();
+
+                    WeakReferenceMessenger.Default.Send(new LogoutCompletedMessage());
                     await Shell.Current.GoToAsync("//Home");
                 }
             }

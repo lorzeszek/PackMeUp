@@ -45,7 +45,9 @@ namespace PackMeUp.Repositories
             {
                 try
                 {
-                    await _remote.AddTripAsync(trip);
+                    var remoteTripId = await _remote.AddTripAsync(trip);
+                    trip.RemoteTripId = remoteTripId;
+                    await _local.UpdateTripAsync(trip);
                 }
                 catch
                 {
@@ -172,7 +174,9 @@ namespace PackMeUp.Repositories
                     switch (change.Operation)
                     {
                         case "Add":
-                            await _remote.AddTripAsync(tripDeserialized!);
+                            var remoteTripId = await _remote.AddTripAsync(tripDeserialized!);
+                            tripDeserialized.RemoteTripId = remoteTripId;
+                            await _local.UpdateTripAsync(tripDeserialized);
                             break;
                         case "Update":
                             await _remote.UpdateTripAsync(tripDeserialized!);
@@ -214,6 +218,16 @@ namespace PackMeUp.Repositories
         public Task<bool> IsChannelCreatedAsync()
         {
             return _remote.IsChannelCreatedAsync();
+        }
+
+        public Task<TripDTO?> GetLocalTripAsync(int localTripId, string localUserId)
+        {
+            return _local.GetLocalTripAsync(localTripId, localUserId);
+        }
+
+        public Task DeleteLocalTrips()
+        {
+            return _local.DeleteLocalTrips();
         }
     }
 }

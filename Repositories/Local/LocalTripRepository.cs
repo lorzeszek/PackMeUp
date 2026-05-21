@@ -28,6 +28,7 @@ namespace PackMeUp.Repositories.Local
         {
             var localTrip = new SQLiteTrip()
             {
+                RemoteTripId = trip.RemoteTripId == 0 ? null : trip.RemoteTripId,
                 LocalUserId = trip.LocalUserId.ToString(),
                 CreatedDate = trip.CreatedDate,
                 ModifiedDate = trip.ModifiedDate,
@@ -48,6 +49,7 @@ namespace PackMeUp.Repositories.Local
             var localTrip = new SQLiteTrip()
             {
                 LocalTripId = trip.LocalTripId,
+                RemoteTripId = trip.RemoteTripId == 0 ? null : trip.RemoteTripId,
                 LocalUserId = trip.LocalUserId.ToString(),
                 CreatedDate = trip.CreatedDate,
                 ModifiedDate = trip.ModifiedDate,
@@ -68,6 +70,7 @@ namespace PackMeUp.Repositories.Local
 
             var trips = sqliteTrips.Select(x => new TripDTO
             {
+                RemoteTripId = x.RemoteTripId ?? 0,
                 LocalTripId = x.LocalTripId,
                 LocalUserId = x.LocalUserId,
                 CreatedDate = x.CreatedDate,
@@ -101,6 +104,7 @@ namespace PackMeUp.Repositories.Local
             return new TripDTO
             {
                 LocalUserId = sqliteTrip.LocalUserId,
+                RemoteTripId = sqliteTrip.RemoteTripId ?? 0,
                 LocalTripId = sqliteTrip.LocalTripId,
                 CreatedDate = sqliteTrip.CreatedDate,
                 ModifiedDate = sqliteTrip.ModifiedDate,
@@ -116,7 +120,9 @@ namespace PackMeUp.Repositories.Local
         {
             var localTrip = new SQLiteTrip()
             {
+                LocalTripId = trip.LocalTripId,
                 LocalUserId = trip.LocalUserId,
+                RemoteTripId = trip.RemoteTripId == 0 ? null : trip.RemoteTripId,
                 CreatedDate = trip.CreatedDate,
                 ModifiedDate = trip.ModifiedDate,
                 StartDate = trip.StartDate,
@@ -142,6 +148,33 @@ namespace PackMeUp.Repositories.Local
         public Task<bool> IsChannelCreatedAsync()
         {
             return (Task<bool>)Task.CompletedTask;
+        }
+
+        public async Task<TripDTO?> GetLocalTripAsync(int localTripId, string localUserId)
+        {
+            //var sqliteTripall = await _db.Table<SQLiteTrip>().FirstOrDefaultAsync(x => x.LocalUserId == localUserId);
+            var sqliteTrip = await _db.Table<SQLiteTrip>().FirstOrDefaultAsync(x => x.LocalUserId == localUserId && x.LocalTripId == localTripId);
+
+            return new TripDTO
+            {
+                LocalUserId = sqliteTrip.LocalUserId,
+                RemoteTripId = sqliteTrip.RemoteTripId ?? 0,
+                LocalTripId = sqliteTrip.LocalTripId,
+                CreatedDate = sqliteTrip.CreatedDate,
+                ModifiedDate = sqliteTrip.ModifiedDate,
+                StartDate = sqliteTrip.StartDate,
+                EndDate = sqliteTrip.EndDate,
+                Destination = sqliteTrip.Destination,
+                IsActive = sqliteTrip.IsActive,
+                IsInTrash = sqliteTrip.IsInTrash
+            };
+        }
+
+        public async Task DeleteLocalTrips()
+        {
+            //var sqliteTrips = await _db.Table<SQLiteTrip>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
+
+            await _db.DeleteAllAsync<SQLiteTrip>();
         }
     }
 }
