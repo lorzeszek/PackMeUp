@@ -79,6 +79,11 @@ namespace PackMeUp.ViewModels
 
             if (proposeListPopupResult)
             {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Session.GlobalIsBusy = true;
+                });
+
                 try
                 {
                     var proposeListItems = await _packingSuggestionService.GenerateItemsAsync(Destination, StartDate, EndDate);
@@ -97,14 +102,24 @@ namespace PackMeUp.ViewModels
 
                         await _packingItemRepository.AddPackingItemsAsync(newPackingItems);
                     }
+                    else
+                    {
+                        return;
+                    }
                 }
                 catch (Exception ex)
                 {
                     // Handle error
                 }
+                finally
+                {
+                    Session.GlobalIsBusy = false;
+                }
             }
-
-
+            else
+            {
+                return;
+            }
 
             // Pop TripSetupPage off the Home tab's stack before switching tabs
             await Shell.Current.Navigation.PopAsync(false);
