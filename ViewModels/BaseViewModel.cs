@@ -23,13 +23,6 @@ namespace PackMeUp.ViewModels
             set => SetProperty(ref _title, value);
         }
 
-        private bool _isRefreshing;
-        public bool IsRefreshing
-        {
-            get => _isRefreshing;
-            set => SetProperty(ref _isRefreshing, value);
-        }
-
         public BaseViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService)
         {
             _supabase = supabase;

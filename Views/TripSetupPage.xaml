@@ -49,11 +49,10 @@
                     <DatePicker x:Name="EndDatePicker" Date="{Binding EndDate}" MinimumDate="{Binding StartDate}" VerticalOptions="Center" />
                 </HorizontalStackLayout>
             </StackLayout>
+
+            
+
         </Grid>
-        
-
-        
-
         <Button
             Text="Utwórz listę"
             Command="{Binding CreateTripCommand}" />

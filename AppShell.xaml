@@ -9,8 +9,7 @@
     Title="PackMeUp"
     Shell.TabBarBackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}"
     Shell.TabBarTitleColor="Red"
-    Shell.TabBarUnselectedColor="{AppThemeBinding Light=#888888, Dark=#888888}"
-    >
+    Shell.TabBarUnselectedColor="{AppThemeBinding Light=#888888, Dark=#888888}">
 
     <Shell.TitleView>
         <views:ShellHeaderView />

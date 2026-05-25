@@ -40,9 +40,10 @@ namespace PackMeUp.ViewModels
 
         private async Task AddItemAsync()
         {
-            IsRefreshing = true;
+            if (string.IsNullOrWhiteSpace(NewItemName))
+                return;
 
-            var newItem = new PackingItemDTO { Name = _newItemName, Category = 3, RemoteTripId = _remoteTripId, LocalTripId = _localTripId, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId, CreatedDate = DateTime.Now };
+            var newItem = new PackingItemDTO { Name = NewItemName, Category = 3, RemoteTripId = _remoteTripId, LocalTripId = _localTripId, RemoteUserId = Session.UserId, LocalUserId = Session.LocalUserId, CreatedDate = DateTime.Now };
 
             await _packingItemRepository.AddPackingItemAsync(newItem);
 
@@ -52,8 +53,6 @@ namespace PackMeUp.ViewModels
             {
                 await LoadData();
             }
-
-            IsRefreshing = false;
         }
 
         private async Task ToggleIsPackedAsync(PackingItem packingItem)

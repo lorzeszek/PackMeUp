@@ -1,40 +1,72 @@
-﻿using PackMeUp.Models.SQLite;
+﻿using CommunityToolkit.Maui.Extensions;
+using PackMeUp.Helpers;
+using PackMeUp.Models.SQLite;
+using PackMeUp.Popups;
 using PackMeUp.Repositories.Models;
 using PackMeUp.Services.Interfaces;
-using PackMeUp.Views;
 using SQLite;
+using System.ComponentModel;
 
 namespace PackMeUp
 {
     public partial class App : Application
     {
-        private readonly ISupabaseService _supabaseService;
         private readonly ISessionService _sessionService;
         private readonly SQLiteAsyncConnection _db;
         private readonly ILocalUserService _localUserService;
-        public App(ISupabaseService supabaseService, ISessionService sessionService, SQLiteAsyncConnection db, ILocalUserService localUserService)
+        private BusyPopup? _busyPopup;
+        public App(ISessionService sessionService, SQLiteAsyncConnection db, ILocalUserService localUserService)
         {
             InitializeComponent();
-            _supabaseService = supabaseService;
+            AppThemeManager.ApplySavedTheme();
             _sessionService = sessionService;
             _db = db;
             _localUserService = localUserService;
+
+            if (_sessionService is INotifyPropertyChanged npc)
+            {
+                npc.PropertyChanged += OnSessionPropertyChanged;
+            }
         }
 
-        //protected override Window CreateWindow(IActivationState? activationState)
-        //{
-        //    _ = InitializeAppAsync();
+        private void OnSessionPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(ISessionService.GlobalIsBusy))
+                return;
 
-        //    return new Window(new AppShell());
-        //}
+            var isBusy = _sessionService.GlobalIsBusy;
+            MainThread.BeginInvokeOnMainThread(async () => await UpdateBusyPopupAsync(isBusy));
+        }
 
-        //private async Task InitializeAppAsync()
-        //{
-        //    await _sessionService.InitializeAsync();
-        //    await _db.CreateTableAsync<SQLiteTrip>();
-        //    await _db.CreateTableAsync<SQLitePackingItem>();
-        //    await _supabaseService.InitializeAsync();
-        //}
+        private async Task UpdateBusyPopupAsync(bool show)
+        {
+            var mainPage = MainPage;
+            if (mainPage == null)
+                return;
+
+            if (show)
+            {
+                if (_busyPopup != null)
+                    return;
+
+                _busyPopup = new BusyPopup();
+                mainPage.ShowPopup(_busyPopup);
+                return;
+            }
+
+            if (_busyPopup != null)
+            {
+                try
+                {
+                    await _busyPopup.CloseAsync();
+                }
+                catch (Exception)
+                {
+                }
+
+                _busyPopup = null;
+            }
+        }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
