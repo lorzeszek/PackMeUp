@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Maui;
+using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Maui.Graphics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MPowerKit.Lottie;
@@ -24,7 +26,19 @@ namespace PackMeUp
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
-                .UseMauiCommunityToolkit()
+                .UseMauiCommunityToolkit(options =>
+                {
+                    options.SetPopupOptionsDefaults(new DefaultPopupOptionsSettings
+                    {
+                        Shape = new RoundRectangle
+                        {
+                            CornerRadius = new CornerRadius(0),
+                            Stroke = Colors.Transparent,
+                            StrokeThickness = 0
+                        },
+                        Shadow = null
+                    });
+                })
                 .ConfigureSyncfusionCore()
                 .ConfigureFonts(fonts =>
                 {
@@ -68,7 +82,7 @@ namespace PackMeUp
 
             builder.Services.AddSingleton(sp =>
             {
-                var dbPath = Path.Combine(FileSystem.AppDataDirectory, "app.db3");
+                var dbPath = System.IO.Path.Combine(FileSystem.AppDataDirectory, "app.db3");
                 return new SQLiteAsyncConnection(dbPath);
             });
 

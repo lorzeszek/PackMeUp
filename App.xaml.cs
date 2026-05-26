@@ -1,9 +1,8 @@
-﻿using CommunityToolkit.Maui.Extensions;
-using PackMeUp.Helpers;
+﻿using PackMeUp.Helpers;
 using PackMeUp.Models.SQLite;
-using PackMeUp.Popups;
 using PackMeUp.Repositories.Models;
 using PackMeUp.Services.Interfaces;
+using PackMeUp.Views;
 using SQLite;
 using System.ComponentModel;
 
@@ -14,7 +13,8 @@ namespace PackMeUp
         private readonly ISessionService _sessionService;
         private readonly SQLiteAsyncConnection _db;
         private readonly ILocalUserService _localUserService;
-        private BusyPopup? _busyPopup;
+        private LoadingPage? _loadingPage;
+
         public App(ISessionService sessionService, SQLiteAsyncConnection db, ILocalUserService localUserService)
         {
             InitializeComponent();
@@ -34,37 +34,46 @@ namespace PackMeUp
             if (e.PropertyName != nameof(ISessionService.GlobalIsBusy))
                 return;
 
-            var isBusy = _sessionService.GlobalIsBusy;
-            MainThread.BeginInvokeOnMainThread(async () => await UpdateBusyPopupAsync(isBusy));
+            MainThread.BeginInvokeOnMainThread(async () => await UpdateLoadingModalAsync(_sessionService.GlobalIsBusy));
         }
 
-        private async Task UpdateBusyPopupAsync(bool show)
+        private async Task UpdateLoadingModalAsync(bool show)
         {
-            var mainPage = MainPage;
-            if (mainPage == null)
+            if (MainPage is null)
                 return;
+
+            var navigation = Shell.Current?.Navigation ?? MainPage.Navigation;
 
             if (show)
             {
-                if (_busyPopup != null)
+                if (_loadingPage != null)
                     return;
 
-                _busyPopup = new BusyPopup();
-                mainPage.ShowPopup(_busyPopup);
+                _loadingPage = new LoadingPage();
+                await navigation.PushModalAsync(_loadingPage, false);
                 return;
             }
 
-            if (_busyPopup != null)
-            {
-                try
-                {
-                    await _busyPopup.CloseAsync();
-                }
-                catch (Exception)
-                {
-                }
+            if (_loadingPage is null)
+                return;
 
-                _busyPopup = null;
+            try
+            {
+                if (navigation.ModalStack.LastOrDefault() == _loadingPage)
+                {
+                    await navigation.PopModalAsync(false);
+                }
+                else if (navigation.ModalStack.Contains(_loadingPage))
+                {
+                    await _loadingPage.Navigation.PopModalAsync(false);
+                }
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                _loadingPage = null;
             }
         }
 

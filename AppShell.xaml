@@ -3,9 +3,8 @@
     x:Class="PackMeUp.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:PackMeUp"
-    FlyoutBehavior="Disabled"
     xmlns:views="clr-namespace:PackMeUp.Views"
+    FlyoutBehavior="Disabled"
     Title="PackMeUp"
     Shell.TabBarBackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}"
     Shell.TabBarTitleColor="Red"
@@ -15,43 +14,7 @@
         <views:ShellHeaderView />
     </Shell.TitleView>
 
-        
-
-    <!--<TabBar>
-
-        <Tab Title="Home" Icon="home.png">
-            <ShellContent
-                Route="Home"
-                ContentTemplate="{DataTemplate views:StartPage}" />
-        </Tab>
-
-        <Tab Title="Trips" Icon="list.png">
-            <ShellContent
-                Route="TripList"
-                ContentTemplate="{DataTemplate views:TripListPage}" />
-        </Tab>
-
-        <Tab Title="Weather" Icon="weather.png">
-            <ShellContent
-                Route="Weather"
-                ContentTemplate="{DataTemplate views:WeatherPage}" />
-        </Tab>
-
-        <Tab Title="Docs" Icon="docs.png">
-            <ShellContent
-                Route="Docs"
-                ContentTemplate="{DataTemplate views:DocsPage}" />
-        </Tab>
-
-        <Tab Title="Settings" Icon="settings.png">
-            <ShellContent
-                Route="Settings"
-                ContentTemplate="{DataTemplate views:SettingsPage}" />
-        </Tab>
-
-    </TabBar>-->
     <TabBar>
-
         <ShellContent
             Title="Home"
             Icon="home.png"
@@ -76,12 +39,11 @@
             Route="Docs"
             ContentTemplate="{DataTemplate views:DocsPage}" />
 
-        <ShellContent 
-            Title="Settings" 
+        <ShellContent
+            Title="Settings"
             Icon="settings.png"
             Route="Settings"
             ContentTemplate="{DataTemplate views:SettingsPage}" />
-
     </TabBar>
 
 </Shell>
