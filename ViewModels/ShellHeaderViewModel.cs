@@ -101,8 +101,6 @@ namespace PackMeUp.ViewModels
                         LoginWithGoogleCommand.NotifyCanExecuteChanged();
                     });
 
-
-
                     await _tripRepository.UnsubscribeFromTripChangesAsync();
                     await _packingItemRepository.UnsubscribeFromPackingItemChangesAsync();
                     await _supabase.Client.Auth.SignOut();

@@ -11,18 +11,21 @@ namespace PackMeUp.Services
             _aiService = aiService;
         }
 
-        public async Task<List<string>> GenerateItemsAsync(string destination, DateTime start, DateTime end)
+        public async Task<List<string>> GenerateItemsAsync(string destination, DateTime start, DateTime end, int adultsCount, List<int> childrenAge, List<string> selectedTransportTypes)
         {
             var days = (end - start).Days;
 
             var prompt = $@"
-        Generate a packing list for a trip.
+                Generate a packing list for a trip.
 
-        Destination: {destination}
-        Duration: {days} days
+                Destination: {destination}
+                Duration: {days} days
+                Adults: {adultsCount}
+                Children: {string.Join(", ", childrenAge.Select((age, index) => $"Child {index + 1}: Age {age}"))}
+                Transport: {string.Join(", ", selectedTransportTypes)}
 
-        Return ONLY a simple list of item names, one per line.
-        ";
+                Return ONLY a simple list of item names, one per line.
+                ";
 
             var response = await _aiService.GetCompletionAsync(prompt);
 
