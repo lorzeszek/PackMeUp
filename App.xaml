@@ -1,7 +1,6 @@
 ﻿<?xml version = "1.0" encoding = "UTF-8" ?>
 <Application xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
-             xmlns="http://schemas.microsoft.com/dotnet/maui/global"
-             xmlns:uxd="clr-namespace:UXDivers.Popups.Maui.Controls;assembly=UXDivers.Popups.Maui"
+             xmlns="http://schemas.microsoft.com/dotnet/maui/global"             
              xmlns:local="clr-namespace:PackMeUp"
              x:Class="PackMeUp.App">
     <Application.Resources>
@@ -9,8 +8,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
-                <uxd:DarkTheme />
-                <uxd:PopupStyles />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

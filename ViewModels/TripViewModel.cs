@@ -3,7 +3,7 @@ using PackMeUp.Models.DTO;
 
 namespace PackMeUp.ViewModels
 {
-    public class TripViewModel : ObservableObject
+    public partial class TripViewModel : ObservableObject
     {
         //public Trip TripModel { get; }
         public TripDTO TripModel { get; }

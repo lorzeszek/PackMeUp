@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Maui;
+using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Maui.Graphics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MPowerKit.Lottie;
@@ -24,7 +26,19 @@ namespace PackMeUp
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
-                .UseMauiCommunityToolkit()
+                .UseMauiCommunityToolkit(options =>
+                {
+                    options.SetPopupOptionsDefaults(new DefaultPopupOptionsSettings
+                    {
+                        Shape = new RoundRectangle
+                        {
+                            CornerRadius = new CornerRadius(0),
+                            Stroke = Colors.Transparent,
+                            StrokeThickness = 0
+                        },
+                        Shadow = null
+                    });
+                })
                 .ConfigureSyncfusionCore()
                 .ConfigureFonts(fonts =>
                 {
@@ -38,6 +52,13 @@ namespace PackMeUp
                     handlers.AddHandler(typeof(AppShell), typeof(Platforms.Android.CustomShellRenderer));
 #endif
                 });
+
+            Microsoft.Maui.Handlers.DatePickerHandler.Mapper.AppendToMapping("NoUnderline", (handler, view) =>
+            {
+#if ANDROID
+                handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+#endif
+            });
 
 
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjGyl/Vkd+XU9FcVRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS3tSd0RrWHpccndWR2BaUE91Xg==");
@@ -61,7 +82,7 @@ namespace PackMeUp
 
             builder.Services.AddSingleton(sp =>
             {
-                var dbPath = Path.Combine(FileSystem.AppDataDirectory, "app.db3");
+                var dbPath = System.IO.Path.Combine(FileSystem.AppDataDirectory, "app.db3");
                 return new SQLiteAsyncConnection(dbPath);
             });
 
@@ -84,7 +105,8 @@ namespace PackMeUp
                 var remote = sp.GetRequiredService<SupabasePackingItemRepository>();
                 var session = sp.GetRequiredService<ISessionService>();
                 var pendingDb = sp.GetRequiredService<SQLiteAsyncConnection>();
-                return new SyncPackingItemRepository(local, remote, session, pendingDb);
+                var tripRepo = sp.GetRequiredService<ITripRepository>();
+                return new SyncPackingItemRepository(local, remote, session, pendingDb, tripRepo);
             });
 
             // === UI ===
@@ -94,6 +116,7 @@ namespace PackMeUp
             builder.Services.AddTransient<PackingListPage>();
             builder.Services.AddTransient<WeatherPage>();
             builder.Services.AddTransient<DocsPage>();
+            builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddSingleton<ShellHeaderView>();
 
             builder.Services.AddTransient<StartViewModel>();
@@ -102,6 +125,7 @@ namespace PackMeUp
             builder.Services.AddTransient<PackingListViewModel>();
             builder.Services.AddTransient<WeatherViewModel>();
             builder.Services.AddTransient<DocsViewModel>();
+            builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddSingleton<ShellHeaderViewModel>();
 
             //builder.Services.AddScoped<LocalTripRepository>();

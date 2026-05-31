@@ -3,43 +3,47 @@
     x:Class="PackMeUp.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:PackMeUp"
-    FlyoutBehavior="Disabled"
     xmlns:views="clr-namespace:PackMeUp.Views"
-    Title="PackMeUp">
+    FlyoutBehavior="Disabled"
+    Title="PackMeUp"
+    Shell.TabBarBackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}"
+    Shell.TabBarTitleColor="Red"
+    Shell.TabBarUnselectedColor="{AppThemeBinding Light=#888888, Dark=#888888}">
 
     <Shell.TitleView>
         <views:ShellHeaderView />
     </Shell.TitleView>
 
-        
+    <TabBar>
+        <ShellContent
+            Title="Home"
+            Icon="home.png"
+            Route="Home"
+            ContentTemplate="{DataTemplate views:StartPage}" />
 
-    <TabBar Shell.TabBarBackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}">
+        <ShellContent
+            Title="Trips"
+            Icon="travel_bag.png"
+            Route="TripList"
+            ContentTemplate="{DataTemplate views:TripListPage}" />
 
-        <Tab Title="Home" Icon="home.png">
-            <ShellContent
-                Route="Home"
-                ContentTemplate="{DataTemplate views:StartPage}" />
-        </Tab>
+        <ShellContent
+            Title="Weather"
+            Icon="cloudy.png"
+            Route="Weather"
+            ContentTemplate="{DataTemplate views:WeatherPage}" />
 
-        <Tab Title="Trips" Icon="list.png">
-            <ShellContent
-                Route="TripList"
-                ContentTemplate="{DataTemplate views:TripListPage}" />
-        </Tab>
+        <ShellContent
+            Title="Docs"
+            Icon="archive.png"
+            Route="Docs"
+            ContentTemplate="{DataTemplate views:DocsPage}" />
 
-        <Tab Title="Weather" Icon="weather.png">
-            <ShellContent
-                Route="Weather"
-                ContentTemplate="{DataTemplate views:WeatherPage}" />
-        </Tab>
-
-        <Tab Title="Docs" Icon="docs.png">
-            <ShellContent
-                Route="Docs"
-                ContentTemplate="{DataTemplate views:DocsPage}" />
-        </Tab>
-
+        <ShellContent
+            Title="Settings"
+            Icon="settings.png"
+            Route="Settings"
+            ContentTemplate="{DataTemplate views:SettingsPage}" />
     </TabBar>
 
 </Shell>

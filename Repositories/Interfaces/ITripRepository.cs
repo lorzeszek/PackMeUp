@@ -7,9 +7,11 @@ namespace PackMeUp.Repositories.Interfaces
     {
         Task<int> AddTripAsync(TripDTO trip);
         Task<TripDTO?> GetTripAsync(TripDTO trip);
+        Task<TripDTO?> GetLocalTripAsync(int localTripId, string localUserId);
         Task UpdateTripAsync(TripDTO trip);
         Task<IReadOnlyList<TripWithStats>> GetActiveTripsWithStatsAsync();
         Task DeleteTripAsync(TripDTO trip);
+        Task DeleteLocalTrips();
         Task UnsubscribeFromTripChangesAsync(); // opcjonalnie
         Task SyncPendingChangesAsync();
         Task StartRealtimeAsync();

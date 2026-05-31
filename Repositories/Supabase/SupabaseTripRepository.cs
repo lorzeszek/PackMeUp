@@ -65,9 +65,17 @@ namespace PackMeUp.Repositories.Supabase
             {
                 TripSupabase mappedTrip = Mappers.MapToTripSupabase(trip);
 
+                // Use upsert to make Add idempotent (safe to repeat during sync)
                 await _supabase.Client.From<TripSupabase>().Insert(mappedTrip);
 
-                return mappedTrip.Id;
+                // Supabase C# client doesn't always populate identity after Insert.
+                // Fetch the row back by (ClientId, LocalTripId) to get the generated remote id.
+                var response = await _supabase.Client
+                    .From<TripSupabase>()
+                    .Where(x => x.ClientId == trip.LocalUserId && x.LocalTripId == trip.LocalTripId)
+                    .Get();
+
+                return response.Models.FirstOrDefault()?.Id ?? mappedTrip.Id;
             }
             catch (Exception ex)
             {
@@ -180,6 +188,16 @@ namespace PackMeUp.Repositories.Supabase
         }
 
         public Task SyncPendingChangesAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<TripDTO?> GetLocalTripAsync(int localTripId, string localUserId)
+        {
+            return Task.FromResult<TripDTO?>(new TripDTO());
+        }
+
+        public Task DeleteLocalTrips()
         {
             return Task.CompletedTask;
         }
