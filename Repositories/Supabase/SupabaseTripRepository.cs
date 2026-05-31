@@ -148,7 +148,8 @@ namespace PackMeUp.Repositories.Supabase
         {
             var response = await _supabase.Client
                 .From<TripSupabase>()
-                .Where(x => x.IsActive && !x.IsInTrash)
+                .Select("*")
+                .Where(x => x.IsActive == true && x.IsInTrash == false)
                 .Get();
 
             return response.Models ?? new List<TripSupabase>();
@@ -185,6 +186,18 @@ namespace PackMeUp.Repositories.Supabase
             }).ToList();
 
             return result;
+        }
+
+        public async Task<IReadOnlyList<string>> GetActiveDestinationsAsync()
+        {
+            var activeTrips = await GetActiveTripsAsync();
+
+            return activeTrips
+                .Select(trip => trip.Destination)
+                .Where(destination => !string.IsNullOrWhiteSpace(destination))
+                .Distinct()
+                .OrderBy(destination => destination)
+                .ToList();
         }
 
         public Task SyncPendingChangesAsync()

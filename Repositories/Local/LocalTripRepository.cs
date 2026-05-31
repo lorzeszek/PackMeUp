@@ -97,6 +97,20 @@ namespace PackMeUp.Repositories.Local
 
         }
 
+        public async Task<IReadOnlyList<string>> GetActiveDestinationsAsync()
+        {
+            var sqliteTrips = await _db.Table<SQLiteTrip>()
+                .Where(x => x.LocalUserId == _sessionService.LocalUserId && x.IsActive && !x.IsInTrash)
+                .ToListAsync();
+
+            return sqliteTrips
+                .Select(x => x.Destination)
+                .Where(destination => !string.IsNullOrWhiteSpace(destination))
+                .Distinct()
+                .OrderBy(destination => destination)
+                .ToList();
+        }
+
         public async Task<TripDTO?> GetTripAsync(TripDTO trip)
         {
             var sqliteTrip = await _db.Table<SQLiteTrip>().FirstOrDefaultAsync(x => x.LocalUserId == trip.LocalUserId && x.LocalTripId == trip.LocalTripId);

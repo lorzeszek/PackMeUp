@@ -17,8 +17,6 @@ namespace PackMeUp.ViewModels
     {
         public ObservableRangeCollection<TripViewModel> Trips { get; } = new();
 
-
-
         public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
         public ICommand AddTripCommand => new Command(async () => await AddTrip("wycieczka 1 test"));
         public ICommand DeleteTripCommand => new Command<TripViewModel>(async (trip) => await DeleteTripAsync(trip));
@@ -266,6 +264,7 @@ namespace PackMeUp.ViewModels
                     PackingSummary = item.PackingSummary
                 });
             }
+
         }
 
         //protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
