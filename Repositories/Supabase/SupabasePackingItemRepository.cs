@@ -41,6 +41,21 @@ namespace PackMeUp.Repositories.Supabase
             }
         }
 
+        public async Task AddPackingItemsAsync(List<PackingItemDTO> items)
+        {
+            var localPackingItems = items.Select(x => Mappers.MapToPackingItemSupabase(x)).ToList();
+
+            try
+            {
+                await _supabase.Client.From<PackingItemSupabase>().Insert(localPackingItems);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
         public async Task DeletePackingItemAsync(PackingItemDTO item)
         {
             try

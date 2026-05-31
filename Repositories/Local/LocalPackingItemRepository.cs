@@ -40,6 +40,23 @@ namespace PackMeUp.Repositories.Local
             return localPackingItem.LocalPackingItemId;
         }
 
+        public async Task AddPackingItemsAsync(List<PackingItemDTO> items)
+        {
+            var localPackingItems = items.Select(x => new SQLitePackingItem()
+            {
+                LocalPackingItemId = x.LocalPackingItemId,
+                LocalUserId = x.LocalUserId.ToString(),
+                LocalTripId = x.LocalTripId,
+                Name = x.Name,
+                CreatedDate = x.CreatedDate,
+                ModifiedDate = x.ModifiedDate,
+                IsPacked = x.IsPacked,
+                Category = x.Category,
+            }).ToList();
+
+            await _db.InsertAllAsync(localPackingItems);
+        }
+
         public async Task DeletePackingItemAsync(PackingItemDTO item)
         {
             var localPackingItem = new SQLitePackingItem()

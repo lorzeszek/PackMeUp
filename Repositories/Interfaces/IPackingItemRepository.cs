@@ -7,6 +7,7 @@ namespace PackMeUp.Repositories.Interfaces
     {
         Task<IReadOnlyList<PackingItemDTO>> GetPackingItemsForTripAsync(int localTripId, int remoteTripId);
         Task<int> AddPackingItemAsync(PackingItemDTO item);
+        Task AddPackingItemsAsync(List<PackingItemDTO> items);
         Task UpdatePackingItemAsync(PackingItemDTO item);
         Task DeletePackingItemAsync(PackingItemDTO item);
         Task UnsubscribeFromPackingItemChangesAsync();

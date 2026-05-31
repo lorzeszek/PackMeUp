@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MPowerKit.Lottie;
 using PackMeUp.Interfaces;
@@ -12,7 +13,7 @@ using PackMeUp.ViewModels;
 using PackMeUp.Views;
 using SQLite;
 using Syncfusion.Maui.Core.Hosting;
-using UXDivers.Popups.Maui;
+using System.Reflection;
 
 namespace PackMeUp
 {
@@ -25,7 +26,6 @@ namespace PackMeUp
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .ConfigureSyncfusionCore()
-                .UseUXDiversPopups()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -41,6 +41,13 @@ namespace PackMeUp
 
 
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjGyl/Vkd+XU9FcVRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS3tSd0RrWHpccndWR2BaUE91Xg==");
+
+            var assembly = Assembly.GetExecutingAssembly();
+            using var stream = assembly.GetManifestResourceStream("PackMeUp.appsettings.json");
+            var config = new ConfigurationBuilder()
+                .AddJsonStream(stream!)
+                .Build();
+            builder.Configuration.AddConfiguration(config);
 
             builder.Services.AddSingleton<ISupabaseService, SupabaseService>();
             builder.Services.AddSingleton<ISessionService, SessionService>();
@@ -133,6 +140,16 @@ namespace PackMeUp
             //builder.Services.AddTransient<StartViewModel>();
             //builder.Services.AddTransient<TripListViewModel>();
             //builder.Services.AddTransient<PackingListViewModel>();
+
+            builder.Services.AddSingleton<HttpClient>();
+            builder.Services.AddSingleton<IAIService, AIService>();
+            builder.Services.AddSingleton<IPackingSuggestionService, PackingSuggestionService>();
+
+            //builder.Services.AddHttpClient<IAIService, AIService>(client =>
+            //{
+            //    client.Timeout = TimeSpan.FromSeconds(10);
+            //});
+            //builder.Services.AddSingleton<IPackingSuggestionService, PackingSuggestionService>();
 
 #if ANDROID
             builder.Services.AddSingleton<IGoogleAuthService, PackMeUp.Platforms.Android.GoogleAuthService>();

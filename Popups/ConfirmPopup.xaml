@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:TypeArguments="x:Boolean"
+    x:Class="PackMeUp.Popups.ConfirmPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+
+    <VerticalStackLayout Padding="20" Spacing="15" BackgroundColor="White">
+
+        <Label 
+            x:Name="TitleLabel"
+            Text="Confirm"
+            FontSize="18"
+            FontAttributes="Bold"
+            HorizontalOptions="Center" />
+
+        <Label 
+            x:Name="MessageLabel"
+            Text="Are you sure?"
+            HorizontalOptions="Center"
+            HorizontalTextAlignment="Center" />
+
+        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+
+            <Button Text="No" Clicked="OnCancelClicked" />
+
+            <Button Text="Yes" Clicked="OnConfirmClicked" />
+
+        </HorizontalStackLayout>
+
+    </VerticalStackLayout>
+</toolkit:Popup>
