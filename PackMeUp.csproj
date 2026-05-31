@@ -63,6 +63,7 @@
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Resources\AppIcon\home.png" />
     <None Remove="Resources\Images\Countries\italy.jpg" />
     <None Remove="Resources\Images\Countries\italy.webp" />
   </ItemGroup>
@@ -82,6 +83,9 @@
     <PackageReference Include="Syncfusion.Maui.Carousel" Version="33.1.44" />
   </ItemGroup>
   <ItemGroup>
+    <MauiXaml Update="AppShell.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
     <MauiXaml Update="Popups\ConfirmPopup.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
@@ -89,6 +93,9 @@
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="Views\DocsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Views\LoadingPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="Views\PackingListPage.xaml">

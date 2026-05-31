@@ -12,6 +12,7 @@ namespace PackMeUp.Repositories
     {
         private readonly IPackingItemRepository _local;
         private readonly IPackingItemRepository _remote;
+        private readonly ITripRepository _tripRepository;
         private readonly SQLiteAsyncConnection _pendingDb;
         private readonly ISessionService _sessionService;
 
@@ -21,13 +22,14 @@ namespace PackMeUp.Repositories
             remove => _remote.PackingItemChanged -= value;
         }
 
-        public SyncPackingItemRepository(IPackingItemRepository local, IPackingItemRepository remote, ISessionService sessionService, SQLiteAsyncConnection pendingDb)
+        public SyncPackingItemRepository(IPackingItemRepository local, IPackingItemRepository remote, ISessionService sessionService, SQLiteAsyncConnection pendingDb, ITripRepository tripRepository)
         {
             _local = local;
             _remote = remote;
             _sessionService = sessionService;
 
             _pendingDb = pendingDb;
+            _tripRepository = tripRepository;
         }
 
         public async Task<int> AddPackingItemAsync(PackingItemDTO item)
@@ -232,10 +234,30 @@ namespace PackMeUp.Repositories
 
             var pendingChanges = await _pendingDb.Table<SQLitePendingPackingItemChange>().Where(x => x.LocalUserId == _sessionService.LocalUserId).ToListAsync();
 
+            //var tripIdsForDelete = new List<int>();
+
             foreach (var pendingChange in pendingChanges)
             {
                 var packingItem = JsonSerializer.Deserialize<PackingItemDTO>(pendingChange.PackingItemJson);
-                packingItem.RemoteTripId = pendingChange.RemoteTripId;
+                // Resolve RemoteTripId if it wasn't known when the change was queued.
+                if (pendingChange.RemoteTripId == 0)
+                {
+                    var trip = await _tripRepository.GetLocalTripAsync(pendingChange.LocalTripId, _sessionService.LocalUserId!);
+                    //var trip = await _tripRepository.GetTripAsync(new TripDTO
+                    //{
+                    //    LocalUserId = _sessionService.LocalUserId!,
+                    //    LocalTripId = pendingChange.LocalTripId
+                    //});
+
+                    if (trip?.RemoteTripId > 0)
+                    {
+                        //pendingChange.RemoteTripId = trip.RemoteTripId;
+                        packingItem.RemoteTripId = trip.RemoteTripId;
+                        //await _pendingDb.UpdateAsync(pendingChange);
+                    }
+                }
+
+                //packingItem.RemoteTripId = pendingChange.RemoteTripId;
                 packingItem.RemoteUserId = _sessionService.UserId;
 
                 try
@@ -255,12 +277,16 @@ namespace PackMeUp.Repositories
 
                     // Po sukcesie – usuń z kolejki
                     await _pendingDb.DeleteAsync(pendingChange);
+
+                    //tripIdsForDelete.Add(pendingChange.LocalTripId);
                 }
                 catch
                 {
                     // Jeśli nie uda się wysłać – zostaje w kolejce
                 }
             }
+
+            //await _tripRepository.DeleteLocalTrips(tripIdsForDelete);
         }
 
         public Task StartRealtimeAsync()

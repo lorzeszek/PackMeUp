@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:BasePage  xmlns:local="clr-namespace:PackMeUp.Models.Pages" 
+                 xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                 xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
+                 x:Class="PackMeUp.Views.SettingsPage"
+                 x:DataType="viewmodels:SettingsViewModel"
+                 Title="Settings">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label Text="Appearance" Style="{StaticResource Headline}" />
+
+            <Border Stroke="{DynamicResource BorderBrush}"
+                    Background="{DynamicResource SurfaceBrush}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <Label Text="Theme" FontAttributes="Bold" />
+                    <Picker Title="Select a theme"
+                            ItemsSource="{Binding ThemeOptions}"
+                            SelectedItem="{Binding SelectedTheme}" />
+
+                    <Label FontSize="12"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+                           Text="Tip: choose 'System' to follow the device Light/Dark setting." />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</local:BasePage>

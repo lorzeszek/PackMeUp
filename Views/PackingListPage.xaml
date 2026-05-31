@@ -7,48 +7,34 @@
              x:DataType="PackingListViewModel"
              Title="{Binding Title}">
 
-
-
-    <!--<RefreshView Command="{Binding RefreshCommand}" 
-             IsRefreshing="{Binding IsRefreshing}">
-        
-    </RefreshView>-->
-
-    <Grid Padding="10" RowDefinitions="Auto,*" ColumnDefinitions="*,Auto">
-
-        <Entry Grid.Row="0" Grid.Column="0"
-           Placeholder="Dodaj przedmiot..."
-           ReturnType="Done"
-           Text="{Binding NewItemName, Mode=TwoWay}">
-            <Entry.Behaviors>
-                <EventToCommandBehavior 
-                EventName="Completed" 
-                Command="{Binding AddItemCommand}" />
-            </Entry.Behaviors>
-        </Entry>
-
-        <Button Grid.Row="0" Grid.Column="1"
-            Text="+" 
-            Command="{Binding AddItemCommand}" />
-
+    <Grid RowDefinitions="*,Auto" ColumnDefinitions="*,Auto">
         <!-- Lista -->
-        <CollectionView x:Name="PackingListView" Grid.Row="1" Grid.ColumnSpan="2"
+        <CollectionView x:Name="PackingListView" Grid.Row="0" Grid.ColumnSpan="2"
                 ItemsSource="{Binding Items}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="PackingItem">
-                    <Grid Padding="5" ColumnDefinitions="30,*,Auto">
-                        <CheckBox 
+                    <Grid ColumnDefinitions="60,*,Auto">
+                        <CheckBox
                             IsChecked="{Binding IsPacked}" 
                             Command="{Binding BindingContext.ToggleIsPackedCommand, Source={x:Reference PackingListView}}"
                             CommandParameter="{Binding .}"/>
 
-                        <Label Grid.Column="1" Text="{Binding Name}" />
-                        <Label Grid.Column="2" Text="{Binding Category}" 
-                       FontSize="12" TextColor="Gray"/>
+                        <Label Grid.Column="1" Text="{Binding Name}" VerticalOptions="Center" />
+                        <Label Grid.Column="2" Text="{Binding Category}" TextColor="Gray" Margin="0,0,25,0"/>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <Grid Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto" BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#1E1E1E}">
+            <Entry Grid.Column="0" Placeholder="Dodaj przedmiot..." Margin="10,10,0,0" ReturnType="Done" Text="{Binding NewItemName, Mode=TwoWay}">
+                <Entry.Behaviors>
+                    <EventToCommandBehavior EventName="Completed" Command="{Binding AddItemCommand}" />
+                </Entry.Behaviors>
+            </Entry>
+
+            <Button Grid.Column="1" BackgroundColor="#4285F4" Text="+" FontSize="Title" Margin="10,10,10,0" HorizontalOptions="End" Command="{Binding AddItemCommand}" />
+        </Grid>
     </Grid>
 
 </local:BasePage>

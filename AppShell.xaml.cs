@@ -1,4 +1,4 @@
-﻿using PackMeUp.Views;
+using PackMeUp.Views;
 
 namespace PackMeUp
 {
@@ -8,7 +8,6 @@ namespace PackMeUp
         {
             InitializeComponent();
 
-            //Routing.RegisterRoute(nameof(TripListPage), typeof(TripListPage));
             Routing.RegisterRoute(nameof(TripSetupPage), typeof(TripSetupPage));
             Routing.RegisterRoute(nameof(PackingListPage), typeof(PackingListPage));
 

@@ -1,40 +1,81 @@
-﻿using PackMeUp.Models.SQLite;
+﻿using PackMeUp.Helpers;
+using PackMeUp.Models.SQLite;
 using PackMeUp.Repositories.Models;
 using PackMeUp.Services.Interfaces;
 using PackMeUp.Views;
 using SQLite;
+using System.ComponentModel;
 
 namespace PackMeUp
 {
     public partial class App : Application
     {
-        private readonly ISupabaseService _supabaseService;
         private readonly ISessionService _sessionService;
         private readonly SQLiteAsyncConnection _db;
         private readonly ILocalUserService _localUserService;
-        public App(ISupabaseService supabaseService, ISessionService sessionService, SQLiteAsyncConnection db, ILocalUserService localUserService)
+        private LoadingPage? _loadingPage;
+
+        public App(ISessionService sessionService, SQLiteAsyncConnection db, ILocalUserService localUserService)
         {
             InitializeComponent();
-            _supabaseService = supabaseService;
+            AppThemeManager.ApplySavedTheme();
             _sessionService = sessionService;
             _db = db;
             _localUserService = localUserService;
+
+            if (_sessionService is INotifyPropertyChanged npc)
+            {
+                npc.PropertyChanged += OnSessionPropertyChanged;
+            }
         }
 
-        //protected override Window CreateWindow(IActivationState? activationState)
-        //{
-        //    _ = InitializeAppAsync();
+        private void OnSessionPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(ISessionService.GlobalIsBusy))
+                return;
 
-        //    return new Window(new AppShell());
-        //}
+            MainThread.BeginInvokeOnMainThread(async () => await UpdateLoadingModalAsync(_sessionService.GlobalIsBusy));
+        }
 
-        //private async Task InitializeAppAsync()
-        //{
-        //    await _sessionService.InitializeAsync();
-        //    await _db.CreateTableAsync<SQLiteTrip>();
-        //    await _db.CreateTableAsync<SQLitePackingItem>();
-        //    await _supabaseService.InitializeAsync();
-        //}
+        private async Task UpdateLoadingModalAsync(bool show)
+        {
+            if (MainPage is null)
+                return;
+
+            var navigation = Shell.Current?.Navigation ?? MainPage.Navigation;
+
+            if (show)
+            {
+                if (_loadingPage != null)
+                    return;
+
+                _loadingPage = new LoadingPage();
+                await navigation.PushModalAsync(_loadingPage, false);
+                return;
+            }
+
+            if (_loadingPage is null)
+                return;
+
+            try
+            {
+                if (navigation.ModalStack.LastOrDefault() == _loadingPage)
+                {
+                    await navigation.PopModalAsync(false);
+                }
+                else if (navigation.ModalStack.Contains(_loadingPage))
+                {
+                    await _loadingPage.Navigation.PopModalAsync(false);
+                }
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                _loadingPage = null;
+            }
+        }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {

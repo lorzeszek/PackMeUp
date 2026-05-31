@@ -16,7 +16,7 @@
 
     <Grid>
         <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-            <Label Text="Witaj w PackMeUp!" FontSize="24" />
+            <Label Text="Witaj w PackMeUp!" Style="{StaticResource Headline}" />
             <Button Text="Zacznijmy pakowanie"
 					Clicked="StartButton_Clicked"
 					HorizontalOptions="Center" IsVisible="{Binding Session.HasLocalUser, Converter={StaticResource BoolToVisibilityConverter}}" />
