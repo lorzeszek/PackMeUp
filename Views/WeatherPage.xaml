@@ -7,7 +7,7 @@
              x:Class="PackMeUp.Views.WeatherPage"
              Title="Weather">
 
-    <Grid Padding="20">
+    <!--<Grid Padding="20">
         <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
             <Label Text="🌤️" FontSize="64" HorizontalTextAlignment="Center" />
             <Label Text="Weather Forecast" 
@@ -19,6 +19,63 @@
                    HorizontalTextAlignment="Center"
                    TextColor="Gray"/>
         </StackLayout>
-    </Grid>
+    </Grid>-->
+
+    <CollectionView ItemsSource="{Binding Destinations}">
+
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+
+                <Border Padding="10"
+                    Margin="5">
+
+                    <VerticalStackLayout>
+
+                        <Label
+                        FontSize="20"
+                        Text="{Binding Destination}" />
+
+                        <Label
+                        FontSize="32"
+                        Text="{Binding CurrentWeather.Temperature,
+                               StringFormat='{}{0}°C'}" />
+
+                        <CollectionView
+                        ItemsSource="{Binding ForecastDays}"
+                        ItemsLayout="HorizontalList">
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+
+                                    <VerticalStackLayout
+                                    Padding="5">
+
+                                        <Label
+                                        Text="{Binding Date,
+                                               StringFormat='{0:ddd}'}" />
+
+                                        <Label
+                                        Text="{Binding MaxTemp,
+                                               StringFormat='{}{0}°'}" />
+
+                                        <Label
+                                        Text="{Binding MinTemp,
+                                               StringFormat='{}{0}°'}" />
+
+                                    </VerticalStackLayout>
+
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+
+                        </CollectionView>
+
+                    </VerticalStackLayout>
+
+                </Border>
+
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+
+    </CollectionView>
 
 </local:BasePage>
