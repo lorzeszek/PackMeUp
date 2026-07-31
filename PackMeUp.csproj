@@ -66,6 +66,16 @@
     <None Remove="Resources\AppIcon\home.png" />
     <None Remove="Resources\Images\Countries\italy.jpg" />
     <None Remove="Resources\Images\Countries\italy.webp" />
+    <None Remove="Resources\Images\Covers\big_city.png" />
+    <None Remove="Resources\Images\Covers\business_trip.png" />
+    <None Remove="Resources\Images\Covers\camping.png" />
+    <None Remove="Resources\Images\Covers\mountains_summer_01.png" />
+    <None Remove="Resources\Images\Covers\mountains_summer_02.png" />
+    <None Remove="Resources\Images\Covers\mountains_winter.png" />
+    <None Remove="Resources\Images\Covers\road_trip.png" />
+    <None Remove="Resources\Images\Covers\summer_beach_01.png" />
+    <None Remove="Resources\Images\Covers\summer_beach_02.png" />
+    <None Remove="Resources\Images\Covers\weekend_city_break.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Maui" Version="14.0.1" />
@@ -76,6 +86,7 @@
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.50" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
     <PackageReference Include="MPowerKit.Lottie" Version="1.2.0" />
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageReference Include="Supabase" Version="1.1.1" />
     <PackageReference Include="Supabase.Postgrest" Version="4.1.0" />
@@ -118,6 +129,36 @@
     <MauiImage Include="Resources\Images\Countries\italy.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </MauiImage>
+    <MauiAsset Include="Resources\Images\Covers\big_city.png" LogicalName="big_city.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Resources\Images\Covers\business_trip.png" LogicalName="business_trip.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Resources\Images\Covers\camping.png" LogicalName="camping.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Resources\Images\Covers\mountains_summer_01.png" LogicalName="mountains_summer_01.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Resources\Images\Covers\mountains_summer_02.png" LogicalName="mountains_summer_02.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Resources\Images\Covers\mountains_winter.png" LogicalName="mountains_winter.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Resources\Images\Covers\road_trip.png" LogicalName="road_trip.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Resources\Images\Covers\summer_beach_01.png" LogicalName="summer_beach_01.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Resources\Images\Covers\summer_beach_02.png" LogicalName="summer_beach_02.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Resources\Images\Covers\weekend_city_break.png" LogicalName="weekend_city_break.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
     <MauiAsset Include="Resources\Images\Countries\italy.webp">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </MauiAsset>

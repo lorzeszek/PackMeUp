@@ -24,8 +24,8 @@
         </Grid.RowDefinitions>
         <CollectionView Grid.Row="0" ItemsSource="{Binding Trips}" SelectionMode="None">
         <CollectionView.ItemsLayout>
-            <GridItemsLayout Orientation="Vertical" />
-        </CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="1" />
+            </CollectionView.ItemsLayout>
 
         <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="TripViewModel">
@@ -33,42 +33,11 @@
                     Margin="10"
                     StrokeThickness="0"
                     StrokeShape="RoundRectangle 12"
-                    HeightRequest="180"
+                    HeightRequest="212"
                     Opacity="{Binding TripModel.IsActive, Converter={StaticResource BoolToOpacityConverter}}">
 
                     <Grid>
-                        <Image Source="italy.webp"
-                           Aspect="AspectFill"/>
-
-                        <BoxView 
-                            VerticalOptions="End" 
-                            HeightRequest="80"
-                            Opacity="0.6"
-                            Background="{AppThemeBinding Light=Black, Dark=Black}" />
-
-                            <StackLayout 
-                                Padding="10"
-                                VerticalOptions="End"
-                                Spacing="2">
-                                <Label Text="{Binding TripModel.Destination}" Style="{StaticResource TripDestination}"/>
-                                <Label Text="{Binding TripDatesRange}" 
-                                        FontSize="13"
-                                        TextColor="White" />
-                                <Label Text="{Binding PackingSummary}"
-                                        FontSize="12"
-                                        TextColor="White" />
-                                <!--<Label Text="{Binding TripModel.Destination}"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       TextColor="White"
-                                       LineBreakMode="TailTruncation" />
-                                <Label Text="{Binding TripDatesRange}" 
-                               FontSize="13"
-                               TextColor="White" />
-                                <Label Text="{Binding PackingSummary}"
-                               FontSize="12"
-                               TextColor="White" />-->
-                            </StackLayout>
+                        <Image Source="{Binding TripModel.CoverImagePath}" Aspect="AspectFill"/>
 
                             <LottieView
                                 Source="RecycleBin.lottie"

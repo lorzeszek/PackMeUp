@@ -15,6 +15,8 @@ namespace PackMeUp.ViewModels
 {
     public partial class TripListViewModel : BaseViewModel
     {
+        private readonly ICoverCacheService _coverCacheService;
+
         public ObservableRangeCollection<TripViewModel> Trips { get; } = new();
 
         public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
@@ -25,8 +27,10 @@ namespace PackMeUp.ViewModels
 
         //public IAsyncRelayCommand LoginWithGoogleCommand { get; }
 
-        public TripListViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
+        public TripListViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService, ICoverCacheService coverCacheService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
         {
+            _coverCacheService = coverCacheService;
+
             Title = "Moje wycieczki";
 
             //LoginWithGoogleCommand = new AsyncRelayCommand(LoginWithGoogle, () => !IsBusy);
@@ -259,9 +263,11 @@ namespace PackMeUp.ViewModels
 
             foreach (var item in tripsWithStats)
             {
+                item.Trip.CoverImagePath = _coverCacheService.GetOrCreateCover(item.Trip, item.PackingSummary);
+
                 Trips.Add(new TripViewModel(item.Trip)
                 {
-                    PackingSummary = item.PackingSummary
+                    PackingSummary = item.PackingSummary,
                 });
             }
 

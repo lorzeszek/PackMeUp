@@ -167,6 +167,8 @@ namespace PackMeUp
             builder.Services.AddSingleton<HttpClient>();
             builder.Services.AddSingleton<IAIService, AIService>();
             builder.Services.AddSingleton<IPackingSuggestionService, PackingSuggestionService>();
+            builder.Services.AddSingleton<ITripClassificationService, TripClassificationService>();
+            builder.Services.AddSingleton<ICoverCacheService, CoverCacheService>();
             builder.Services.AddHttpClient<WeatherService>();
 
             //builder.Services.AddHttpClient<IAIService, AIService>(client =>

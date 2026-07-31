@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using PackMeUp.Interfaces;
 using PackMeUp.Models;
 using PackMeUp.Models.DTO;
+using PackMeUp.Models.Enums;
 using PackMeUp.Popups;
 using PackMeUp.Repositories.Interfaces;
 using PackMeUp.Services.Interfaces;
@@ -43,10 +44,12 @@ namespace PackMeUp.ViewModels
     public partial class TripSetupViewModel : BaseViewModel
     {
         private readonly IPackingSuggestionService _packingSuggestionService;
+        private readonly ITripClassificationService _tripClassificationService;
 
-        public TripSetupViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService, IPackingSuggestionService packingSuggestionService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
+        public TripSetupViewModel(ILocalUserService localUserService, ISupabaseService supabase, ISessionService sessionService, IPackingItemRepository packingItemRepository, ITripRepository tripRepository, IGoogleAuthService googleAuthService, IPackingSuggestionService packingSuggestionService, ITripClassificationService tripClassificationService) : base(localUserService, supabase, sessionService, packingItemRepository, tripRepository, googleAuthService)
         {
             _packingSuggestionService = packingSuggestionService;
+            _tripClassificationService = tripClassificationService;
 
             TransportOptions = new ObservableCollection<TransportOptionItem>
             {
@@ -185,6 +188,10 @@ namespace PackMeUp.ViewModels
                 Session.SetLocalUser(localUser.LocalUserId);
             }
 
+            var classification = await _tripClassificationService.ClassifyTripAsync(Destination, StartDate, EndDate, SelectedTransportTypes);
+
+            Enum.TryParse<CoverThemeType>(classification.CoverTheme, true, out var coverTheme);
+
             var trip = new TripDTO
             {
                 LocalUserId = Session.LocalUserId,
@@ -193,8 +200,16 @@ namespace PackMeUp.ViewModels
                 StartDate = StartDate,
                 EndDate = EndDate,
                 Destination = Destination,
-                IsActive = true
+                IsActive = true,
+                CoverTheme = coverTheme
             };
+
+            //var renderer = new TripCoverRenderer();
+            //var bitmap = renderer.Render(trip);
+
+            //var path = SaveBitmap(bitmap, trip);
+
+            //trip.CoverImagePath = path;
 
             await _tripRepository.AddTripAsync(trip);
 

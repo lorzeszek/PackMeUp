@@ -40,9 +40,7 @@
                         Text="{Binding CurrentWeather.Temperature,
                                StringFormat='{}{0}°C'}" />
 
-                        <CollectionView
-                        ItemsSource="{Binding ForecastDays}"
-                        ItemsLayout="HorizontalList">
+                        <CollectionView ItemsSource="{Binding ForecastDays}" ItemsLayout="HorizontalList">
 
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
