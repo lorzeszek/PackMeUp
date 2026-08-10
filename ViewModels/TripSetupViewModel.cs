@@ -181,6 +181,11 @@ namespace PackMeUp.ViewModels
         [RelayCommand(CanExecute = nameof(CanCreateTrip))]
         private async Task CreateTripAsync()
         {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Session.GlobalIsBusy = true;
+            });
+
             if (Session.LocalUserId == null)
             {
                 var localUser = await _localUserService.CreateLocalUserAsync();
@@ -212,6 +217,11 @@ namespace PackMeUp.ViewModels
             //trip.CoverImagePath = path;
 
             await _tripRepository.AddTripAsync(trip);
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Session.GlobalIsBusy = false;
+            });
 
             var proposeListPopup = new ConfirmPopup("Lista pakowania", "Czy chcesz wygenerować listę rzeczy do spakowania?");
 

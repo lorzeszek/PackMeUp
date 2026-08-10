@@ -17,6 +17,9 @@ namespace PackMeUp.Models.Supabase
         [Column("Destination")]
         public string Destination { get; set; } = string.Empty;
 
+        [Column("CoverTheme")]
+        public string? CoverTheme { get; set; }
+
         [Column("CreatedDate")]
         public DateTime CreatedDate { get; set; }
 
@@ -69,6 +72,8 @@ namespace PackMeUp.Models.Supabase
                 }
             }
         }
+
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)

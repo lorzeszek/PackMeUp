@@ -32,7 +32,7 @@ namespace PackMeUp.Services
                 $"trip_cover_v{CoverCacheVersion}_" +
                 $"{trip.LocalTripId}_" +
                 $"{destination}_" +
-                $"{trip.CoverTheme}_" +
+                //$"{trip.CoverTheme}_" +
                 $"{trip.StartDate:yyyyMMdd}_" +
                 $"{trip.EndDate:yyyyMMdd}.png";
 

@@ -1,5 +1,6 @@
 ﻿using PackMeUp.Models;
 using PackMeUp.Models.DTO;
+using PackMeUp.Models.Enums;
 using PackMeUp.Models.Supabase;
 
 namespace PackMeUp.Helpers
@@ -21,6 +22,7 @@ namespace PackMeUp.Helpers
                 StartDate = trip.StartDate,
                 EndDate = trip.EndDate,
                 IsInTrash = trip.IsInTrash,
+                CoverTheme = Enum.TryParse<CoverThemeType>(trip.CoverTheme, true, out var parsedTheme) ? parsedTheme : CoverThemeType.big_city
             };
         }
 
@@ -39,6 +41,7 @@ namespace PackMeUp.Helpers
                 StartDate = trip.StartDate,
                 EndDate = trip.EndDate,
                 IsInTrash = trip.IsInTrash,
+                CoverTheme = trip.CoverTheme.ToString()
             };
         }
 
