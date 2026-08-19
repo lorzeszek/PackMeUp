@@ -1,8 +1,7 @@
 ﻿using CommunityToolkit.Maui;
-using Microsoft.Maui.Controls.Shapes;
-using Microsoft.Maui.Graphics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Controls.Shapes;
 using MPowerKit.Lottie;
 using PackMeUp.Interfaces;
 using PackMeUp.Repositories;
@@ -168,6 +167,9 @@ namespace PackMeUp
             builder.Services.AddSingleton<HttpClient>();
             builder.Services.AddSingleton<IAIService, AIService>();
             builder.Services.AddSingleton<IPackingSuggestionService, PackingSuggestionService>();
+            builder.Services.AddSingleton<ITripClassificationService, TripClassificationService>();
+            builder.Services.AddSingleton<ICoverCacheService, CoverCacheService>();
+            builder.Services.AddHttpClient<WeatherService>();
 
             //builder.Services.AddHttpClient<IAIService, AIService>(client =>
             //{

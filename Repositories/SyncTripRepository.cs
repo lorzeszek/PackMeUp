@@ -209,6 +209,14 @@ namespace PackMeUp.Repositories
             return await _remote.GetActiveTripsWithStatsAsync();
         }
 
+        public async Task<IReadOnlyList<string>> GetActiveDestinationsAsync()
+        {
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet || !_sessionService.IsAuthenticated)
+                return await _local.GetActiveDestinationsAsync();
+
+            return await _remote.GetActiveDestinationsAsync();
+        }
+
         public Task StartRealtimeAsync()
         {
             // delegujemy – BEZ sprawdzania internetu

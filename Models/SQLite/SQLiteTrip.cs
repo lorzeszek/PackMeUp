@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using PackMeUp.Models.Enums;
+using SQLite;
 
 namespace PackMeUp.Models.SQLite
 {
@@ -16,5 +17,7 @@ namespace PackMeUp.Models.SQLite
         public string Destination { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public bool IsInTrash { get; set; }
+        public CoverThemeType CoverTheme { get; set; }
+        public string CoverImagePath { get; set; }
     }
 }
