@@ -135,7 +135,7 @@ namespace PackMeUp.Services
                 if (user == null)
                     throw new Exception("User returned null");
 
-                SetUser(User);
+                SetUser(user);
             }
             catch (Exception ex)
             {

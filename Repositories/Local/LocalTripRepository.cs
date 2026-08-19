@@ -36,7 +36,9 @@ namespace PackMeUp.Repositories.Local
                 EndDate = trip.EndDate,
                 Destination = trip.Destination,
                 IsActive = trip.IsActive,
-                IsInTrash = trip.IsInTrash
+                IsInTrash = trip.IsInTrash,
+                CoverTheme = trip.CoverTheme,
+                //CoverImagePath = trip.CoverImagePath,  we do not save this path on DB
             };
 
             await _db.InsertAsync(localTrip);
@@ -57,7 +59,9 @@ namespace PackMeUp.Repositories.Local
                 EndDate = trip.EndDate,
                 Destination = trip.Destination,
                 IsActive = trip.IsActive,
-                IsInTrash = trip.IsInTrash
+                IsInTrash = trip.IsInTrash,
+                CoverTheme = trip.CoverTheme,
+                //CoverImagePath = trip.CoverImagePath,  we do not save this path on DB
             };
 
             await _db.DeleteAsync(localTrip);
@@ -79,7 +83,9 @@ namespace PackMeUp.Repositories.Local
                 EndDate = x.EndDate,
                 Destination = x.Destination,
                 IsActive = x.IsActive,
-                IsInTrash = x.IsInTrash
+                IsInTrash = x.IsInTrash,
+                CoverTheme = x.CoverTheme,
+                //CoverImagePath = x.CoverImagePath,  we do not save this path on DB
             });
 
             return trips.Select(tripDTO =>
@@ -97,6 +103,20 @@ namespace PackMeUp.Repositories.Local
 
         }
 
+        public async Task<IReadOnlyList<string>> GetActiveDestinationsAsync()
+        {
+            var sqliteTrips = await _db.Table<SQLiteTrip>()
+                .Where(x => x.LocalUserId == _sessionService.LocalUserId && x.IsActive && !x.IsInTrash)
+                .ToListAsync();
+
+            return sqliteTrips
+                .Select(x => x.Destination)
+                .Where(destination => !string.IsNullOrWhiteSpace(destination))
+                .Distinct()
+                .OrderBy(destination => destination)
+                .ToList();
+        }
+
         public async Task<TripDTO?> GetTripAsync(TripDTO trip)
         {
             var sqliteTrip = await _db.Table<SQLiteTrip>().FirstOrDefaultAsync(x => x.LocalUserId == trip.LocalUserId && x.LocalTripId == trip.LocalTripId);
@@ -112,7 +132,9 @@ namespace PackMeUp.Repositories.Local
                 EndDate = sqliteTrip.EndDate,
                 Destination = sqliteTrip.Destination,
                 IsActive = sqliteTrip.IsActive,
-                IsInTrash = sqliteTrip.IsInTrash
+                IsInTrash = sqliteTrip.IsInTrash,
+                CoverTheme = sqliteTrip.CoverTheme,
+                //CoverImagePath = sqliteTrip.CoverImagePath,  we do not save this path on DB
             };
         }
 
@@ -129,7 +151,9 @@ namespace PackMeUp.Repositories.Local
                 EndDate = trip.EndDate,
                 Destination = trip.Destination,
                 IsActive = trip.IsActive,
-                IsInTrash = trip.IsInTrash
+                IsInTrash = trip.IsInTrash,
+                CoverTheme = trip.CoverTheme,
+                //CoverImagePath = trip.CoverImagePath,  we do not save this path on DB
             };
 
             await _db.UpdateAsync(localTrip);
@@ -166,7 +190,9 @@ namespace PackMeUp.Repositories.Local
                 EndDate = sqliteTrip.EndDate,
                 Destination = sqliteTrip.Destination,
                 IsActive = sqliteTrip.IsActive,
-                IsInTrash = sqliteTrip.IsInTrash
+                IsInTrash = sqliteTrip.IsInTrash,
+                CoverTheme = sqliteTrip.CoverTheme,
+                //CoverImagePath = sqliteTrip.CoverImagePath,  we do not save this path on DB
             };
         }
 

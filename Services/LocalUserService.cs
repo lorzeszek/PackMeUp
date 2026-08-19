@@ -30,22 +30,22 @@ namespace PackMeUp.Services
             return await _db.Table<SQLiteUser>().FirstOrDefaultAsync();
         }
 
-        public async Task<SQLiteUser> GetOrCreateAsync()
-        {
-            var user = await _db.Table<SQLiteUser>().FirstOrDefaultAsync();
+        //public async Task<SQLiteUser> GetOrCreateAsync()
+        //{
+        //    var user = await _db.Table<SQLiteUser>().FirstOrDefaultAsync();
 
-            if (user != null)
-                return user;
+        //    if (user != null)
+        //        return user;
 
-            user = new SQLiteUser
-            {
-                LocalUserId = Guid.NewGuid().ToString(),
-                CreatedDate = DateTime.UtcNow
-            };
+        //    user = new SQLiteUser
+        //    {
+        //        LocalUserId = Guid.NewGuid().ToString(),
+        //        CreatedDate = DateTime.UtcNow
+        //    };
 
-            await _db.InsertAsync(user);
-            return user;
-        }
+        //    await _db.InsertAsync(user);
+        //    return user;
+        //}
 
         public async Task LinkSupabaseUserAsync(string supabaseUserId)
         {

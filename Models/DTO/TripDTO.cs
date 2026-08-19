@@ -1,4 +1,6 @@
-﻿namespace PackMeUp.Models.DTO
+﻿using PackMeUp.Models.Enums;
+
+namespace PackMeUp.Models.DTO
 {
     public class TripDTO
     {
@@ -13,5 +15,7 @@
         public string Destination { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public bool IsInTrash { get; set; }
+        public CoverThemeType CoverTheme { get; set; }
+        public string CoverImagePath { get; set; }
     }
 }
