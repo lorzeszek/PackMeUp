@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace PackMeUp
+namespace Packo
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

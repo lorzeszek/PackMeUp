@@ -1,4 +1,4 @@
-﻿namespace PackMeUp.Services.Interfaces
+﻿namespace Packo.Services.Interfaces
 {
     public interface ISupabaseService
     {

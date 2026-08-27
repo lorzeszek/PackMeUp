@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
-using PackMeUp.Services.Interfaces;
-using PackMeUp.Services.RequestObjects;
+using Packo.Services.Interfaces;
+using Packo.Services.RequestObjects;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
-namespace PackMeUp.Services
+namespace Packo.Services
 {
     public class AIService : IAIService
     {

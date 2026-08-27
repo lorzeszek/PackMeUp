@@ -1,17 +1,17 @@
 ﻿using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using PackMeUp.Extensions;
-using PackMeUp.Interfaces;
-using PackMeUp.Messages;
-using PackMeUp.Models.DTO;
-using PackMeUp.Popups;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services.Interfaces;
-using PackMeUp.Views;
+using Packo.Extensions;
+using Packo.Interfaces;
+using Packo.Messages;
+using Packo.Models.DTO;
+using Packo.Popups;
+using Packo.Repositories.Interfaces;
+using Packo.Services.Interfaces;
+using Packo.Views;
 using System.Windows.Input;
 
-namespace PackMeUp.ViewModels
+namespace Packo.ViewModels
 {
     public partial class TripListViewModel : BaseViewModel
     {
@@ -19,7 +19,10 @@ namespace PackMeUp.ViewModels
 
         public ObservableRangeCollection<TripViewModel> Trips { get; } = new();
 
-        public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
+        //public ICommand TripTappedCommand => new Command<TripViewModel>(OnTripTapped);
+        public IAsyncRelayCommand<TripViewModel> TripTappedCommand { get; }
+
+        //
         public ICommand AddTripCommand => new Command(async () => await AddTrip("wycieczka 1 test"));
         public ICommand DeleteTripCommand => new Command<TripViewModel>(async (trip) => await DeleteTripAsync(trip));
         public ICommand TrashTripCommand => new Command<TripViewModel>(TrashTripAsync);
@@ -34,6 +37,9 @@ namespace PackMeUp.ViewModels
             Title = "Moje wycieczki";
 
             //LoginWithGoogleCommand = new AsyncRelayCommand(LoginWithGoogle, () => !IsBusy);
+
+            TripTappedCommand = new AsyncRelayCommand<TripViewModel>(OnTripTapped, trip => !Session.GlobalIsBusy);
+
 
             // Subscribe to login completed message
             WeakReferenceMessenger.Default.Register<LoginCompletedMessage>(this, async (r, m) =>
@@ -60,12 +66,12 @@ namespace PackMeUp.ViewModels
             await _tripRepository.DeleteLocalTrips();
         }
 
-        private async void OnTripTapped(TripViewModel trip)
+        private async Task OnTripTapped(TripViewModel trip)
         {
             if (trip == null)
                 return;
 
-            //await Shell.Current.GoToAsync($"{nameof(PackingListPage)}?tripId={trip.Id}");
+
 
             await Shell.Current.GoToAsync(nameof(PackingListPage), new Dictionary<string, object>
             {

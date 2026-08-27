@@ -1,9 +1,9 @@
-﻿using PackMeUp.Services.Interfaces;
+﻿using Packo.Services.Interfaces;
 using Supabase.Gotrue;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace PackMeUp.Services
+namespace Packo.Services
 {
     public class SessionService : ISessionService, INotifyPropertyChanged
     {

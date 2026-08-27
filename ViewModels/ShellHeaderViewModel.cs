@@ -1,13 +1,13 @@
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using PackMeUp.Interfaces;
-using PackMeUp.Messages;
-using PackMeUp.Popups;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services.Interfaces;
+using Packo.Interfaces;
+using Packo.Messages;
+using Packo.Popups;
+using Packo.Repositories.Interfaces;
+using Packo.Services.Interfaces;
 
-namespace PackMeUp.ViewModels
+namespace Packo.ViewModels
 {
     public partial class ShellHeaderViewModel : BaseViewModel
     {
@@ -35,14 +35,14 @@ namespace PackMeUp.ViewModels
         //    _supabaseService = supabaseService;
         //}
 
-        private void SetBusy(bool isBusy)
-        {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                Session.GlobalIsBusy = isBusy;
-                LoginWithGoogleCommand.NotifyCanExecuteChanged();
-            });
-        }
+        //private void SetBusy(bool isBusy)
+        //{
+        //    MainThread.BeginInvokeOnMainThread(() =>
+        //    {
+        //        Session.GlobalIsBusy = isBusy;
+        //        LoginWithGoogleCommand.NotifyCanExecuteChanged();
+        //    });
+        //}
 
         private async Task LoginWithGoogle()
         {
@@ -51,7 +51,7 @@ namespace PackMeUp.ViewModels
 
             try
             {
-                SetBusy(true);
+                SetBusy(true, LoginWithGoogleCommand);
 
                 var token = await _googleAuthService.SignInWithGoogleAsync();
                 if (string.IsNullOrWhiteSpace(token))
@@ -81,7 +81,7 @@ namespace PackMeUp.ViewModels
             }
             finally
             {
-                SetBusy(false);
+                SetBusy(false, LoginWithGoogleCommand);
             }
         }
 

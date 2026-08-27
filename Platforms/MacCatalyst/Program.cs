@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace PackMeUp
+namespace Packo
 {
     public class Program
     {

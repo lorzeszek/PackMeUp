@@ -1,10 +1,10 @@
-﻿using PackMeUp.Models.DTO;
-using PackMeUp.Models.SQLite;
-using PackMeUp.Repositories.Enums;
-using PackMeUp.Repositories.Interfaces;
+﻿using Packo.Models.DTO;
+using Packo.Models.SQLite;
+using Packo.Repositories.Enums;
+using Packo.Repositories.Interfaces;
 using SQLite;
 
-namespace PackMeUp.Repositories.Local
+namespace Packo.Repositories.Local
 {
     public class LocalPackingItemRepository : IPackingItemRepository
     {

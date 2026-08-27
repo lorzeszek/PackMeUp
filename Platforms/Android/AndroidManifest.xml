@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.packmeup.app">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.packo.app">
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true">
-		<activity android:name="com.microsoft.maui.MauiAppCompatActivity" android:exported="true" android:supportsRtl="true" android:label="PackMeUp">
+		<activity android:name="com.microsoft.maui.MauiAppCompatActivity" android:exported="true" android:supportsRtl="true" android:label="Packo">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="packmeup" android:host="auth-callback" />
+				<data android:scheme="packo" android:host="auth-callback" />
 			</intent-filter>
 		</activity>
 	</application>
@@ -14,5 +14,5 @@
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-	<meta-data android:name="com.google.android.gms.client_id" android:value="249767082828-eol82rhcb6lmvhj609fj6ds0blgelnjd.apps.googleusercontent.com" />
+	<meta-data android:name="com.google.android.gms.client_id" android:value="614067653772-f24fihr2tq4v034fc79pf7qo940qp7ar.apps.googleusercontent.com" />
 </manifest>

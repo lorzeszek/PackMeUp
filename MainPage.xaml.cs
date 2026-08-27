@@ -1,4 +1,4 @@
-﻿namespace PackMeUp
+﻿namespace Packo
 {
     public partial class MainPage : ContentPage
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Maui.Controls.Handlers.Compatibility;
 using Microsoft.Maui.Controls.Platform.Compatibility;
 
-namespace PackMeUp.Platforms.Android
+namespace Packo.Platforms.Android
 {
     public class CustomShellRenderer : ShellRenderer
     {

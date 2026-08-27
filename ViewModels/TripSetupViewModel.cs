@@ -1,16 +1,16 @@
 ﻿using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PackMeUp.Interfaces;
-using PackMeUp.Models;
-using PackMeUp.Models.DTO;
-using PackMeUp.Models.Enums;
-using PackMeUp.Popups;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services.Interfaces;
+using Packo.Interfaces;
+using Packo.Models;
+using Packo.Models.DTO;
+using Packo.Models.Enums;
+using Packo.Popups;
+using Packo.Repositories.Interfaces;
+using Packo.Services.Interfaces;
 using System.Collections.ObjectModel;
 
-namespace PackMeUp.ViewModels
+namespace Packo.ViewModels
 {
     //public partial class ChildAgeItem : ObservableObject
     //{

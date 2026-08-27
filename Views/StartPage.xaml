@@ -3,7 +3,7 @@
 			 xmlns="http://schemas.microsoft.com/dotnet/maui/global"
 			 x:DataType="StartViewModel"
 			 x:Name="StartView"
-			 x:Class="PackMeUp.Views.StartPage"
+			 x:Class="Packo.Views.StartPage"
 			 Title="Witamy"
 			 Shell.NavBarIsVisible="True"
 			 NavigationPage.HasBackButton="False">
@@ -16,7 +16,7 @@
 
     <Grid>
         <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-            <Label Text="Witaj w PackMeUp!" Style="{StaticResource Headline}" />
+            <Label Text="Witaj w Packo!" Style="{StaticResource Headline}" />
             <Button Text="Zacznijmy pakowanie"
 					Clicked="StartButton_Clicked"
 					HorizontalOptions="Center" IsVisible="{Binding Session.HasLocalUser, Converter={StaticResource BoolToVisibilityConverter}}" />

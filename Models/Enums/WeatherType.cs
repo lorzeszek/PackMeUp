@@ -1,4 +1,4 @@
-﻿namespace PackMeUp.Models.Enums
+﻿namespace Packo.Models.Enums
 {
     public enum WeatherType
     {

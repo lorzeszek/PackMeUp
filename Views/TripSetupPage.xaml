@@ -2,9 +2,9 @@
 <local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns="http://schemas.microsoft.com/dotnet/maui/global"
               x:Name="TripSetupPageRoot"
-             x:Class="PackMeUp.Views.TripSetupPage"
-             xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
-             xmlns:local="clr-namespace:PackMeUp.Models.Pages"
+             x:Class="Packo.Views.TripSetupPage"
+             xmlns:viewmodels="clr-namespace:Packo.ViewModels"
+             xmlns:local="clr-namespace:Packo.Models.Pages"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              x:DataType="TripSetupViewModel"                
              Title="TripSetupPage">

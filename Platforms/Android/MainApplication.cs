@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace PackMeUp
+namespace Packo
 {
     [Application]
     public class MainApplication : MauiApplication

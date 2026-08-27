@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PackMeUp.Services.ResponseObjects
+namespace Packo.Services.ResponseObjects
 {
     public class GeocodingResult
     {

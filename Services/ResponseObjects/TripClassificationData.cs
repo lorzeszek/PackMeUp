@@ -1,4 +1,4 @@
-﻿namespace PackMeUp.Services.ResponseObjects
+﻿namespace Packo.Services.ResponseObjects
 {
     public class TripClassificationData
     {

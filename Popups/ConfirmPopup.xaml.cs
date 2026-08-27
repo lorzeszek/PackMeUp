@@ -1,6 +1,6 @@
 using CommunityToolkit.Maui.Views;
 
-namespace PackMeUp.Popups;
+namespace Packo.Popups;
 
 public partial class ConfirmPopup : Popup<bool>
 {

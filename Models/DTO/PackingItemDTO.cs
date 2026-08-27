@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace PackMeUp.Models.DTO
+namespace Packo.Models.DTO
 {
     public class PackingItemDTO : ObservableObject
     {

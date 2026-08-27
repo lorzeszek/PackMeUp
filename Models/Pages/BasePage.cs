@@ -1,6 +1,6 @@
-﻿using PackMeUp.ViewModels;
+﻿using Packo.ViewModels;
 
-namespace PackMeUp.Models.Pages
+namespace Packo.Models.Pages
 {
     public partial class BasePage : ContentPage
     {

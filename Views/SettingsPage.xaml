@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<local:BasePage  xmlns:local="clr-namespace:PackMeUp.Models.Pages" 
+<local:BasePage  xmlns:local="clr-namespace:Packo.Models.Pages" 
                  xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                 xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
-                 x:Class="PackMeUp.Views.SettingsPage"
+                 xmlns:viewmodels="clr-namespace:Packo.ViewModels"
+                 x:Class="Packo.Views.SettingsPage"
                  x:DataType="viewmodels:SettingsViewModel"
                  Title="Settings">
 

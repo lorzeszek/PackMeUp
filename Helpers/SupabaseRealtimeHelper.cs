@@ -1,6 +1,6 @@
 ﻿using Supabase.Postgrest.Models;
 
-namespace PackMeUp.Helpers
+namespace Packo.Helpers
 {
     public static class RealtimeSubscriptionHelper
     {

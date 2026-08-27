@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns="http://schemas.microsoft.com/dotnet/maui/global"
-             xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
-			 xmlns:local="clr-namespace:PackMeUp.Models.Pages"
+             xmlns:viewmodels="clr-namespace:Packo.ViewModels"
+			 xmlns:local="clr-namespace:Packo.Models.Pages"
              x:DataType="viewmodels:WeatherViewModel"
-             x:Class="PackMeUp.Views.WeatherPage"
+             x:Class="Packo.Views.WeatherPage"
              Title="Weather">
 
     <!--<Grid Padding="20">

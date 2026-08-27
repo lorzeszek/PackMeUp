@@ -1,8 +1,8 @@
 using CommunityToolkit.Maui.Views;
-using PackMeUp.Popups.Objects;
+using Packo.Popups.Objects;
 using System.Collections.ObjectModel;
 
-namespace PackMeUp.Popups;
+namespace Packo.Popups;
 
 public partial class PackingItemsPopup : Popup
 {

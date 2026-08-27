@@ -1,13 +1,13 @@
-﻿using PackMeUp.Helpers;
-using PackMeUp.Models.DTO;
-using PackMeUp.Models.Supabase;
-using PackMeUp.Repositories.Enums;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services.Interfaces;
+﻿using Packo.Helpers;
+using Packo.Models.DTO;
+using Packo.Models.Supabase;
+using Packo.Repositories.Enums;
+using Packo.Repositories.Interfaces;
+using Packo.Services.Interfaces;
 using Supabase.Realtime;
 using System.Reactive.Linq;
 
-namespace PackMeUp.Repositories.Supabase
+namespace Packo.Repositories.Supabase
 {
     public class SupabasePackingItemRepository : IPackingItemRepository
     {

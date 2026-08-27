@@ -1,9 +1,9 @@
-﻿using PackMeUp.Models;
-using PackMeUp.Models.DTO;
-using PackMeUp.Models.Enums;
-using PackMeUp.Models.Supabase;
+﻿using Packo.Models;
+using Packo.Models.DTO;
+using Packo.Models.Enums;
+using Packo.Models.Supabase;
 
-namespace PackMeUp.Helpers
+namespace Packo.Helpers
 {
     public static class Mappers
     {

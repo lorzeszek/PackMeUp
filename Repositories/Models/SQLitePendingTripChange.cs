@@ -1,6 +1,6 @@
 ﻿using SQLite;
 
-namespace PackMeUp.Repositories.Models
+namespace Packo.Repositories.Models
 {
     [Table("SQLitePendingTripChange")]
     public class SQLitePendingTripChange

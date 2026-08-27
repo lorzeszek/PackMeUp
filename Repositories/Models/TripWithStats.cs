@@ -1,6 +1,6 @@
-﻿using PackMeUp.Models.DTO;
+﻿using Packo.Models.DTO;
 
-namespace PackMeUp.Repositories.Models
+namespace Packo.Repositories.Models
 {
     public class TripWithStats
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace PackMeUp.Models
+namespace Packo.Models
 {
     public class PackingItem : INotifyPropertyChanged
     {

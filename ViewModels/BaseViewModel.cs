@@ -1,10 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PackMeUp.Interfaces;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services.Interfaces;
+using CommunityToolkit.Mvvm.Input;
+using Packo.Interfaces;
+using Packo.Repositories.Interfaces;
+using Packo.Services.Interfaces;
 using Supabase.Realtime.Interfaces;
 
-namespace PackMeUp.ViewModels
+namespace Packo.ViewModels
 {
     public abstract partial class BaseViewModel : ObservableObject, IQueryAttributable
     {
@@ -66,6 +67,13 @@ namespace PackMeUp.ViewModels
             await OnNavigatedFromAsync(query);
         }
 
-
+        protected void SetBusy(bool isBusy, IRelayCommand? command = null)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Session.GlobalIsBusy = isBusy;
+                command?.NotifyCanExecuteChanged();
+            });
+        }
     }
 }

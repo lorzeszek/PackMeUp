@@ -1,8 +1,8 @@
-﻿using PackMeUp.Models.SQLite;
-using PackMeUp.Services.Interfaces;
+﻿using Packo.Models.SQLite;
+using Packo.Services.Interfaces;
 using SQLite;
 
-namespace PackMeUp.Services
+namespace Packo.Services
 {
     public class LocalUserService : ILocalUserService
     {

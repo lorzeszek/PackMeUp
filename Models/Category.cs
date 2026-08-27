@@ -1,4 +1,4 @@
-﻿namespace PackMeUp.Models
+﻿namespace Packo.Models
 {
     public enum Category
     {

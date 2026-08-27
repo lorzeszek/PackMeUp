@@ -1,4 +1,4 @@
-namespace PackMeUp.Messages
+namespace Packo.Messages
 {
     public class LoginCompletedMessage
     {

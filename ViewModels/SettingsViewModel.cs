@@ -1,10 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using PackMeUp.Helpers;
-using PackMeUp.Interfaces;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services.Interfaces;
+using Packo.Helpers;
+using Packo.Interfaces;
+using Packo.Repositories.Interfaces;
+using Packo.Services.Interfaces;
 
-namespace PackMeUp.ViewModels;
+namespace Packo.ViewModels;
 
 public partial class SettingsViewModel : BaseViewModel
 {

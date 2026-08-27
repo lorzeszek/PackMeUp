@@ -1,6 +1,6 @@
-using PackMeUp.ViewModels;
+using Packo.ViewModels;
 
-namespace PackMeUp.Views;
+namespace Packo.Views;
 
 public partial class StartPage : ContentPage
 {

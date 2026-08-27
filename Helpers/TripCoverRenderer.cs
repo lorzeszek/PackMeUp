@@ -1,8 +1,8 @@
-﻿using PackMeUp.Models.DTO;
-using PackMeUp.Models.Enums;
+﻿using Packo.Models.DTO;
+using Packo.Models.Enums;
 using SkiaSharp;
 
-namespace PackMeUp.Helpers
+namespace Packo.Helpers
 {
     public class TripCoverRenderer
     {

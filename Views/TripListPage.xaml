@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns="http://schemas.microsoft.com/dotnet/maui/global"
-             xmlns:viewModels="clr-namespace:PackMeUp.ViewModels"
+             xmlns:viewModels="clr-namespace:Packo.ViewModels"
              x:DataType="TripListViewModel"
-             x:Class="PackMeUp.Views.TripListPage"
-             xmlns:local="clr-namespace:PackMeUp.Models.Pages"
+             x:Class="Packo.Views.TripListPage"
+             xmlns:local="clr-namespace:Packo.Models.Pages"
              x:Name="TripListView"
              Title="{Binding Title}"
              Shell.NavBarIsVisible="True">

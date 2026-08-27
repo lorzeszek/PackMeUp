@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace PackMeUp.Converters
+namespace Packo.Converters
 {
     public class BoolToVisibilityConverter : IValueConverter
     {

@@ -1,14 +1,14 @@
-﻿using PackMeUp.Extensions;
-using PackMeUp.Helpers;
-using PackMeUp.Interfaces;
-using PackMeUp.Models;
-using PackMeUp.Models.DTO;
-using PackMeUp.Repositories.Enums;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services.Interfaces;
+﻿using Packo.Extensions;
+using Packo.Helpers;
+using Packo.Interfaces;
+using Packo.Models;
+using Packo.Models.DTO;
+using Packo.Repositories.Enums;
+using Packo.Repositories.Interfaces;
+using Packo.Services.Interfaces;
 using System.Windows.Input;
 
-namespace PackMeUp.ViewModels
+namespace Packo.ViewModels
 {
     public class PackingListViewModel : BaseViewModel
     {
@@ -129,6 +129,8 @@ namespace PackMeUp.ViewModels
 
         private async Task LoadData()
         {
+            SetBusy(true);
+
             var tripsWithStats = await _packingItemRepository.GetPackingItemsForTripAsync(_localTripId, _remoteTripId);
 
             MainThread.BeginInvokeOnMainThread(() =>
@@ -137,6 +139,8 @@ namespace PackMeUp.ViewModels
             });
 
             //Items.ReplaceRange(tripsWithStats);
+
+            SetBusy(false);
         }
 
         protected override async Task OnNavigatedToAsync(IDictionary<string, object> query)
@@ -154,10 +158,10 @@ namespace PackMeUp.ViewModels
                 _packingItemRepository.PackingItemChanged -= OnPackingItemChanged;
                 _packingItemRepository.PackingItemChanged += OnPackingItemChanged;
 
-                //await _packingItemRepository.UpdatePendingPackingItems(_localTripId, _remoteTripId);
-                //await _packingItemRepository.SyncPendingChangesAsync();
+
 
                 await LoadData();
+
             }
         }
 

@@ -1,6 +1,6 @@
-﻿using PackMeUp.Models.DTO;
+﻿using Packo.Models.DTO;
 
-namespace PackMeUp.Repositories.Enums
+namespace Packo.Repositories.Enums
 {
     public enum PackingItemChangeType
     {

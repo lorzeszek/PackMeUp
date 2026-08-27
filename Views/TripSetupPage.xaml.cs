@@ -1,7 +1,7 @@
-using PackMeUp.Models.Pages;
-using PackMeUp.ViewModels;
+using Packo.Models.Pages;
+using Packo.ViewModels;
 
-namespace PackMeUp.Views;
+namespace Packo.Views;
 
 public partial class TripSetupPage : BasePage
 {
