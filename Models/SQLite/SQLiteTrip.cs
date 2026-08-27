@@ -1,7 +1,7 @@
-﻿using PackMeUp.Models.Enums;
+﻿using Packo.Models.Enums;
 using SQLite;
 
-namespace PackMeUp.Models.SQLite
+namespace Packo.Models.SQLite
 {
     [Table("SQLiteTrip")]
     public class SQLiteTrip

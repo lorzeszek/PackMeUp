@@ -1,6 +1,6 @@
 ﻿using Supabase.Gotrue;
 
-namespace PackMeUp.Services.Interfaces
+namespace Packo.Services.Interfaces
 {
     public interface ISessionService
     {

@@ -1,12 +1,12 @@
-﻿using PackMeUp.Helpers;
-using PackMeUp.Models.SQLite;
-using PackMeUp.Repositories.Models;
-using PackMeUp.Services.Interfaces;
-using PackMeUp.Views;
+﻿using Packo.Helpers;
+using Packo.Models.SQLite;
+using Packo.Repositories.Models;
+using Packo.Services.Interfaces;
+using Packo.Views;
 using SQLite;
 using System.ComponentModel;
 
-namespace PackMeUp
+namespace Packo
 {
     public partial class App : Application
     {
@@ -14,6 +14,7 @@ namespace PackMeUp
         private readonly SQLiteAsyncConnection _db;
         private readonly ILocalUserService _localUserService;
         private LoadingPage? _loadingPage;
+        //private Task _loadingModalTask = Task.CompletedTask;
 
         public App(ISessionService sessionService, SQLiteAsyncConnection db, ILocalUserService localUserService)
         {
@@ -29,53 +30,115 @@ namespace PackMeUp
             }
         }
 
+        //private void OnSessionPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        //{
+        //    if (e.PropertyName != nameof(ISessionService.GlobalIsBusy))
+        //        return;
+
+        //    MainThread.BeginInvokeOnMainThread(async () => await UpdateLoadingModalAsync(_sessionService.GlobalIsBusy));
+        //}
+
         private void OnSessionPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(ISessionService.GlobalIsBusy))
                 return;
 
-            MainThread.BeginInvokeOnMainThread(async () => await UpdateLoadingModalAsync(_sessionService.GlobalIsBusy));
+            var isBusy = _sessionService.GlobalIsBusy;
+
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await UpdateLoadingModalAsync(isBusy);
+            });
         }
+
+        private readonly SemaphoreSlim _loadingModalLock = new(1, 1);
 
         private async Task UpdateLoadingModalAsync(bool show)
         {
             if (MainPage is null)
                 return;
 
-            var navigation = Shell.Current?.Navigation ?? MainPage.Navigation;
-
-            if (show)
-            {
-                if (_loadingPage != null)
-                    return;
-
-                _loadingPage = new LoadingPage();
-                await navigation.PushModalAsync(_loadingPage, false);
-                return;
-            }
-
-            if (_loadingPage is null)
-                return;
+            await _loadingModalLock.WaitAsync();
 
             try
             {
-                if (navigation.ModalStack.LastOrDefault() == _loadingPage)
+                var navigation = Shell.Current?.Navigation ?? MainPage.Navigation;
+
+                if (show)
                 {
-                    await navigation.PopModalAsync(false);
+                    if (_loadingPage != null)
+                        return;
+
+                    _loadingPage = new LoadingPage();
+
+                    await navigation.PushModalAsync(_loadingPage, false);
+                    return;
                 }
-                else if (navigation.ModalStack.Contains(_loadingPage))
+
+                if (_loadingPage is null)
+                    return;
+
+                try
                 {
-                    await _loadingPage.Navigation.PopModalAsync(false);
+                    if (navigation.ModalStack.LastOrDefault() == _loadingPage)
+                    {
+                        await navigation.PopModalAsync(false);
+                    }
+                    else if (navigation.ModalStack.Contains(_loadingPage))
+                    {
+                        await _loadingPage.Navigation.PopModalAsync(false);
+                    }
                 }
-            }
-            catch (Exception)
-            {
+                finally
+                {
+                    _loadingPage = null;
+                }
             }
             finally
             {
-                _loadingPage = null;
+                _loadingModalLock.Release();
             }
         }
+
+        //private async Task UpdateLoadingModalAsync(bool show)
+        //{
+        //    if (MainPage is null)
+        //        return;
+
+        //    var navigation = Shell.Current?.Navigation ?? MainPage.Navigation;
+
+        //    if (show)
+        //    {
+        //        if (_loadingPage != null)
+        //            return;
+
+        //        _loadingPage = new LoadingPage();
+        //        await navigation.PushModalAsync(_loadingPage, false);
+        //        return;
+        //    }
+
+        //    if (_loadingPage is null)
+        //        return;
+
+        //    try
+        //    {
+        //        if (navigation.ModalStack.LastOrDefault() == _loadingPage)
+        //        {
+        //            await navigation.PopModalAsync(false);
+        //        }
+        //        else if (navigation.ModalStack.Contains(_loadingPage))
+        //        {
+        //            await _loadingPage.Navigation.PopModalAsync(false);
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //    }
+        //    finally
+        //    {
+        //        _loadingPage = null;
+        //    }
+        //}
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
@@ -118,36 +181,10 @@ namespace PackMeUp
 
             await _sessionService.InitializeAsync();
 
-            //if (_sessionService.IsAuthenticated)
-            //{
-            //    await _supabaseService.InitializeAsync();
-            //}
-
-            // 🔥 routing
-            //MainThread.BeginInvokeOnMainThread(() =>
-            //{
-            //    MainPage = new AppShell();
-
-            //    //if (_sessionService.IsLoggedIn)
-            //    if (true)
-            //    {
-            //        Shell.Current.GoToAsync("//TripListPage");
-            //    }
-            //    else
-            //    {
-            //        Shell.Current.GoToAsync("//StartPage");
-            //    }
-            //});
 
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 MainPage = new AppShell();
-
-                //if (!_sessionService.IsAuthenticated)
-                //{
-                //    // overlay flow (onboarding)
-                //    await Shell.Current.GoToAsync(nameof(StartPage));
-                //}
 
                 if (_sessionService.HasLocalUser)
                 {

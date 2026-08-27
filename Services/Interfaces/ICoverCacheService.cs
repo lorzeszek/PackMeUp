@@ -1,6 +1,6 @@
-﻿using PackMeUp.Models.DTO;
+﻿using Packo.Models.DTO;
 
-namespace PackMeUp.Services.Interfaces
+namespace Packo.Services.Interfaces
 {
     public interface ICoverCacheService
     {

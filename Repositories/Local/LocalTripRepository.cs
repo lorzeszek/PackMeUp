@@ -1,12 +1,12 @@
-﻿using PackMeUp.Models.DTO;
-using PackMeUp.Models.SQLite;
-using PackMeUp.Models.Supabase;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Repositories.Models;
-using PackMeUp.Services.Interfaces;
+﻿using Packo.Models.DTO;
+using Packo.Models.SQLite;
+using Packo.Models.Supabase;
+using Packo.Repositories.Interfaces;
+using Packo.Repositories.Models;
+using Packo.Services.Interfaces;
 using SQLite;
 
-namespace PackMeUp.Repositories.Local
+namespace Packo.Repositories.Local
 {
     public class LocalTripRepository : ITripRepository
     {

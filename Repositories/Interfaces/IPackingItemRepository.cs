@@ -1,7 +1,7 @@
-﻿using PackMeUp.Models.DTO;
-using PackMeUp.Repositories.Enums;
+﻿using Packo.Models.DTO;
+using Packo.Repositories.Enums;
 
-namespace PackMeUp.Repositories.Interfaces
+namespace Packo.Repositories.Interfaces
 {
     public interface IPackingItemRepository
     {

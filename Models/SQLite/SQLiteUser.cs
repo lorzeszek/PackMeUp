@@ -1,6 +1,6 @@
 ﻿using SQLite;
 
-namespace PackMeUp.Models.SQLite
+namespace Packo.Models.SQLite
 {
     [Table("SQLiteUser")]
     public class SQLiteUser

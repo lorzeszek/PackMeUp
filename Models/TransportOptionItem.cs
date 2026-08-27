@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace PackMeUp.Models
+namespace Packo.Models
 {
     public partial class TransportOptionItem : ObservableObject
     {

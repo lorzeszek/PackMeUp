@@ -2,10 +2,10 @@
 using Android.Runtime;
 using AndroidX.Credentials;
 using Java.Util.Concurrent;
-using PackMeUp.Interfaces;
+using Packo.Interfaces;
 using Xamarin.GoogleAndroid.Libraries.Identity.GoogleId;
 
-namespace PackMeUp.Platforms.Android
+namespace Packo.Platforms.Android
 {
     internal class GoogleAuthService : IGoogleAuthService
     {
@@ -16,9 +16,14 @@ namespace PackMeUp.Platforms.Android
 
             var credentialManager = CredentialManager.Create(context);
 
+            //var googleIdOption = new GetGoogleIdOption.Builder()
+            //    .SetFilterByAuthorizedAccounts(false)
+            //    .SetServerClientId("249767082828-93lqcq1afkb7ms7s3gosusr8e2f4sjmn.apps.googleusercontent.com")
+            //    .Build();
+
             var googleIdOption = new GetGoogleIdOption.Builder()
                 .SetFilterByAuthorizedAccounts(false)
-                .SetServerClientId("249767082828-93lqcq1afkb7ms7s3gosusr8e2f4sjmn.apps.googleusercontent.com")
+                .SetServerClientId("614067653772-tj5840g54s599va8a04jh6a82fbb2q15.apps.googleusercontent.com")
                 .Build();
 
             var request = new GetCredentialRequest.Builder()

@@ -1,4 +1,4 @@
-﻿namespace PackMeUp.Models.DTO
+﻿namespace Packo.Models.DTO
 {
     public class DailyForecastDTO
     {

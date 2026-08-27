@@ -2,7 +2,7 @@
 using Supabase.Postgrest.Models;
 using System.ComponentModel;
 
-namespace PackMeUp.Models.Supabase
+namespace Packo.Models.Supabase
 {
     [Table("PackingItem")]
     public class PackingItemSupabase : BaseModel, INotifyPropertyChanged

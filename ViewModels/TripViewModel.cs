@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using PackMeUp.Models.DTO;
+using Packo.Models.DTO;
 
-namespace PackMeUp.ViewModels
+namespace Packo.ViewModels
 {
     public partial class TripViewModel : ObservableObject
     {

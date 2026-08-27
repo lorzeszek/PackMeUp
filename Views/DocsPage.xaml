@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <local:BasePage xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns="http://schemas.microsoft.com/dotnet/maui/global"
-             xmlns:viewmodels="clr-namespace:PackMeUp.ViewModels"
+             xmlns:viewmodels="clr-namespace:Packo.ViewModels"
              x:DataType="viewmodels:DocsViewModel"
-             x:Class="PackMeUp.Views.DocsPage"
-             xmlns:local="clr-namespace:PackMeUp.Models.Pages"
+             x:Class="Packo.Views.DocsPage"
+             xmlns:local="clr-namespace:Packo.Models.Pages"
              Title="{Binding Title}">
 
     <Grid Padding="20">

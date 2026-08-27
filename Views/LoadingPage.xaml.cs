@@ -1,4 +1,4 @@
-namespace PackMeUp.Views;
+namespace Packo.Views;
 
 public partial class LoadingPage : ContentPage
 {

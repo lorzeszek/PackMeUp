@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PackMeUp.Services.RequestObjects
+namespace Packo.Services.RequestObjects
 {
     public class OpenAIResponse
     {

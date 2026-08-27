@@ -1,9 +1,9 @@
-﻿using PackMeUp.Helpers;
-using PackMeUp.Models.DTO;
-using PackMeUp.Services.Interfaces;
+﻿using Packo.Helpers;
+using Packo.Models.DTO;
+using Packo.Services.Interfaces;
 using SkiaSharp;
 
-namespace PackMeUp.Services
+namespace Packo.Services
 {
     public class CoverCacheService : ICoverCacheService
     {

@@ -1,16 +1,15 @@
-using PackMeUp.Extensions;
-using PackMeUp.Interfaces;
-using PackMeUp.Models.DTO;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services;
-using PackMeUp.Services.Interfaces;
+using Packo.Extensions;
+using Packo.Interfaces;
+using Packo.Models.DTO;
+using Packo.Repositories.Interfaces;
+using Packo.Services;
+using Packo.Services.Interfaces;
 
-namespace PackMeUp.ViewModels
+namespace Packo.ViewModels
 {
     public class WeatherViewModel : BaseViewModel
     {
-        //public ObservableRangeCollection<string> Destinations { get; } = [];
-        public ObservableRangeCollection<DestinationWeatherDTO> Destinations { get; } = [];
+        public ObservableRangeCollection<DestinationWeatherDTO> Destinations { get; } = new ObservableRangeCollection<DestinationWeatherDTO>();
 
         private readonly WeatherService _weatherService;
 
@@ -21,29 +20,37 @@ namespace PackMeUp.ViewModels
 
         private async Task LoadWeatherForDestinationsAsync(IReadOnlyList<string> destinations)
         {
-            Destinations.Clear();
-
             if (destinations == null || destinations.Count == 0)
                 return;
 
             await Parallel.ForEachAsync(destinations, async (destination, ct) =>
             {
-                var weather = await GetWeatherForDestination(destination);
-
-                if (weather != null)
+                if (Destinations.Any(d => d.Destination == destination))
                 {
-                    MainThread.BeginInvokeOnMainThread(() =>
+                    return;
+                }
+                else
+                {
+                    var weather = await GetWeatherForDestination(destination);
+
+                    if (weather != null)
                     {
-                        Destinations.Add(weather);
-                    });
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            Destinations.Add(weather);
+                        });
+                    }
                 }
             });
 
-            //var tasks = destinations.Select(GetWeatherForDestination);
-
-            //var results = await Task.WhenAll(tasks);
-
-            //Destinations.AddRange(results.Where(x => x != null)!);
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                var existingWeatherToRemove = Destinations.Where(d => !destinations.Contains(d.Destination)).ToList();
+                if (existingWeatherToRemove != null)
+                {
+                    Destinations.RemoveRange(existingWeatherToRemove);
+                }
+            });
         }
 
 
@@ -87,25 +94,6 @@ namespace PackMeUp.ViewModels
                 ForecastDays = forecastDays
             };
         }
-
-        //private async Task GetWeatherForDestination(string destination)
-        //{
-        //    var location = await _weatherService.GetLocationAsync(destination);
-
-
-        //    //var location = await Geolocation.Default.GetLocationAsync();
-
-        //    if (location != null)
-        //    {
-        //        double lat = location.Latitude;
-        //        double lon = location.Longitude;
-
-        //        var resultCurrent = await _weatherService.GetWeatherAsync(latitude: lat, longitude: lon);
-        //        var resultDaily = await _weatherService.GetDailyWeatherAsync(latitude: lat, longitude: lon);
-        //    }
-
-
-        //}
 
         public async Task OnAppearingAsync()
         {

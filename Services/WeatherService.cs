@@ -1,8 +1,8 @@
-﻿using PackMeUp.Services.ResponseObjects;
+﻿using Packo.Services.ResponseObjects;
 using System.Globalization;
 using System.Text.Json;
 
-namespace PackMeUp.Services
+namespace Packo.Services
 {
     public class WeatherService
     {

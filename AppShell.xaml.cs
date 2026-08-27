@@ -1,6 +1,6 @@
-using PackMeUp.Views;
+using Packo.Views;
 
-namespace PackMeUp
+namespace Packo
 {
     public partial class AppShell : Shell
     {

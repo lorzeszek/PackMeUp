@@ -1,6 +1,6 @@
-﻿using PackMeUp.Models.Enums;
+﻿using Packo.Models.Enums;
 
-namespace PackMeUp.Models.DTO
+namespace Packo.Models.DTO
 {
     public class TripDTO
     {

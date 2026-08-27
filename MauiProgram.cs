@@ -3,20 +3,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
 using MPowerKit.Lottie;
-using PackMeUp.Interfaces;
-using PackMeUp.Repositories;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Repositories.Local;
-using PackMeUp.Repositories.Supabase;
-using PackMeUp.Services;
-using PackMeUp.Services.Interfaces;
-using PackMeUp.ViewModels;
-using PackMeUp.Views;
+using Packo.Interfaces;
+using Packo.Repositories;
+using Packo.Repositories.Interfaces;
+using Packo.Repositories.Local;
+using Packo.Repositories.Supabase;
+using Packo.Services;
+using Packo.Services.Interfaces;
+using Packo.ViewModels;
+using Packo.Views;
 using SQLite;
 using Syncfusion.Maui.Core.Hosting;
 using System.Reflection;
 
-namespace PackMeUp
+namespace Packo
 {
     public static class MauiProgram
     {
@@ -63,7 +63,7 @@ namespace PackMeUp
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjGyl/Vkd+XU9FcVRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS3tSd0RrWHpccndWR2BaUE91Xg==");
 
             var assembly = Assembly.GetExecutingAssembly();
-            using var stream = assembly.GetManifestResourceStream("PackMeUp.appsettings.json");
+            using var stream = assembly.GetManifestResourceStream("Packo.appsettings.json");
             var config = new ConfigurationBuilder()
                 .AddJsonStream(stream!)
                 .Build();
@@ -178,7 +178,7 @@ namespace PackMeUp
             //builder.Services.AddSingleton<IPackingSuggestionService, PackingSuggestionService>();
 
 #if ANDROID
-            builder.Services.AddSingleton<IGoogleAuthService, PackMeUp.Platforms.Android.GoogleAuthService>();
+            builder.Services.AddSingleton<IGoogleAuthService, Packo.Platforms.Android.GoogleAuthService>();
 #endif
 
 #if DEBUG

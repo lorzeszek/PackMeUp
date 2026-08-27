@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PackMeUp.Models.Supabase
+namespace Packo.Models.Supabase
 {
     public class TripItemsStatsSupabase
     {

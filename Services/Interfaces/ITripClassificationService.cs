@@ -1,6 +1,6 @@
-﻿using PackMeUp.Services.ResponseObjects;
+﻿using Packo.Services.ResponseObjects;
 
-namespace PackMeUp.Services.Interfaces
+namespace Packo.Services.Interfaces
 {
     public interface ITripClassificationService
     {

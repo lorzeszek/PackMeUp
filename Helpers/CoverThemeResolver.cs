@@ -1,4 +1,4 @@
-﻿namespace PackMeUp.Helpers
+﻿namespace Packo.Helpers
 {
     public class CoverThemeResolver
     {

@@ -1,11 +1,11 @@
-﻿using PackMeUp.Models.DTO;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Repositories.Models;
-using PackMeUp.Services.Interfaces;
+﻿using Packo.Models.DTO;
+using Packo.Repositories.Interfaces;
+using Packo.Repositories.Models;
+using Packo.Services.Interfaces;
 using SQLite;
 using System.Text.Json;
 
-namespace PackMeUp.Repositories
+namespace Packo.Repositories
 {
     public class SyncTripRepository : ITripRepository
     {

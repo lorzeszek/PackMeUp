@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace PackMeUp.Popups.Objects
+namespace Packo.Popups.Objects
 {
     public class SelectableItem : INotifyPropertyChanged
     {

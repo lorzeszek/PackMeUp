@@ -1,8 +1,8 @@
-using PackMeUp.Interfaces;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services.Interfaces;
+using Packo.Interfaces;
+using Packo.Repositories.Interfaces;
+using Packo.Services.Interfaces;
 
-namespace PackMeUp.ViewModels
+namespace Packo.ViewModels
 {
     public class DocsViewModel : BaseViewModel
     {

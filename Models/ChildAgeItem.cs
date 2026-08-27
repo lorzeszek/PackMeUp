@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace PackMeUp.Models
+namespace Packo.Models
 {
     public partial class ChildAgeItem : ObservableObject
     {

@@ -1,6 +1,6 @@
-﻿using PackMeUp.Services.ResponseObjects;
+﻿using Packo.Services.ResponseObjects;
 
-namespace PackMeUp.Models.DTO
+namespace Packo.Models.DTO
 {
     public class DestinationWeatherDTO
     {

@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
-using PackMeUp.Services.Interfaces;
-using PackMeUp.Services.ResponseObjects;
+using Packo.Services.Interfaces;
+using Packo.Services.ResponseObjects;
 
-namespace PackMeUp.Services
+namespace Packo.Services
 {
     public class TripClassificationService : ITripClassificationService
     {

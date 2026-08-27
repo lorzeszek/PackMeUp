@@ -1,4 +1,4 @@
-﻿namespace PackMeUp.Interfaces
+﻿namespace Packo.Interfaces
 {
     public interface IGoogleAuthService
     {

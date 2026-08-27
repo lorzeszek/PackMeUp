@@ -1,7 +1,7 @@
-﻿using PackMeUp.Models.DTO;
-using PackMeUp.Repositories.Models;
+﻿using Packo.Models.DTO;
+using Packo.Repositories.Models;
 
-namespace PackMeUp.Repositories.Interfaces
+namespace Packo.Repositories.Interfaces
 {
     public interface ITripRepository
     {

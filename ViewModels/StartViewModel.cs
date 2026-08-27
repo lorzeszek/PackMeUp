@@ -1,11 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using PackMeUp.Interfaces;
-using PackMeUp.Repositories.Interfaces;
-using PackMeUp.Services.Interfaces;
-using PackMeUp.Views;
+using Packo.Interfaces;
+using Packo.Repositories.Interfaces;
+using Packo.Services.Interfaces;
+using Packo.Views;
 using System.Windows.Input;
 
-namespace PackMeUp.ViewModels
+namespace Packo.ViewModels
 {
     public class StartViewModel : BaseViewModel
     {
