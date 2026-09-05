@@ -1,4 +1,5 @@
 ﻿using Packo.Models.DTO;
+using Packo.Models.SQLite;
 using Packo.Repositories.Models;
 
 namespace Packo.Repositories.Interfaces
@@ -17,7 +18,9 @@ namespace Packo.Repositories.Interfaces
         Task SyncPendingChangesAsync();
         Task StartRealtimeAsync();
         Task<bool> IsChannelCreatedAsync();
-
+        Task SaveDocAsync(TripDocumentDTO document);
+        Task<List<SQLiteTripDocument>> GetByTripDocsAsync();
+        Task DeleteDocAsync(Guid id);
         event Action<TripDTO, string>? TripChanged;
     }
 }

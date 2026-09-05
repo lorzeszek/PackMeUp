@@ -1,5 +1,6 @@
 ﻿using Packo.Helpers;
 using Packo.Models.DTO;
+using Packo.Models.SQLite;
 using Packo.Models.Supabase;
 using Packo.Repositories.Interfaces;
 using Packo.Repositories.Models;
@@ -213,6 +214,21 @@ namespace Packo.Repositories.Supabase
         public Task DeleteLocalTrips()
         {
             return Task.CompletedTask;
+        }
+
+        public Task SaveDocAsync(TripDocumentDTO document)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<List<SQLiteTripDocument>> GetByTripDocsAsync()
+        {
+            return Task.FromResult(new List<SQLiteTripDocument>());
+        }
+
+        public async Task DeleteDocAsync(Guid id)
+        {
+            await Task.CompletedTask;
         }
     }
 }

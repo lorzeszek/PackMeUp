@@ -26,7 +26,7 @@ namespace Packo.ViewModels
         public ICommand AddTripCommand => new Command(async () => await AddTrip("wycieczka 1 test"));
         public ICommand DeleteTripCommand => new Command<TripViewModel>(async (trip) => await DeleteTripAsync(trip));
         public ICommand TrashTripCommand => new Command<TripViewModel>(TrashTripAsync);
-        public IRelayCommand LogoutCommand => new AsyncRelayCommand(async () => Logout());
+        public IAsyncRelayCommand LogoutCommand => new AsyncRelayCommand(async () => await Logout());
 
         //public IAsyncRelayCommand LoginWithGoogleCommand { get; }
 
@@ -138,7 +138,7 @@ namespace Packo.ViewModels
             //}
         }
 
-        public async void Logout()
+        public async Task Logout()
         {
             var popup = new ConfirmPopup("Log out", "Do you want to log out?");
 

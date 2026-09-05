@@ -161,6 +161,9 @@ namespace Packo
             //await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLitePackingItem");
             await _db.CreateTableAsync<SQLitePackingItem>();
 
+            //await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLiteTripDocument");
+            await _db.CreateTableAsync<SQLiteTripDocument>();
+
             //await _db.ExecuteAsync("DROP TABLE IF EXISTS SQLiteUser");
             await _db.CreateTableAsync<SQLiteUser>();
 

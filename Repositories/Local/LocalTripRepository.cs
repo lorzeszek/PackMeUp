@@ -202,5 +202,32 @@ namespace Packo.Repositories.Local
 
             await _db.DeleteAllAsync<SQLiteTrip>();
         }
+
+        //public async Task<List<SQLiteTripDocument>> GetByTripIdAsync(Guid tripId)
+        public async Task<List<SQLiteTripDocument>> GetByTripDocsAsync()
+        {
+            return await _db.Table<SQLiteTripDocument>()
+                //.Where(x => x.TripId == tripId)
+                .ToListAsync();
+        }
+
+        public async Task SaveDocAsync(TripDocumentDTO document)
+        {
+            var item = new SQLiteTripDocument()
+            {
+                //TripId = document.TripId,
+                Id = document.Id,
+                FileName = document.FileName,
+                AddedAt = document.AddedAt,
+                LocalPath = document.LocalPath
+            };
+
+            await _db.InsertAsync(item);
+        }
+
+        public async Task DeleteDocAsync(Guid id)
+        {
+            await _db.DeleteAsync<SQLiteTripDocument>(id);
+        }
     }
 }
